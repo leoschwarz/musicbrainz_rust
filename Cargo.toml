@@ -1,0 +1,6 @@
+[package]
+name = "musicbrainz"
+version = "0.1.0"
+authors = ["Leo Schwarz <mail@leoschwarz.com>"]
+
+[dependencies]
