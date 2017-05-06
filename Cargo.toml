@@ -4,3 +4,16 @@ version = "0.1.0"
 authors = ["Leo Schwarz <mail@leoschwarz.com>"]
 
 [dependencies]
+error-chain = "0.10.0"
+hyper = "0.10.9"
+hyper-native-tls = "0.2.2"
+url = "1.4.0"
+xpath_reader = "0.2.0"
+
+[dependencies.uuid]
+version = "0.5.0"
+features = ["use_std"]
+
+[dev-dependencies]
+yup-hyper-mock = "2.0.0"
+
