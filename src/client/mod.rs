@@ -16,6 +16,7 @@ mod error;
 use self::error::check_response_error;
 
 /// Configuration for the client.
+#[derive(Clone, Debug)]
 pub struct ClientConfig {
     /// The user-agent to be sent with every request to the API.
     ///
@@ -40,6 +41,7 @@ pub struct Client {
 }
 
 impl Client {
+    /// Create a new Client instance.
     pub fn new(config: ClientConfig) -> Result<Self, ClientError>
     {
         let ssl = NativeTlsClient::new()?;
