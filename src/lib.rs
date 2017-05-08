@@ -73,15 +73,13 @@ pub mod errors {
         }
     }
 }
+
 pub use errors::*;
 
 pub mod client;
 pub mod entities;
 
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works()
-    {
-    }
-}
+#[cfg(feature = "diesel-integration")]
+extern crate diesel;
+#[cfg(feature = "diesel-integration")]
+mod diesel_integration;

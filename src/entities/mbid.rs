@@ -3,7 +3,7 @@ use std::fmt::{self, Debug, Display, Formatter};
 use std::str::FromStr;
 use uuid::{self, Uuid};
 
-// Identifier for entities in the MusicBrainz database.
+/// Identifier for entities in the MusicBrainz database.
 #[derive(Clone, PartialEq, Eq)]
 pub struct Mbid {
     uuid: Uuid,
