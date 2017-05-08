@@ -1,4 +1,5 @@
 use diesel::backend::Backend;
+use diesel::expression::Expression;
 use diesel::types::{FromSql, IsNull, Text, ToSql};
 use std::error::Error;
 use std::io::Write;
@@ -37,4 +38,8 @@ impl<DB: Backend<RawValue = String>> ToSql<Text, DB> for Mbid {
         write!(out, "{}", self)?;
         Ok(IsNull::No)
     }
+}
+
+impl Expression for Mbid {
+    type SqlType = Text;
 }
