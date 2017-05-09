@@ -1,7 +1,9 @@
+use diesel::Queryable;
 use diesel::backend::Backend;
 use diesel::expression::bound::Bound;
 use diesel::expression::AsExpression;
-use diesel::types::{FromSql, IsNull, Nullable, Text, ToSql};
+use diesel::row::Row;
+use diesel::types::{FromSql, FromSqlRow, HasSqlType, IsNull, Nullable, Text, ToSql};
 use std::error::Error;
 use std::io::Write;
 use std::fmt;
@@ -25,15 +27,15 @@ impl Error for MbidFromSqlError {
     }
 }
 
-impl<DB: Backend<RawValue = String>> FromSql<Text, DB> for Mbid {
-    fn from_sql(value: Option<&String>) -> Result<Self, Box<Error + Send + Sync>>
+impl<DB: Backend<RawValue = [u8]>> FromSql<Text, DB> for Mbid {
+    fn from_sql(value: Option<&[u8]>) -> Result<Self, Box<Error + Send + Sync>>
     {
-        let str_value = value.ok_or(MbidFromSqlError {})?.as_ref();
-        Ok(Mbid::from_str(str_value)?)
+        let string_value: String = FromSql::<Text, DB>::from_sql(value)?;
+        Ok(Mbid::from_str(string_value.as_ref())?)
     }
 }
 
-impl<DB: Backend<RawValue = String>> ToSql<Nullable<Text>, DB> for Mbid {
+impl<DB: Backend<RawValue = Text>> ToSql<Nullable<Text>, DB> for Mbid {
     fn to_sql<W: Write>(&self, out: &mut W) -> Result<IsNull, Box<Error + Send + Sync>>
     {
         write!(out, "{}", self)?;
@@ -74,5 +76,16 @@ impl<'expr> AsExpression<Nullable<Text>> for &'expr Mbid {
     fn as_expression(self) -> Self::Expression
     {
         Bound::new(self)
+    }
+}
+
+impl<ST, DB> FromSqlRow<ST, DB> for Mbid
+    where DB: Backend + HasSqlType<ST>,
+          Mbid: Queryable<ST, DB>
+{
+    fn build_from_row<T: Row<DB>>(row: &mut T) -> Result<Self, Box<Error + Send + Sync>>
+    {
+        let row = <<Mbid as Queryable<ST, DB>>::Row as FromSqlRow<ST, DB>>::build_from_row(row)?;
+        Ok(Mbid::build(row))
     }
 }
