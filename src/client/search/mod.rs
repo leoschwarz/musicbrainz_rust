@@ -14,10 +14,12 @@ use self::entities::SearchEntity;
 
 pub type SearchResult<Entity> = Result<Vec<SearchEntry<Entity>>, ClientError>;
 
+pub mod query;
+
 pub trait SearchBuilder {
     /// The entity from the client::search::entities module,
     /// this is the entity contained in the search result.
-    type Entity: entities::SearchEntity;
+    type Entity: SearchEntity;
 
     /// The full entity a search entity can be expanded into.
     type FullEntity: Resource + FromXml;

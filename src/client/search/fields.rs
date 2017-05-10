@@ -1,7 +1,9 @@
 /// ! For now only including the search fields of release group.
 
 use super::{Mbid, full_entities};
-use entities::Date;
+use super::query::QueryExpression;
+use self::full_entities::Date;
+use super::entities;
 
 pub trait SearchField {
     type Value: ToString;
@@ -64,7 +66,7 @@ define_fields!(
 
 macro_rules! define_entity_fields {
     (
-        $field_trait:ident, $modname:ident;
+        $search_entity:ty, $field_trait:ident, $modname:ident;
         $(
             $field_type:ident, $strname:expr
         );*
@@ -75,6 +77,18 @@ macro_rules! define_entity_fields {
         pub trait $field_trait : SearchField {
             fn name() -> &'static str;
         }
+
+        /*
+         TODO: Implement something like this. However we will have to make sure we are escaping every value exactly one time.
+        impl QueryExpression for $field_trait {
+            type Entity = $search_entity;
+
+            fn build_query(&self) -> String {
+                use super::query::escape_full;
+                format!("{}:{}", escape_full(Self::name()), escape_full(self.to_string().as_ref()))
+            }
+        }
+        */
 
         pub mod $modname {
             pub use super::$field_trait;
@@ -92,7 +106,7 @@ macro_rules! define_entity_fields {
 }
 
 define_entity_fields!(
-    AreaSearchField, area;
+    entities::Area, AreaSearchField, area;
 
     Alias, "alias";
     AreaId, "aid";
@@ -110,7 +124,7 @@ define_entity_fields!(
 );
 
 define_entity_fields!(
-    ArtistSearchField, artist;
+    entities::Artist, ArtistSearchField, artist;
 
     Alias, "alias";
     AreaName, "area";
@@ -132,7 +146,7 @@ define_entity_fields!(
 );
 
 define_entity_fields!(
-    ReleaseGroupSearchField, release_group;
+    entities::ReleaseGroup, ReleaseGroupSearchField, release_group;
 
     ArtistCredit, "artist";
     ArtistId, "arid";

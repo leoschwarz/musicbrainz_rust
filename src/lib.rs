@@ -8,6 +8,7 @@
 extern crate error_chain;
 extern crate hyper;
 extern crate hyper_native_tls;
+extern crate regex;
 extern crate uuid;
 extern crate url;
 extern crate xpath_reader;
