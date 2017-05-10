@@ -17,8 +17,3 @@ pub use self::errors::*;
 
 pub mod client;
 pub mod entities;
-
-#[cfg(feature = "diesel-integration")]
-extern crate diesel;
-#[cfg(feature = "diesel-integration")]
-mod diesel_integration;
