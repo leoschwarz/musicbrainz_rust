@@ -38,13 +38,12 @@ error_chain!{
     links {
         ParseError(ParseError, ParseErrorKind);
         XpathReadError(::xpath_reader::XpathError, ::xpath_reader::XpathErrorKind);
+        ReqwestMockError(::reqwest_mock::Error, ::reqwest_mock::error::ErrorKind);
     }
 
     foreign_links {
-        HttpError(::hyper::error::Error);
-        HyperParserError(::hyper::error::ParseError);
-        HyperTlsError(::hyper_native_tls::native_tls::Error);
         IoError(::std::io::Error);
+        Url(::reqwest_mock::UrlError);
     }
 
     errors {

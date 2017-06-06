@@ -1,12 +1,11 @@
-use super::{ClientError, ClientErrorKind, hyper};
-use super::entities::{Mbid, Resource};
+use errors::{ClientError, ClientErrorKind};
+use entities::{Mbid, Resource};
 
-use hyper::Url;
-use hyper::header::UserAgent;
-use hyper::net::HttpsConnector;
-use hyper_native_tls::NativeTlsClient;
 use std::io::Read;
 use xpath_reader::reader::{FromXmlContained, XpathStrReader};
+use reqwest_mock::Client as HttpClient;
+use reqwest_mock::{DirectClient, Url};
+use reqwest_mock::header::UserAgent;
 
 pub mod search;
 use self::search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder};
@@ -35,24 +34,23 @@ pub struct ClientConfig {
 }
 
 /// The main struct to be used to communicate with the MusicBrainz API.
-pub struct Client {
+pub struct Client<HC: HttpClient> {
+    http_client: HC,
     config: ClientConfig,
-    http_client: hyper::Client,
 }
 
-impl Client {
+impl Client<DirectClient> {
     /// Create a new Client instance.
     pub fn new(config: ClientConfig) -> Result<Self, ClientError>
     {
-        let ssl = NativeTlsClient::new()?;
-        let connector = HttpsConnector::new(ssl);
-
         Ok(Client {
                config: config,
-               http_client: hyper::Client::with_connector(connector),
+               http_client: DirectClient::new(),
            })
     }
+}
 
+impl<HC: HttpClient> Client<HC> {
     /// Fetch the specified ressource from the server and parse it.
     pub fn get_by_mbid<Res>(&self, mbid: &Mbid) -> Result<Res, ClientError>
         where Res: Resource + FromXmlContained
@@ -73,25 +71,24 @@ impl Client {
     {
         let mut response =
             self.http_client.get(url).header(UserAgent(self.config.user_agent.clone())).send()?;
-        let mut response_body = String::new();
-        response.read_to_string(&mut response_body)?;
+        let response_body = response.body_to_utf8()?;
         Ok(response_body)
     }
 
     /// Returns a search builder to search for an area.
-    pub fn search_area<'cl>(&'cl self) -> AreaSearchBuilder<'cl>
+    pub fn search_area<'cl>(&'cl self) -> AreaSearchBuilder<'cl, HC>
     {
         AreaSearchBuilder::new(self)
     }
 
     /// Returns a search biulder to search for an artist.
-    pub fn search_artist<'cl>(&'cl self) -> ArtistSearchBuilder<'cl>
+    pub fn search_artist<'cl>(&'cl self) -> ArtistSearchBuilder<'cl, HC>
     {
         ArtistSearchBuilder::new(self)
     }
 
     /// Returns a search builder to search for a release group.
-    pub fn search_release_group<'cl>(&'cl self) -> ReleaseGroupSearchBuilder<'cl>
+    pub fn search_release_group<'cl>(&'cl self) -> ReleaseGroupSearchBuilder<'cl, HC>
     {
         ReleaseGroupSearchBuilder::new(self)
     }
@@ -100,17 +97,27 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use reqwest_mock::ReplayClient;
 
-    fn get_client() -> Client
+    /*
+    fn get_client() -> Client<
     {
         let config = ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() };
         Client::new(config).unwrap()
+    }*/
+
+    fn get_client(testname: &str) -> Client<ReplayClient>
+    {
+        Client {
+            config: ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() },
+            http_client: ReplayClient::new(format!("replay/src/client/mod/{}.replay", testname)),
+        }
     }
 
     #[test]
     fn search_release_group()
     {
-        let client = get_client();
+        let client = get_client("search_release_group");
         let results = client
             .search_release_group()
             .add(search::fields::release_group::ReleaseGroupName("霊魂消滅".to_owned()))
