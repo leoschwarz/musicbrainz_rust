@@ -18,6 +18,8 @@ pub use self::errors::*;
 pub mod client;
 pub mod entities;
 
+mod util;
+
 #[cfg(feature = "rusqlite")]
 extern crate rusqlite;
 #[cfg(feature = "rusqlite")]

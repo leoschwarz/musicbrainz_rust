@@ -141,7 +141,7 @@ mod tests {
     fn label_read_xml1()
     {
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><label id="c029628b-6633-439e-bcee-ed02e8a338f7" type="Original Production" type-id="7aaa37fe-2def-3476-b359-80245850062d"><name>EMI</name><sort-name>EMI</sort-name><disambiguation>EMI Records, since 1972</disambiguation><label-code>542</label-code><country>GB</country><area id="8a754a16-0027-3a29-b6d7-2b40ea0481ed"><name>United Kingdom</name><sort-name>United Kingdom</sort-name><iso-3166-1-code-list><iso-3166-1-code>GB</iso-3166-1-code></iso-3166-1-code-list></area><life-span><begin>1972</begin></life-span></label></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let label = Label::from_xml(&reader).unwrap();
 
@@ -167,7 +167,7 @@ mod tests {
         // url: https://musicbrainz.
         // org/ws/2/label/168f48c8-057e-4974-9600-aa9956d21e1a?inc=aliases
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><label type-id="7aaa37fe-2def-3476-b359-80245850062d" id="168f48c8-057e-4974-9600-aa9956d21e1a" type="Original Production"><name>avex trax</name><sort-name>avex trax</sort-name><country>JP</country><area id="2db42837-c832-3c27-b4a3-08198f75693c"><name>Japan</name><sort-name>Japan</sort-name><iso-3166-1-code-list><iso-3166-1-code>JP</iso-3166-1-code></iso-3166-1-code-list></area><life-span><begin>1990-09</begin></life-span><alias-list count="2"><alias sort-name="Avex Trax Japan">Avex Trax Japan</alias><alias sort-name="エイベックス・トラックス">エイベックス・トラックス</alias></alias-list></label></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let label = Label::from_xml(&reader).unwrap();
 

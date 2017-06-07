@@ -24,7 +24,6 @@ pub fn check_response_error<'d, R>(reader: &'d R) -> Result<(), ClientError>
 #[cfg(test)]
 mod tests {
     use super::*;
-    use entities::default_musicbrainz_context;
     use error_chain::ChainedError;
     use xpath_reader::XpathStrReader;
 
@@ -39,7 +38,7 @@ mod tests {
     #[test]
     fn error()
     {
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(XML_ERR, &context).unwrap();
 
         let res = check_response_error(&reader);
@@ -52,7 +51,7 @@ mod tests {
     #[test]
     fn ok()
     {
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(XML_OK, &context).unwrap();
 
         // should not raise error

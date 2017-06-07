@@ -104,7 +104,7 @@ mod tests {
         // url: https://musicbrainz.
         // org/ws/2/event/6e2ab7d5-f340-4c41-99a3-c901733402b4?inc=annotation+aliases
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><event type="Festival" id="6e2ab7d5-f340-4c41-99a3-c901733402b4" type-id="b6ded574-b592-3f0e-b56e-5b5f06aa0678"><name>25. Wave-Gotik-Treffen</name><life-span><begin>2016-05-13</begin><end>2016-05-16</end></life-span><annotation><text>ANNOTATION</text></annotation><alias-list count="1"><alias sort-name="WGT 2016">WGT 2016</alias></alias-list></event></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
 
         let event = Event::from_xml(&reader).unwrap();
@@ -137,7 +137,7 @@ mod tests {
 * &quot;Artpop&quot; (Interlude)
 * &quot;Applause&quot;
 * &quot;G.U.Y.&quot;</setlist></event></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
 
         let event = Event::from_xml(&reader).unwrap();

@@ -4,7 +4,7 @@ pub use std::time::Duration;
 
 use super::{ParseError, ParseErrorKind};
 
-use xpath_reader::{Context, FromXml, OptionFromXml, XpathError, XpathReader};
+use xpath_reader::{FromXml, OptionFromXml, XpathError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 mod date;
@@ -34,18 +34,6 @@ pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGrou
 
 mod mbid;
 pub use self::mbid::Mbid;
-
-
-// TODO this is mostly a convenience thing that will have to be removed
-// completely at a later
-// point.
-/// Don't use this outside this crate.
-pub fn default_musicbrainz_context<'d>() -> Context<'d>
-{
-    let mut context = Context::default();
-    context.set_namespace("mb", "http://musicbrainz.org/ns/mmd-2.0#");
-    context
-}
 
 pub trait Resource {
     /// Returns the url where one can get a ressource in the valid format for

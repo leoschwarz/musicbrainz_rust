@@ -67,7 +67,7 @@ mod tests {
     {
         // url: https://musicbrainz.org/ws/2/recording/fbe3d0b9-3990-4a76-bddb-12f4a0447a2c?inc=artists+annotation+isrcs
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><recording id="fbe3d0b9-3990-4a76-bddb-12f4a0447a2c"><title>The Perfect Drug (Nine Inch Nails)</title><length>499000</length><artist-credit><name-credit><artist id="b7ffd2af-418f-4be2-bdd1-22f8b48613da"><name>Nine Inch Nails</name><sort-name>Nine Inch Nails</sort-name></artist></name-credit></artist-credit><isrc-list count="1"><isrc id="USIR19701296" /></isrc-list></recording></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let recording = Recording::from_xml(&reader).unwrap();
 

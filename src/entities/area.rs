@@ -127,7 +127,7 @@ mod tests {
     {
         // url: https://musicbrainz.org/ws/2/area/a1411661-be21-4290-8dc1-50f3d8e3ea67
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><area type="City" type-id="6fd8f29a-3d0a-32fc-980d-ea697b69da78" id="a1411661-be21-4290-8dc1-50f3d8e3ea67"><name>Honolulu</name><sort-name>Honolulu</sort-name></area></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Area::from_xml(&reader).unwrap();
 
@@ -144,7 +144,7 @@ mod tests {
     {
         // url: https://musicbrainz.org/ws/2/area/2db42837-c832-3c27-b4a3-08198f75693c
         let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><area type="Country" id="2db42837-c832-3c27-b4a3-08198f75693c" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><name>Japan</name><sort-name>Japan</sort-name><iso-3166-1-code-list><iso-3166-1-code>JP</iso-3166-1-code></iso-3166-1-code-list></area></metadata>"#;
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Area::from_xml(&reader).unwrap();
 

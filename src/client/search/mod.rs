@@ -1,7 +1,6 @@
 use super::*;
 use super::super::entities as full_entities;
 
-use entities::default_musicbrainz_context;
 use reqwest_mock::Url;
 use reqwest_mock::Client as HttpClient;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
@@ -88,7 +87,7 @@ macro_rules! define_search_builder {
 
             /// Parse the search result.
             fn parse_xml(xml: &str) -> SearchResult<$entity> {
-                let mut context = default_musicbrainz_context();
+                let mut context = ::util::musicbrainz_context();
                 context.set_namespace("ext", "http://musicbrainz.org/ns/ext#-2.0");
 
                 let reader = XpathStrReader::new(xml, &context)?;

@@ -1,7 +1,6 @@
 use errors::{ClientError, ClientErrorKind};
 use entities::{Mbid, Resource};
 
-use std::io::Read;
 use xpath_reader::reader::{FromXmlContained, XpathStrReader};
 use reqwest_mock::Client as HttpClient;
 use reqwest_mock::{DirectClient, Url};
@@ -55,13 +54,11 @@ impl<HC: HttpClient> Client<HC> {
     pub fn get_by_mbid<Res>(&self, mbid: &Mbid) -> Result<Res, ClientError>
         where Res: Resource + FromXmlContained
     {
-        use entities::default_musicbrainz_context;
-
         let url = Res::get_url(mbid);
         let response_body = self.get_body(url.parse()?)?;
 
         // Parse the response.
-        let context = default_musicbrainz_context();
+        let context = ::util::musicbrainz_context();
         let reader = XpathStrReader::new(&response_body[..], &context)?;
         check_response_error(&reader)?;
         Ok(Res::from_xml(&reader)?)
@@ -69,7 +66,7 @@ impl<HC: HttpClient> Client<HC> {
 
     fn get_body(&self, url: Url) -> Result<String, ClientError>
     {
-        let mut response =
+        let response =
             self.http_client.get(url).header(UserAgent(self.config.user_agent.clone())).send()?;
         let response_body = response.body_to_utf8()?;
         Ok(response_body)
@@ -98,13 +95,6 @@ impl<HC: HttpClient> Client<HC> {
 mod tests {
     use super::*;
     use reqwest_mock::ReplayClient;
-
-    /*
-    fn get_client() -> Client<
-    {
-        let config = ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() };
-        Client::new(config).unwrap()
-    }*/
 
     fn get_client(testname: &str) -> Client<ReplayClient>
     {
