@@ -4,7 +4,7 @@ use super::super::entities as full_entities;
 use reqwest_mock::Url;
 use reqwest_mock::Client as HttpClient;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
-use xpath_reader::{FromXml, XpathError, XpathReader};
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
 pub mod fields;
 use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField};
@@ -110,7 +110,7 @@ macro_rules! define_search_builder {
         }
 
         impl FromXml for SearchEntry<$entity> {
-            fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+            fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
                 where R: XpathReader<'d>
             {
                 Ok(Self {

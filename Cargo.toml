@@ -15,5 +15,5 @@ reqwest_mock = { git = "https://github.com/leoschwarz/reqwest_mock" }
 rusqlite = { version = "0.11.0", optional = true }
 url = "1.4.0"
 uuid = { version = "0.5.0", features = ["use_std"] }
-xpath_reader = "0.2.0"
+xpath_reader = "0.3.0"
 

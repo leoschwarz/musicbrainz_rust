@@ -1,5 +1,13 @@
-use super::*;
 use std::fmt::{self, Display};
+use std::str::FromStr;
+use std::time::Duration;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+
+use entities::{Mbid, Resource};
+use entities::date::Date;
+use entities::refs::{ArtistRef, LabelRef, RecordingRef};
+use errors::{ParseError, ParseErrorKind};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReleaseTrack {
@@ -23,7 +31,7 @@ pub struct ReleaseTrack {
 
 impl FromXmlElement for ReleaseTrack {}
 impl FromXml for ReleaseTrack {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ReleaseTrack {
@@ -56,7 +64,7 @@ pub struct ReleaseMedium {
 
 impl FromXmlElement for ReleaseMedium {}
 impl FromXml for ReleaseMedium {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ReleaseMedium {
@@ -168,7 +176,7 @@ pub struct Release {
 
 impl FromXmlContained for Release {}
 impl FromXml for Release {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         use xpath_reader::errors::ChainXpathErr;
@@ -213,6 +221,7 @@ impl Resource for Release {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn release_read_xml1()

@@ -1,5 +1,8 @@
-use super::*;
 use std::fmt;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+
+use entities::{Mbid, Resource};
 
 /// Specifies what a specific `Area` instance actually is.
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -33,7 +36,7 @@ pub enum AreaType {
 
 impl FromXmlElement for AreaType {}
 impl FromXml for AreaType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
@@ -91,7 +94,7 @@ pub struct Area {
 
 impl FromXmlContained for Area {}
 impl FromXml for Area {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Area, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Area, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(Area {
@@ -121,6 +124,8 @@ impl Resource for Area {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn area_read_xml1()

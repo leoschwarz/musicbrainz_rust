@@ -11,7 +11,13 @@
 // types corresponding to these ref types can be easily retrieved from
 // the server.
 
-use super::*;
+use std::time::Duration;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::FromXmlElement;
+
+use entities::Mbid;
+use entities::date::Date;
+use entities::release::ReleaseStatus;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AreaRef {
@@ -23,7 +29,7 @@ pub struct AreaRef {
 
 impl FromXmlElement for AreaRef {}
 impl FromXml for AreaRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(AreaRef {
@@ -33,15 +39,6 @@ impl FromXml for AreaRef {
                iso_3166:
                    reader.read_option(".//mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
            })
-    }
-}
-
-impl OptionFromXml for AreaRef {
-    fn option_from_xml<'d, R>(reader: &'d R) -> Result<Option<Self>, XpathError>
-        where R: XpathReader<'d>
-    {
-        // TODO: this swallows potentially important errors
-        Ok(AreaRef::from_xml(reader).ok())
     }
 }
 
@@ -58,7 +55,7 @@ pub struct ArtistRef {
 
 impl FromXmlElement for ArtistRef {}
 impl FromXml for ArtistRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ArtistRef {
@@ -79,7 +76,7 @@ pub struct LabelRef {
 
 impl FromXmlElement for LabelRef {}
 impl FromXml for LabelRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(LabelRef {
@@ -100,7 +97,7 @@ pub struct RecordingRef {
 
 impl FromXmlElement for RecordingRef {}
 impl FromXml for RecordingRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(RecordingRef {
@@ -123,7 +120,7 @@ pub struct ReleaseRef {
 
 impl FromXmlElement for ReleaseRef {}
 impl FromXml for ReleaseRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         use xpath_reader::errors::ChainXpathErr;

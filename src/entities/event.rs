@@ -1,4 +1,8 @@
-use super::*;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+
+use entities::{Mbid, Resource};
+use entities::date::Date;
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum EventType {
@@ -11,7 +15,7 @@ pub enum EventType {
 
 impl FromXmlElement for EventType {}
 impl FromXml for EventType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
@@ -77,7 +81,7 @@ impl Resource for Event {
 
 impl FromXmlContained for Event {}
 impl FromXml for Event {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(Event {
@@ -97,6 +101,8 @@ impl FromXml for Event {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_1()

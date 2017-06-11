@@ -1,10 +1,10 @@
 // TODO: this should probably be moved to a different file/directory
-use super::*;
 use std;
 use std::str::FromStr;
 use std::num::ParseIntError;
 use std::error::Error;
 use std::fmt::Display;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
 /// The `Date` type used by the `musicbrainz` crate.
 /// It allows the representation of partial dates.
@@ -146,23 +146,14 @@ impl Display for Date {
 }
 
 impl FromXml for Date {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         use xpath_reader::errors::ChainXpathErr;
-        Ok(String::from_xml(reader)?.parse().chain_err(|| "Failed parsing Date")?)
-    }
-}
-
-impl OptionFromXml for Date {
-    fn option_from_xml<'d, R>(reader: &'d R) -> Result<Option<Self>, XpathError>
-        where R: XpathReader<'d>
-    {
-        use xpath_reader::errors::ChainXpathErr;
-        match String::option_from_xml(reader)? {
-            Some(s) => Ok(Some(s.parse().chain_err(|| "Failed parsing Date")?)),
-            None => Ok(None),
-        }
+        String::from_xml(reader)?
+            .parse()
+            .chain_err(|| "Parse Date error")
+            .map_err(|e| FromXmlError::from(e))
     }
 }
 

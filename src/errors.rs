@@ -44,6 +44,7 @@ error_chain!{
     foreign_links {
         IoError(::std::io::Error);
         Url(::reqwest_mock::UrlError);
+        FromXmlError(::xpath_reader::FromXmlError);
     }
 
     errors {

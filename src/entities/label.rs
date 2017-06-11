@@ -1,4 +1,8 @@
-use super::*;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::FromXmlElement;
+
+use entities::{Mbid, Resource};
+use entities::date::Date;
 
 /// A label entity in the MusicBrainz database.
 /// There is quite some controversy in the music industry what a 'label'
@@ -66,7 +70,7 @@ impl Resource for Label {
 }
 
 impl FromXml for Label {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Label, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Label, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(Label {
@@ -116,7 +120,7 @@ pub enum LabelType {
 
 impl FromXmlElement for LabelType {}
 impl FromXml for LabelType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
@@ -136,6 +140,8 @@ impl FromXml for LabelType {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn label_read_xml1()

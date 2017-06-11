@@ -1,20 +1,11 @@
-use std::str::FromStr;
 /// TODO consider what type to use
 pub use std::time::Duration;
-
-use super::{ParseError, ParseErrorKind};
-
-use xpath_reader::{FromXml, OptionFromXml, XpathError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 mod date;
 pub use self::date::{Date, ParseDateError};
 
 pub mod refs;
 pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef};
-
-#[cfg(test)]
-use xpath_reader::XpathStrReader;
 
 mod area;
 mod artist;

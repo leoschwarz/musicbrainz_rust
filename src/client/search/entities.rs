@@ -7,7 +7,7 @@
 use super::{Client, ClientError, Mbid, full_entities};
 use self::full_entities::refs::*;
 use self::full_entities::Resource;
-use xpath_reader::XpathError;
+use xpath_reader::FromXmlError;
 use xpath_reader::reader::{FromXml, FromXmlElement, XpathReader};
 use reqwest_mock::Client as HttpClient;
 
@@ -64,7 +64,7 @@ impl SearchEntity for ReleaseGroup {
 
 impl FromXmlElement for ReleaseGroup {}
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ReleaseGroup {

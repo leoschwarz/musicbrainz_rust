@@ -1,5 +1,9 @@
-use super::*;
 use std::fmt::{self, Display};
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+
+use entities::{Mbid, Resource};
+use entities::refs::{ArtistRef, ReleaseRef};
 
 /// The primary type of a release group.
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -13,19 +17,19 @@ pub enum ReleaseGroupPrimaryType {
 
 // TODO: Fix this in `xpath_reader`.
 // impl FromXmlElement for ReleaseGroupPrimaryType {}
-impl OptionFromXml for ReleaseGroupPrimaryType {
-    fn option_from_xml<'d, R>(reader: &'d R) -> Result<Option<Self>, XpathError>
+impl FromXml for ReleaseGroupPrimaryType {
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
         match s.as_str() {
-            "Album" => Ok(Some(ReleaseGroupPrimaryType::Album)),
-            "Single" => Ok(Some(ReleaseGroupPrimaryType::Single)),
-            "EP" => Ok(Some(ReleaseGroupPrimaryType::EP)),
-            "Broadcast" => Ok(Some(ReleaseGroupPrimaryType::Broadcast)),
-            "Other" => Ok(Some(ReleaseGroupPrimaryType::Other)),
-            "" => Ok(None),
-            s => Err(format!("Unknown ReleaseGroupPrimaryType: '{}'", s).into()),
+            "Album" => Ok(ReleaseGroupPrimaryType::Album),
+            "Single" => Ok(ReleaseGroupPrimaryType::Single),
+            "EP" => Ok(ReleaseGroupPrimaryType::EP),
+            "Broadcast" => Ok(ReleaseGroupPrimaryType::Broadcast),
+            "Other" => Ok(ReleaseGroupPrimaryType::Other),
+            "" => Err(FromXmlError::Absent),
+            s => Err(FromXmlError::from(format!("Unknown ReleaseGroupPrimaryType: '{}'", s))),
         }
     }
 }
@@ -62,7 +66,7 @@ pub enum ReleaseGroupSecondaryType {
 
 impl FromXmlElement for ReleaseGroupSecondaryType {}
 impl FromXml for ReleaseGroupSecondaryType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
@@ -92,7 +96,7 @@ pub struct ReleaseGroupType {
 
 impl FromXmlElement for ReleaseGroupType {}
 impl FromXml for ReleaseGroupType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ReleaseGroupType {
@@ -145,7 +149,7 @@ impl Resource for ReleaseGroup {
 
 impl FromXmlContained for ReleaseGroup {}
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(ReleaseGroup {
@@ -164,6 +168,9 @@ impl FromXml for ReleaseGroup {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use entities::*;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_1()

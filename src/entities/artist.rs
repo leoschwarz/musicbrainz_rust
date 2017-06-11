@@ -1,5 +1,10 @@
-use super::*;
 use std::fmt;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+
+use entities::{Mbid, Resource};
+use entities::date::Date;
+use entities::refs::AreaRef;
 
 /// TODO: Find all possible variants. (It says "male, female or neither" in the
 /// docs but what does
@@ -12,16 +17,16 @@ pub enum Gender {
     Other(String),
 }
 
-impl OptionFromXml for Gender {
-    fn option_from_xml<'d, R>(reader: &'d R) -> Result<Option<Self>, XpathError>
+impl FromXml for Gender {
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
         match s.as_str() {
-            "Female" => Ok(Some(Gender::Female)),
-            "Male" => Ok(Some(Gender::Male)),
-            "" => Ok(None),
-            other => Ok(Some(Gender::Other(other.to_string()))),
+            "Female" => Ok(Gender::Female),
+            "Male" => Ok(Gender::Male),
+            "" => Err(FromXmlError::Absent),
+            other => Ok(Gender::Other(other.to_string())),
         }
     }
 }
@@ -38,7 +43,7 @@ pub enum ArtistType {
 
 impl FromXmlElement for ArtistType {}
 impl FromXml for ArtistType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         let s = String::from_xml(reader)?;
@@ -124,7 +129,7 @@ pub struct Artist {
 
 impl FromXmlContained for Artist {}
 impl FromXml for Artist {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(Artist {
@@ -159,6 +164,8 @@ impl Resource for Artist {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn artist_read_xml1()

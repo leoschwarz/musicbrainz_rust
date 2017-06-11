@@ -1,4 +1,8 @@
-use super::*;
+use std::time::Duration;
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
+
+use entities::{Mbid, Resource};
+use entities::refs::ArtistRef;
 
 /// Represents a unique audio that has been used to produce at least one
 /// released track through
@@ -29,7 +33,7 @@ pub struct Recording {
 }
 
 impl FromXml for Recording {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         Ok(Recording {
@@ -61,6 +65,8 @@ impl Resource for Recording {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
+    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_xml1()

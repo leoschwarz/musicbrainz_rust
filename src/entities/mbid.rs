@@ -1,7 +1,7 @@
-use super::*;
 use std::fmt::{self, Debug, Display, Formatter};
 use std::str::FromStr;
 use uuid::{self, Uuid};
+use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
 /// Identifier for entities in the MusicBrainz database.
 #[derive(Clone, PartialEq, Eq)]
@@ -47,10 +47,13 @@ impl Display for Mbid {
 }
 
 impl FromXml for Mbid {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, XpathError>
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
         where R: XpathReader<'d>
     {
         use xpath_reader::errors::ChainXpathErr;
-        Ok(String::from_xml(reader)?.parse().chain_err(|| "Failed parsing MBID")?)
+        String::from_xml(reader)?
+            .parse()
+            .chain_err(|| "Parse MBID error")
+            .map_err(|e| FromXmlError::from(e))
     }
 }
