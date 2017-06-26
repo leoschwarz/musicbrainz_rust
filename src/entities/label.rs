@@ -71,22 +71,23 @@ impl Resource for Label {
 
 impl FromXml for Label {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Label, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(Label {
-               mbid: reader.read(".//mb:label/@id")?,
-               name: reader.read(".//mb:label/mb:name/text()")?,
-               sort_name: reader.read(".//mb:label/mb:sort-name/text()")?,
-               disambiguation: reader.read_option(".//mb:label/mb:disambiguation/text()")?,
-               aliases: reader.read_vec(".//mb:label/mb:alias-list/mb:alias/text()")?,
-               label_code: reader.read_option(".//mb:label/mb:label-code/text()")?,
-               label_type: reader.read(".//mb:label/@type")?,
-               country: reader.read_option(".//mb:label/mb:country/text()")?,
-               ipi_code: None, // TODO
-               isni_code: None, // TODO
-               begin_date: reader.read_option(".//mb:label/mb:life-span/mb:begin/text()")?,
-               end_date: reader.read_option(".//mb:label/mb:life-span/mb:end/text()")?,
-           })
+            mbid: reader.read(".//mb:label/@id")?,
+            name: reader.read(".//mb:label/mb:name/text()")?,
+            sort_name: reader.read(".//mb:label/mb:sort-name/text()")?,
+            disambiguation: reader.read_option(".//mb:label/mb:disambiguation/text()")?,
+            aliases: reader.read_vec(".//mb:label/mb:alias-list/mb:alias/text()")?,
+            label_code: reader.read_option(".//mb:label/mb:label-code/text()")?,
+            label_type: reader.read(".//mb:label/@type")?,
+            country: reader.read_option(".//mb:label/mb:country/text()")?,
+            ipi_code: None, // TODO
+            isni_code: None, // TODO
+            begin_date: reader.read_option(".//mb:label/mb:life-span/mb:begin/text()")?,
+            end_date: reader.read_option(".//mb:label/mb:life-span/mb:end/text()")?,
+        })
     }
 }
 
@@ -121,7 +122,8 @@ pub enum LabelType {
 impl FromXmlElement for LabelType {}
 impl FromXml for LabelType {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         let s = String::from_xml(reader)?;
         match s.as_str() {
@@ -151,12 +153,16 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let label = Label::from_xml(&reader).unwrap();
 
-        assert_eq!(label.mbid,
-                   Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap());
+        assert_eq!(
+            label.mbid,
+            Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap()
+        );
         assert_eq!(label.name, "EMI".to_string());
         assert_eq!(label.sort_name, "EMI".to_string());
-        assert_eq!(label.disambiguation,
-                   Some("EMI Records, since 1972".to_string()));
+        assert_eq!(
+            label.disambiguation,
+            Some("EMI Records, since 1972".to_string())
+        );
         assert_eq!(label.aliases, Vec::<String>::new());
         assert_eq!(label.label_code, Some("542".to_string()));
         assert_eq!(label.label_type, LabelType::ProductionOriginal);

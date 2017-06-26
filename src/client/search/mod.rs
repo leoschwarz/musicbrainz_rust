@@ -2,7 +2,6 @@ use super::*;
 use super::super::entities as full_entities;
 
 use reqwest_mock::Url;
-use reqwest_mock::Client as HttpClient;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
@@ -30,7 +29,8 @@ pub trait SearchBuilder {
 
 /// One entry of the search results.
 pub struct SearchEntry<E>
-    where E: SearchEntity
+where
+    E: SearchEntity,
 {
     /// The returned entity.
     pub entity: E,
@@ -47,13 +47,13 @@ macro_rules! define_search_builder {
       $entity:ty,
       $full_entity:ty,
       $list_tag:expr ) => {
-        pub struct $builder<'cl, HC: HttpClient + 'cl> {
+        pub struct $builder<'cl> {
             params: Vec<(&'static str, String)>,
-            client: &'cl super::Client<HC>,
+            client: &'cl mut super::Client,
         }
 
-        impl<'cl, HC: HttpClient> $builder<'cl, HC> {
-            pub fn new(client: &'cl super::Client<HC>) -> Self {
+        impl<'cl> $builder<'cl> {
+            pub fn new(client: &'cl mut super::Client) -> Self {
                 Self {
                     params: Vec::new(),
                     client: client,
@@ -96,7 +96,7 @@ macro_rules! define_search_builder {
             }
         }
 
-        impl<'cl, HC: HttpClient> SearchBuilder for $builder<'cl, HC> {
+        impl<'cl> SearchBuilder for $builder<'cl> {
             type Entity = $entity;
             type FullEntity = $full_entity;
 
@@ -122,23 +122,29 @@ macro_rules! define_search_builder {
     }
 }
 
-define_search_builder!(AreaSearchBuilder,
-                       AreaSearchField,
-                       entities::Area,
-                       full_entities::Area,
-                       "area-list");
+define_search_builder!(
+    AreaSearchBuilder,
+    AreaSearchField,
+    entities::Area,
+    full_entities::Area,
+    "area-list"
+);
 
-define_search_builder!(ArtistSearchBuilder,
-                       ArtistSearchField,
-                       entities::Artist,
-                       full_entities::Artist,
-                       "artist-list");
+define_search_builder!(
+    ArtistSearchBuilder,
+    ArtistSearchField,
+    entities::Artist,
+    full_entities::Artist,
+    "artist-list"
+);
 
-define_search_builder!(ReleaseGroupSearchBuilder,
-                       ReleaseGroupSearchField,
-                       entities::ReleaseGroup,
-                       full_entities::ReleaseGroup,
-                       "release-group-list");
+define_search_builder!(
+    ReleaseGroupSearchBuilder,
+    ReleaseGroupSearchField,
+    entities::ReleaseGroup,
+    full_entities::ReleaseGroup,
+    "release-group-list"
+);
 
 #[cfg(test)]
 mod tests {
@@ -151,14 +157,16 @@ mod tests {
         // %E9%9C%8A%E9%AD%82%E6%B6%88%E6%BB%85
         let xml = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><metadata created="2017-05-06T09:45:01.432Z" xmlns="http://musicbrainz.org/ns/mmd-2.0#" xmlns:ext="http://musicbrainz.org/ns/ext#-2.0"><release-group-list count="1" offset="0"><release-group id="739de9cd-7e81-4bb0-9fdb-0feb7ea709c7" type="Single" ext:score="100"><title>霊魂消滅</title><primary-type>Single</primary-type><artist-credit><name-credit><artist id="90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e"><name>NECRONOMIDOL</name><sort-name>NECRONOMIDOL</sort-name></artist></name-credit></artist-credit><release-list count="1"><release id="d3d2a860-0093-461d-8d95-b77939c2e944"><title>霊魂消滅</title><status>Official</status></release></release-list></release-group></release-group-list></metadata>"#;
         let res: Vec<SearchEntry<entities::ReleaseGroup>> =
-            ReleaseGroupSearchBuilder::<::reqwest_mock::DirectClient>::parse_xml(xml).unwrap();
+            ReleaseGroupSearchBuilder::parse_xml(xml).unwrap();
 
         assert_eq!(res.len(), 1);
         let ref rg = res[0];
 
         assert_eq!(rg.score, 100);
-        assert_eq!(rg.entity.mbid,
-                   "739de9cd-7e81-4bb0-9fdb-0feb7ea709c7".parse().unwrap());
+        assert_eq!(
+            rg.entity.mbid,
+            "739de9cd-7e81-4bb0-9fdb-0feb7ea709c7".parse().unwrap()
+        );
         assert_eq!(rg.entity.title, "霊魂消滅".to_string());
     }
 }

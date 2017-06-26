@@ -36,7 +36,7 @@ pub trait QueryExpression: Sized {
     fn build_query(&self) -> String;
 
     fn and<O: QueryExpression<Entity = Self::Entity>>(self, other: O)
-                                                      -> And<Self, O, Self::Entity>
+        -> And<Self, O, Self::Entity>
     {
         And { a: self, b: other }
     }
@@ -48,18 +48,20 @@ pub trait QueryExpression: Sized {
 }
 
 pub struct And<A, B, E>
-    where A: QueryExpression<Entity = E>,
-          B: QueryExpression<Entity = E>,
-          E: SearchEntity
+where
+    A: QueryExpression<Entity = E>,
+    B: QueryExpression<Entity = E>,
+    E: SearchEntity,
 {
     a: A,
     b: B,
 }
 
 impl<A, B, E> QueryExpression for And<A, B, E>
-    where A: QueryExpression<Entity = E>,
-          B: QueryExpression<Entity = E>,
-          E: SearchEntity
+where
+    A: QueryExpression<Entity = E>,
+    B: QueryExpression<Entity = E>,
+    E: SearchEntity,
 {
     type Entity = E;
 
@@ -70,18 +72,20 @@ impl<A, B, E> QueryExpression for And<A, B, E>
 }
 
 pub struct Or<A, B, E>
-    where A: QueryExpression<Entity = E>,
-          B: QueryExpression<Entity = E>,
-          E: SearchEntity
+where
+    A: QueryExpression<Entity = E>,
+    B: QueryExpression<Entity = E>,
+    E: SearchEntity,
 {
     a: A,
     b: B,
 }
 
 impl<A, B, E> QueryExpression for Or<A, B, E>
-    where A: QueryExpression<Entity = E>,
-          B: QueryExpression<Entity = E>,
-          E: SearchEntity
+where
+    A: QueryExpression<Entity = E>,
+    B: QueryExpression<Entity = E>,
+    E: SearchEntity,
 {
     type Entity = E;
 

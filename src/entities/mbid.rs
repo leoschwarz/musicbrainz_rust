@@ -48,12 +48,12 @@ impl Display for Mbid {
 
 impl FromXml for Mbid {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         use xpath_reader::errors::ChainXpathErr;
-        String::from_xml(reader)?
-            .parse()
-            .chain_err(|| "Parse MBID error")
-            .map_err(|e| FromXmlError::from(e))
+        String::from_xml(reader)?.parse().chain_err(|| "Parse MBID error").map_err(
+            |e| FromXmlError::from(e),
+        )
     }
 }

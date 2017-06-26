@@ -37,7 +37,8 @@ pub enum AreaType {
 impl FromXmlElement for AreaType {}
 impl FromXml for AreaType {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         let s = String::from_xml(reader)?;
         match &s[..] {
@@ -95,17 +96,18 @@ pub struct Area {
 impl FromXmlContained for Area {}
 impl FromXml for Area {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Area, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(Area {
-               mbid: reader.read(".//mb:area/@id")?,
-               name: reader.read(".//mb:area/mb:name/text()")?,
-               sort_name: reader.read(".//mb:area/mb:sort-name/text()")?,
-               area_type: reader.read(".//mb:area/@type")?,
-               iso_3166:
-                   reader
-                       .read_option(".//mb:area/mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
-           })
+            mbid: reader.read(".//mb:area/@id")?,
+            name: reader.read(".//mb:area/mb:name/text()")?,
+            sort_name: reader.read(".//mb:area/mb:sort-name/text()")?,
+            area_type: reader.read(".//mb:area/@type")?,
+            iso_3166: reader.read_option(
+                ".//mb:area/mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()",
+            )?,
+        })
     }
 }
 
@@ -136,8 +138,10 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Area::from_xml(&reader).unwrap();
 
-        assert_eq!(result.mbid,
-                   Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap());
+        assert_eq!(
+            result.mbid,
+            Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap()
+        );
         assert_eq!(result.name, "Honolulu".to_string());
         assert_eq!(result.sort_name, "Honolulu".to_string());
         assert_eq!(result.area_type, AreaType::City);
@@ -153,8 +157,10 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Area::from_xml(&reader).unwrap();
 
-        assert_eq!(result.mbid,
-                   Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap());
+        assert_eq!(
+            result.mbid,
+            Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap()
+        );
         assert_eq!(result.name, "Japan".to_string());
         assert_eq!(result.sort_name, "Japan".to_string());
         assert_eq!(result.area_type, AreaType::Country);

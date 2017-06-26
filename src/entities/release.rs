@@ -32,19 +32,19 @@ pub struct ReleaseTrack {
 impl FromXmlElement for ReleaseTrack {}
 impl FromXml for ReleaseTrack {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(ReleaseTrack {
-               mbid: reader.read(".//@id")?,
-               position: reader.read(".//mb:position/text()")?,
-               number: reader.read(".//mb:number/text()")?,
-               title: reader.read(".//mb:title/text()")?,
-               length: Duration::from_millis(reader
-                                                 .evaluate(".//mb:length/text()")?
-                                                 .string()
-                                                 .parse()?),
-               recording: reader.read(".//mb:recording")?,
-           })
+            mbid: reader.read(".//@id")?,
+            position: reader.read(".//mb:position/text()")?,
+            number: reader.read(".//mb:number/text()")?,
+            title: reader.read(".//mb:title/text()")?,
+            length: Duration::from_millis(
+                reader.evaluate(".//mb:length/text()")?.string().parse()?,
+            ),
+            recording: reader.read(".//mb:recording")?,
+        })
     }
 }
 
@@ -65,12 +65,13 @@ pub struct ReleaseMedium {
 impl FromXmlElement for ReleaseMedium {}
 impl FromXml for ReleaseMedium {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(ReleaseMedium {
-               position: reader.read(".//mb:position/text()")?,
-               tracks: reader.read_vec(".//mb:track-list/mb:track")?,
-           })
+            position: reader.read(".//mb:position/text()")?,
+            tracks: reader.read_vec(".//mb:track-list/mb:track")?,
+        })
     }
 }
 
@@ -104,9 +105,11 @@ impl FromStr for ReleaseStatus {
             "Bootleg" => Ok(ReleaseStatus::Bootleg),
             "PseudoRelease" => Ok(ReleaseStatus::PseudoRelease),
             s => {
-                Err(ParseErrorKind::InvalidData(format!("Unknown `ReleaseStatus`: '{}'", s)
-                                                    .to_string())
-                            .into())
+                Err(
+                    ParseErrorKind::InvalidData(
+                        format!("Unknown `ReleaseStatus`: '{}'", s).to_string(),
+                    ).into(),
+                )
             }
         }
     }
@@ -177,39 +180,43 @@ pub struct Release {
 impl FromXmlContained for Release {}
 impl FromXml for Release {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         use xpath_reader::errors::ChainXpathErr;
         Ok(Release {
-               mbid: reader.read(".//mb:release/@id")?,
-               title: reader.read(".//mb:release/mb:title/text()")?,
-               artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
-               date: reader.read(".//mb:release/mb:date/text()")?,
-               country: reader.read(".//mb:release/mb:country/text()")?,
-               labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
-               catalogue_number: reader
-                   .read_option(".//mb:release/mb:label-info-list/mb:label-info/mb:\
-                              catalog-number/text()")?,
-               barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
-               status: reader
-                   .evaluate(".//mb:release/mb:status/text()")?
-                   .string()
-                   .parse::<ReleaseStatus>()
-                   .chain_err(|| "Failed parsing ReleaseStatus")?,
-               packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
-               language: reader.read(".//mb:release/mb:text-representation/mb:language/text()")?,
-               script: reader.read(".//mb:release/mb:text-representation/mb:script/text()")?,
-               disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
-               mediums: reader.read_vec(".//mb:release/mb:medium-list/mb:medium")?,
-           })
+            mbid: reader.read(".//mb:release/@id")?,
+            title: reader.read(".//mb:release/mb:title/text()")?,
+            artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
+            date: reader.read(".//mb:release/mb:date/text()")?,
+            country: reader.read(".//mb:release/mb:country/text()")?,
+            labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
+            catalogue_number: reader.read_option(
+                ".//mb:release/mb:label-info-list/mb:label-info/mb:\
+                              catalog-number/text()",
+            )?,
+            barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
+            status: reader
+                .evaluate(".//mb:release/mb:status/text()")?
+                .string()
+                .parse::<ReleaseStatus>()
+                .chain_err(|| "Failed parsing ReleaseStatus")?,
+            packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
+            language: reader.read(".//mb:release/mb:text-representation/mb:language/text()")?,
+            script: reader.read(".//mb:release/mb:text-representation/mb:script/text()")?,
+            disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
+            mediums: reader.read_vec(".//mb:release/mb:medium-list/mb:medium")?,
+        })
     }
 }
 
 impl Resource for Release {
     fn get_url(mbid: &Mbid) -> String
     {
-        format!("https://musicbrainz.org/ws/2/release/{}?inc=aliases+artists+labels+recordings",
-                mbid)
+        format!(
+            "https://musicbrainz.org/ws/2/release/{}?inc=aliases+artists+labels+recordings",
+            mbid
+        )
     }
 
     fn base_url() -> &'static str
@@ -231,28 +238,34 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let release = Release::from_xml(&reader).unwrap();
 
-        assert_eq!(release.mbid,
-                   Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap());
+        assert_eq!(
+            release.mbid,
+            Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap()
+        );
         assert_eq!(release.title, "Creep".to_string());
-        assert_eq!(release.artists,
-                   vec![
-            ArtistRef {
-                mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
-                name: "Radiohead".to_string(),
-                sort_name: "Radiohead".to_string(),
-            },
-        ]);
+        assert_eq!(
+            release.artists,
+            vec![
+                ArtistRef {
+                    mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
+                    name: "Radiohead".to_string(),
+                    sort_name: "Radiohead".to_string(),
+                },
+            ]
+        );
         assert_eq!(release.date, Date::from_str("1992-09-21").unwrap());
         assert_eq!(release.country, "GB".to_string());
-        assert_eq!(release.labels,
-                   vec![
-            LabelRef {
-                mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
-                name: "Parlophone".to_string(),
-                sort_name: "Parlophone".to_string(),
-                label_code: Some("299".to_string()),
-            },
-        ]);
+        assert_eq!(
+            release.labels,
+            vec![
+                LabelRef {
+                    mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                    name: "Parlophone".to_string(),
+                    sort_name: "Parlophone".to_string(),
+                    label_code: Some("299".to_string()),
+                },
+            ]
+        );
         assert_eq!(release.catalogue_number, Some("CDR 6078".to_string()));
         assert_eq!(release.barcode, Some("724388023429".to_string()));
         assert_eq!(release.status, ReleaseStatus::Official);
@@ -275,39 +288,41 @@ mod tests {
         // We check for the things we didn't check in the previous test.
         assert_eq!(release.packaging, Some("Jewel Case".to_string()));
         assert_eq!(release.catalogue_number, Some("0251766489".to_string()));
-        assert_eq!(release.labels,
-                   vec![
-            LabelRef {
-                mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
-                name: "Cherrytree Records".to_string(),
-                sort_name: "Cherrytree Records".to_string(),
-                label_code: None,
-            },
-            LabelRef {
-                mbid: Mbid::from_str("2182a316-c4bd-4605-936a-5e2fac52bdd2").unwrap(),
-                name: "Interscope Records".to_string(),
-                sort_name: "Interscope Records".to_string(),
-                label_code: Some("6406".to_string()),
-            },
-            LabelRef {
-                mbid: Mbid::from_str("061587cb-0262-46bc-9427-cb5e177c36a2").unwrap(),
-                name: "Konlive".to_string(),
-                sort_name: "Konlive".to_string(),
-                label_code: None,
-            },
-            LabelRef {
-                mbid: Mbid::from_str("244dd29f-b999-40e4-8238-cb760ad05ac6").unwrap(),
-                name: "Streamline Records".to_string(),
-                sort_name: "Streamline Records".to_string(),
-                label_code: None,
-            },
-            LabelRef {
-                mbid: Mbid::from_str("6cee07d5-4cc3-4555-a629-480590e0bebd").unwrap(),
-                name: "Universal Music Canada".to_string(),
-                sort_name: "Universal Music Canada".to_string(),
-                label_code: None,
-            },
-        ]);
+        assert_eq!(
+            release.labels,
+            vec![
+                LabelRef {
+                    mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
+                    name: "Cherrytree Records".to_string(),
+                    sort_name: "Cherrytree Records".to_string(),
+                    label_code: None,
+                },
+                LabelRef {
+                    mbid: Mbid::from_str("2182a316-c4bd-4605-936a-5e2fac52bdd2").unwrap(),
+                    name: "Interscope Records".to_string(),
+                    sort_name: "Interscope Records".to_string(),
+                    label_code: Some("6406".to_string()),
+                },
+                LabelRef {
+                    mbid: Mbid::from_str("061587cb-0262-46bc-9427-cb5e177c36a2").unwrap(),
+                    name: "Konlive".to_string(),
+                    sort_name: "Konlive".to_string(),
+                    label_code: None,
+                },
+                LabelRef {
+                    mbid: Mbid::from_str("244dd29f-b999-40e4-8238-cb760ad05ac6").unwrap(),
+                    name: "Streamline Records".to_string(),
+                    sort_name: "Streamline Records".to_string(),
+                    label_code: None,
+                },
+                LabelRef {
+                    mbid: Mbid::from_str("6cee07d5-4cc3-4555-a629-480590e0bebd").unwrap(),
+                    name: "Universal Music Canada".to_string(),
+                    sort_name: "Universal Music Canada".to_string(),
+                    label_code: None,
+                },
+            ]
+        );
         assert_eq!(release.mediums, Vec::new());
     }
 
@@ -325,45 +340,51 @@ mod tests {
         let medium = mediums.get(0).unwrap();
         assert_eq!(medium.position, 1);
         assert_eq!(medium.tracks.len(), 3);
-        assert_eq!(medium.tracks[0],
-                   ReleaseTrack {
-                       mbid: Mbid::from_str("ac898be7-2965-4d17-9ac8-48d45852d73c").unwrap(),
-                       position: 1,
-                       number: 1,
-                       title: "puella tenebrarum".to_string(),
-                       length: Duration::from_millis(232000),
-                       recording: RecordingRef {
-                           mbid: Mbid::from_str("fd6f4cd8-9cff-43da-8cd7-3351357b6f5a").unwrap(),
-                           title: "Puella Tenebrarum".to_string(),
-                           length: Duration::from_millis(232000),
-                       },
-                   });
-        assert_eq!(medium.tracks[1],
-                   ReleaseTrack {
-                       mbid: Mbid::from_str("21648b0b-deaf-4b93-a257-5fc18363b25d").unwrap(),
-                       position: 2,
-                       number: 2,
-                       title: "LAMINA MALEDICTUM".to_string(),
-                       length: Duration::from_millis(258000),
-                       recording: RecordingRef {
-                           mbid: Mbid::from_str("0eeb0621-8013-4c0e-8e49-ddfd78d56051").unwrap(),
-                           title: "Lamina Maledictum".to_string(),
-                           length: Duration::from_millis(258000),
-                       },
-                   });
-        assert_eq!(medium.tracks[2],
-                   ReleaseTrack {
-                       mbid: Mbid::from_str("e57b3990-eb36-476e-beac-583e0bbe6f87").unwrap(),
-                       position: 3,
-                       number: 3,
-                       title: "SARNATH".to_string(),
-                       length: Duration::from_millis(228000),
-                       recording: RecordingRef {
-                           mbid: Mbid::from_str("53f87e98-351e-453e-b949-bdacf4cbeccd").unwrap(),
-                           title: "Sarnath".to_string(),
-                           length: Duration::from_millis(228000),
-                       },
-                   });
+        assert_eq!(
+            medium.tracks[0],
+            ReleaseTrack {
+                mbid: Mbid::from_str("ac898be7-2965-4d17-9ac8-48d45852d73c").unwrap(),
+                position: 1,
+                number: 1,
+                title: "puella tenebrarum".to_string(),
+                length: Duration::from_millis(232000),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("fd6f4cd8-9cff-43da-8cd7-3351357b6f5a").unwrap(),
+                    title: "Puella Tenebrarum".to_string(),
+                    length: Duration::from_millis(232000),
+                },
+            }
+        );
+        assert_eq!(
+            medium.tracks[1],
+            ReleaseTrack {
+                mbid: Mbid::from_str("21648b0b-deaf-4b93-a257-5fc18363b25d").unwrap(),
+                position: 2,
+                number: 2,
+                title: "LAMINA MALEDICTUM".to_string(),
+                length: Duration::from_millis(258000),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("0eeb0621-8013-4c0e-8e49-ddfd78d56051").unwrap(),
+                    title: "Lamina Maledictum".to_string(),
+                    length: Duration::from_millis(258000),
+                },
+            }
+        );
+        assert_eq!(
+            medium.tracks[2],
+            ReleaseTrack {
+                mbid: Mbid::from_str("e57b3990-eb36-476e-beac-583e0bbe6f87").unwrap(),
+                position: 3,
+                number: 3,
+                title: "SARNATH".to_string(),
+                length: Duration::from_millis(228000),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("53f87e98-351e-453e-b949-bdacf4cbeccd").unwrap(),
+                    title: "Sarnath".to_string(),
+                    length: Duration::from_millis(228000),
+                },
+            }
+        );
     }
 
     #[test]

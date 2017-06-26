@@ -19,7 +19,8 @@ pub enum Gender {
 
 impl FromXml for Gender {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         let s = String::from_xml(reader)?;
         match s.as_str() {
@@ -44,7 +45,8 @@ pub enum ArtistType {
 impl FromXmlElement for ArtistType {}
 impl FromXml for ArtistType {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         let s = String::from_xml(reader)?;
         match &s[..] {
@@ -130,22 +132,23 @@ pub struct Artist {
 impl FromXmlContained for Artist {}
 impl FromXml for Artist {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(Artist {
-               aliases: reader.read_vec(".//mb:artist/mb:alias-list/mb:alias/text()")?,
-               area: reader.read_option(".//mb:artist/mb:area")?,
-               artist_type: reader.read(".//mb:artist/@type")?,
-               begin_date: reader.read_option(".//mb:artist/mb:life-span/mb:begin/text()")?,
-               disambiguation: reader.read_option(".//mb:artist/mb:disambiguation/text()")?,
-               end_date: reader.read_option(".//mb:artist/mb:life-span/mb:end/text()")?,
-               gender: reader.read_option(".//mb:artist/mb:gender/text()")?,
-               ipi_code: reader.read_option(".//mb:artist/mb:ipi/text()")?,
-               isni_code: reader.read_option(".//mb:artist/mb:isni-list/mb:isni/text()")?,
-               mbid: reader.read(".//mb:artist/@id")?,
-               name: reader.read(".//mb:artist/mb:name/text()")?,
-               sort_name: reader.read(".//mb:artist/mb:sort-name/text()")?,
-           })
+            aliases: reader.read_vec(".//mb:artist/mb:alias-list/mb:alias/text()")?,
+            area: reader.read_option(".//mb:artist/mb:area")?,
+            artist_type: reader.read(".//mb:artist/@type")?,
+            begin_date: reader.read_option(".//mb:artist/mb:life-span/mb:begin/text()")?,
+            disambiguation: reader.read_option(".//mb:artist/mb:disambiguation/text()")?,
+            end_date: reader.read_option(".//mb:artist/mb:life-span/mb:end/text()")?,
+            gender: reader.read_option(".//mb:artist/mb:gender/text()")?,
+            ipi_code: reader.read_option(".//mb:artist/mb:ipi/text()")?,
+            isni_code: reader.read_option(".//mb:artist/mb:isni-list/mb:isni/text()")?,
+            mbid: reader.read(".//mb:artist/@id")?,
+            name: reader.read(".//mb:artist/mb:name/text()")?,
+            sort_name: reader.read(".//mb:artist/mb:sort-name/text()")?,
+        })
     }
 }
 
@@ -177,22 +180,28 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Artist::from_xml(&reader).unwrap();
 
-        assert_eq!(result.mbid,
-                   Mbid::from_str("90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e").unwrap());
+        assert_eq!(
+            result.mbid,
+            Mbid::from_str("90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e").unwrap()
+        );
         assert_eq!(result.name, "NECRONOMIDOL".to_string());
         assert_eq!(result.sort_name, "NECRONOMIDOL".to_string());
         assert_eq!(result.aliases, Vec::<String>::new());
 
-        assert_eq!(result.begin_date,
-                   Some(Date::Month {
-                            year: 2014,
-                            month: 3,
-                        }));
+        assert_eq!(
+            result.begin_date,
+            Some(Date::Month {
+                year: 2014,
+                month: 3,
+            })
+        );
         assert_eq!(result.end_date, None);
 
         let area = result.area.unwrap();
-        assert_eq!(area.mbid,
-                   Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap());
+        assert_eq!(
+            area.mbid,
+            Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap()
+        );
         assert_eq!(area.name, "Japan".to_string());
         assert_eq!(area.sort_name, "Japan".to_string());
         assert_eq!(area.iso_3166, Some("JP".to_string()));
@@ -213,29 +222,37 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let result = Artist::from_xml(&reader).unwrap();
 
-        assert_eq!(result.mbid,
-                   Mbid::from_str("650e7db6-b795-4eb5-a702-5ea2fc46c848").unwrap());
+        assert_eq!(
+            result.mbid,
+            Mbid::from_str("650e7db6-b795-4eb5-a702-5ea2fc46c848").unwrap()
+        );
         assert_eq!(result.name, "Lady Gaga".to_string());
         assert_eq!(result.sort_name, "Lady Gaga".to_string());
         let mut aliases_sorted = result.aliases.clone();
         aliases_sorted.sort();
-        assert_eq!(aliases_sorted,
-                   vec![
-            "Lady Ga Ga".to_string(),
-            "Stefani Joanne Angelina Germanotta".to_string(),
-        ]);
+        assert_eq!(
+            aliases_sorted,
+            vec![
+                "Lady Ga Ga".to_string(),
+                "Stefani Joanne Angelina Germanotta".to_string(),
+            ]
+        );
 
-        assert_eq!(result.begin_date,
-                   Some(Date::Day {
-                            year: 1986,
-                            month: 3,
-                            day: 28,
-                        }));
+        assert_eq!(
+            result.begin_date,
+            Some(Date::Day {
+                year: 1986,
+                month: 3,
+                day: 28,
+            })
+        );
         assert_eq!(result.end_date, None);
 
         let area = result.area.unwrap();
-        assert_eq!(area.mbid,
-                   Mbid::from_str("489ce91b-6658-3307-9877-795b68554c98").unwrap());
+        assert_eq!(
+            area.mbid,
+            Mbid::from_str("489ce91b-6658-3307-9877-795b68554c98").unwrap()
+        );
         assert_eq!(area.name, "United States".to_string());
         assert_eq!(area.sort_name, "United States".to_string());
         assert_eq!(area.iso_3166, Some("US".to_string()));

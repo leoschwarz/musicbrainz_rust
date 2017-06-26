@@ -20,18 +20,19 @@ TEST_PREAMBLE = """
 extern crate musicbrainz;
 extern crate reqwest_mock;
 
+use std::borrow::BorrowMut;
 use std::str::FromStr;
-use musicbrainz::client::ClientConfig;
+use std::cell::RefCell;
+use musicbrainz::client::{Client, ClientConfig};
 use musicbrainz::entities::*;
-use reqwest_mock::DirectClient;
 
-type Client = musicbrainz::client::Client<DirectClient>;
-
-fn get_client() -> Client {
-    let config = ClientConfig {
+// Notice we are using this hack to share the Client only so we can use the default
+// way of testing with the same Client instance for all tests.
+// In your applications you will likely want to encapsulate our Client in a better way.
+thread_local! {
+    static MB_CLIENT: RefCell<Client> = RefCell::new(Client::new(ClientConfig {
         user_agent: "musicbrainz_rust/testing (mail@leoschwarz.com)".to_owned(),
-    };
-    Client::new(config).unwrap()
+    }).unwrap());
 }
 
 """
@@ -39,9 +40,10 @@ fn get_client() -> Client {
 TEST_TEMPLATE = """
 #[test]
 fn read_$TESTNAME() {
-    let mbid = Mbid::from_str("$MBID").unwrap();
-    let client = get_client();
-    client.get_by_mbid::<$ENTITY>(&mbid).unwrap();
+    MB_CLIENT.with(|client| {
+        let mbid = Mbid::from_str("$MBID").unwrap();
+        (*client.borrow_mut()).get_by_mbid::<$ENTITY>(&mbid).unwrap();
+    })
 }
 """
 

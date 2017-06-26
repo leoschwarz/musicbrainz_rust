@@ -16,7 +16,8 @@ pub enum EventType {
 impl FromXmlElement for EventType {}
 impl FromXml for EventType {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         let s = String::from_xml(reader)?;
         match s.as_str() {
@@ -69,8 +70,10 @@ pub struct Event {
 impl Resource for Event {
     fn get_url(mbid: &Mbid) -> String
     {
-        format!("https://musicbrainz.org/ws/2/event/{}?inc=aliases+annotation",
-                mbid)
+        format!(
+            "https://musicbrainz.org/ws/2/event/{}?inc=aliases+annotation",
+            mbid
+        )
     }
 
     fn base_url() -> &'static str
@@ -82,19 +85,20 @@ impl Resource for Event {
 impl FromXmlContained for Event {}
 impl FromXml for Event {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(Event {
-               mbid: reader.read(".//mb:event/@id")?,
-               name: reader.read(".//mb:event/mb:name")?,
-               aliases: reader.read_vec(".//mb:event/mb:alias-list/mb:alias/text()")?,
-               event_type: reader.read(".//mb:event/@type")?,
-               setlist: reader.read_option(".//mb:event/mb:setlist")?,
-               begin_date: reader.read(".//mb:event/mb:life-span/mb:begin")?,
-               end_date: reader.read(".//mb:event/mb:life-span/mb:end")?,
-               disambiguation: reader.read_option(".//mb:event/mb:disambiguation")?,
-               annotation: reader.read_option(".//mb:event/mb:annotation/mb:text/text()")?,
-           })
+            mbid: reader.read(".//mb:event/@id")?,
+            name: reader.read(".//mb:event/mb:name")?,
+            aliases: reader.read_vec(".//mb:event/mb:alias-list/mb:alias/text()")?,
+            event_type: reader.read(".//mb:event/@type")?,
+            setlist: reader.read_option(".//mb:event/mb:setlist")?,
+            begin_date: reader.read(".//mb:event/mb:life-span/mb:begin")?,
+            end_date: reader.read(".//mb:event/mb:life-span/mb:end")?,
+            disambiguation: reader.read_option(".//mb:event/mb:disambiguation")?,
+            annotation: reader.read_option(".//mb:event/mb:annotation/mb:text/text()")?,
+        })
     }
 }
 
@@ -115,8 +119,10 @@ mod tests {
 
         let event = Event::from_xml(&reader).unwrap();
 
-        assert_eq!(event.mbid,
-                   Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap());
+        assert_eq!(
+            event.mbid,
+            Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap()
+        );
         assert_eq!(event.name, "25. Wave-Gotik-Treffen".to_string());
         assert_eq!(event.aliases, vec!["WGT 2016".to_string()]);
         assert_eq!(event.event_type, EventType::Festival);

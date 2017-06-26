@@ -30,15 +30,15 @@ pub struct AreaRef {
 impl FromXmlElement for AreaRef {}
 impl FromXml for AreaRef {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(AreaRef {
-               mbid: reader.read(".//@id")?,
-               name: reader.read(".//mb:name/text()")?,
-               sort_name: reader.read(".//mb:sort-name/text()")?,
-               iso_3166:
-                   reader.read_option(".//mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
-           })
+            mbid: reader.read(".//@id")?,
+            name: reader.read(".//mb:name/text()")?,
+            sort_name: reader.read(".//mb:sort-name/text()")?,
+            iso_3166: reader.read_option(".//mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
+        })
     }
 }
 
@@ -56,13 +56,14 @@ pub struct ArtistRef {
 impl FromXmlElement for ArtistRef {}
 impl FromXml for ArtistRef {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(ArtistRef {
-               mbid: reader.read(".//@id")?,
-               name: reader.read(".//mb:name/text()")?,
-               sort_name: reader.read(".//mb:sort-name/text()")?,
-           })
+            mbid: reader.read(".//@id")?,
+            name: reader.read(".//mb:name/text()")?,
+            sort_name: reader.read(".//mb:sort-name/text()")?,
+        })
     }
 }
 
@@ -77,14 +78,15 @@ pub struct LabelRef {
 impl FromXmlElement for LabelRef {}
 impl FromXml for LabelRef {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(LabelRef {
-               mbid: reader.read(".//@id")?,
-               name: reader.read(".//mb:name/text()")?,
-               sort_name: reader.read(".//mb:sort-name/text()")?,
-               label_code: reader.read_option(".//mb:label-code/text()")?,
-           })
+            mbid: reader.read(".//@id")?,
+            name: reader.read(".//mb:name/text()")?,
+            sort_name: reader.read(".//mb:sort-name/text()")?,
+            label_code: reader.read_option(".//mb:label-code/text()")?,
+        })
     }
 }
 
@@ -98,14 +100,15 @@ pub struct RecordingRef {
 impl FromXmlElement for RecordingRef {}
 impl FromXml for RecordingRef {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(RecordingRef {
-               mbid: reader.read(".//@id")?,
-               title: reader.read(".//mb:title/text()")?,
-               // TODO reader.read<Duration>
-               length: Duration::from_millis(reader.read(".//mb:length/text()")?),
-           })
+            mbid: reader.read(".//@id")?,
+            title: reader.read(".//mb:title/text()")?,
+            // TODO reader.read<Duration>
+            length: Duration::from_millis(reader.read(".//mb:length/text()")?),
+        })
     }
 }
 
@@ -121,18 +124,18 @@ pub struct ReleaseRef {
 impl FromXmlElement for ReleaseRef {}
 impl FromXml for ReleaseRef {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         use xpath_reader::errors::ChainXpathErr;
         Ok(ReleaseRef {
-               mbid: reader.read(".//@id")?,
-               title: reader.read(".//mb:title/text()")?,
-               date: reader.read_option(".//mb:date/text()")?,
-               status: reader
-                   .read::<String>(".//mb:status/text()")?
-                   .parse()
-                   .chain_err(|| "Failed parsing Status")?,
-               country: reader.read_option(".//mb:country/text()")?,
-           })
+            mbid: reader.read(".//@id")?,
+            title: reader.read(".//mb:title/text()")?,
+            date: reader.read_option(".//mb:date/text()")?,
+            status: reader.read::<String>(".//mb:status/text()")?.parse().chain_err(
+                || "Failed parsing Status",
+            )?,
+            country: reader.read_option(".//mb:country/text()")?,
+        })
     }
 }

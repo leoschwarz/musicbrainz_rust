@@ -119,15 +119,15 @@ impl FromStr for Date {
             Ok(Date::Year { year: ps[0].parse()? })
         } else if ps.len() == 2 {
             Ok(Date::Month {
-                   year: ps[0].parse()?,
-                   month: ps[1].parse()?,
-               })
+                year: ps[0].parse()?,
+                month: ps[1].parse()?,
+            })
         } else if ps.len() == 3 {
             Ok(Date::Day {
-                   year: ps[0].parse()?,
-                   month: ps[1].parse()?,
-                   day: ps[2].parse()?,
-               })
+                year: ps[0].parse()?,
+                month: ps[1].parse()?,
+                day: ps[2].parse()?,
+            })
         } else {
             Err(ParseDateError::WrongNumberOfComponents(ps.len()))
         }
@@ -147,13 +147,13 @@ impl Display for Date {
 
 impl FromXml for Date {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         use xpath_reader::errors::ChainXpathErr;
-        String::from_xml(reader)?
-            .parse()
-            .chain_err(|| "Parse Date error")
-            .map_err(|e| FromXmlError::from(e))
+        String::from_xml(reader)?.parse().chain_err(|| "Parse Date error").map_err(
+            |e| FromXmlError::from(e),
+        )
     }
 }
 
@@ -202,8 +202,10 @@ mod tests {
     fn wrong_number_comps()
     {
         let fail = Date::from_str("1-1-1-1");
-        assert_eq!(fail.err().unwrap(),
-                   ParseDateError::WrongNumberOfComponents(4));
+        assert_eq!(
+            fail.err().unwrap(),
+            ParseDateError::WrongNumberOfComponents(4)
+        );
     }
 
     #[test]

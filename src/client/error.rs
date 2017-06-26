@@ -6,7 +6,8 @@ use xpath_reader::XpathReader;
 /// wasn't and Err parsing the MusicBrainz error if the API actually returned
 /// an error.
 pub fn check_response_error<'d, R>(reader: &'d R) -> Result<(), ClientError>
-    where R: XpathReader<'d>
+where
+    R: XpathReader<'d>,
 {
     match reader.read_vec::<String>("//error/text") {
         Ok(errs) => {

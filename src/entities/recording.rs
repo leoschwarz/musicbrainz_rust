@@ -34,26 +34,30 @@ pub struct Recording {
 
 impl FromXml for Recording {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-        where R: XpathReader<'d>
+    where
+        R: XpathReader<'d>,
     {
         Ok(Recording {
-               mbid: reader.read(".//mb:recording/@id")?,
-               title: reader.read(".//mb:recording/mb:title/text()")?,
-               artists: reader.read_vec(".//mb:recording/mb:artist-credit/mb:name-credit")?,
-               duration:
-                   Duration::from_millis(reader.read::<u64>(".//mb:recording/mb:length/text()")?),
-               isrc_code: reader.read_option(".//mb:recording/mb:isrc-list/mb:isrc/@id")?,
-               disambiguation: reader.read_option(".//mb:recording/mb:disambiguation/text()")?,
-               annotation: reader.read_option(".//mb:recording/mb:annotation/text()")?,
-           })
+            mbid: reader.read(".//mb:recording/@id")?,
+            title: reader.read(".//mb:recording/mb:title/text()")?,
+            artists: reader.read_vec(".//mb:recording/mb:artist-credit/mb:name-credit")?,
+            duration: Duration::from_millis(
+                reader.read::<u64>(".//mb:recording/mb:length/text()")?,
+            ),
+            isrc_code: reader.read_option(".//mb:recording/mb:isrc-list/mb:isrc/@id")?,
+            disambiguation: reader.read_option(".//mb:recording/mb:disambiguation/text()")?,
+            annotation: reader.read_option(".//mb:recording/mb:annotation/text()")?,
+        })
     }
 }
 
 impl Resource for Recording {
     fn get_url(mbid: &Mbid) -> String
     {
-        format!("https://musicbrainz.org/ws/2/recording/{}?inc=artists+annotation+isrcs",
-                mbid)
+        format!(
+            "https://musicbrainz.org/ws/2/recording/{}?inc=artists+annotation+isrcs",
+            mbid
+        )
     }
 
     fn base_url() -> &'static str
@@ -77,19 +81,25 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
         let recording = Recording::from_xml(&reader).unwrap();
 
-        assert_eq!(recording.mbid,
-                   Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap());
-        assert_eq!(recording.title,
-                   "The Perfect Drug (Nine Inch Nails)".to_string());
+        assert_eq!(
+            recording.mbid,
+            Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap()
+        );
+        assert_eq!(
+            recording.title,
+            "The Perfect Drug (Nine Inch Nails)".to_string()
+        );
         assert_eq!(recording.duration, Duration::from_millis(499000));
-        assert_eq!(recording.artists,
-                   vec![
-            ArtistRef {
-                mbid: Mbid::from_str("b7ffd2af-418f-4be2-bdd1-22f8b48613da").unwrap(),
-                name: "Nine Inch Nails".to_string(),
-                sort_name: "Nine Inch Nails".to_string(),
-            },
-        ]);
+        assert_eq!(
+            recording.artists,
+            vec![
+                ArtistRef {
+                    mbid: Mbid::from_str("b7ffd2af-418f-4be2-bdd1-22f8b48613da").unwrap(),
+                    name: "Nine Inch Nails".to_string(),
+                    sort_name: "Nine Inch Nails".to_string(),
+                },
+            ]
+        );
         assert_eq!(recording.isrc_code, Some("USIR19701296".to_string()));
         assert_eq!(recording.annotation, None);
         assert_eq!(recording.disambiguation, None);
