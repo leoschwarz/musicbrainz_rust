@@ -18,11 +18,11 @@ pub enum AreaType {
     /// divisions but are also not muncipalities.
     County,
 
-    /// Small administrative divisions. Urban muncipalities often contain only
+    /// Small administrative divisions. Urban municipalities often contain only
     /// a single city and a
-    /// few surrounding villages, while rural muncipalities often group several
+    /// few surrounding villages, while rural municipalities often group several
     /// villages together.
-    Muncipality,
+    Municipality,
 
     /// Settlements of any size, including towns and villages.
     City,
@@ -45,7 +45,7 @@ impl FromXml for AreaType {
             "Country" => Ok(AreaType::Country),
             "Subdivision" => Ok(AreaType::Subdivision),
             "County" => Ok(AreaType::County),
-            "Muncipality" => Ok(AreaType::Muncipality),
+            "Municipality" => Ok(AreaType::Municipality),
             "City" => Ok(AreaType::City),
             "District" => Ok(AreaType::District),
             "Island" => Ok(AreaType::Island),
@@ -61,7 +61,7 @@ impl fmt::Display for AreaType {
             AreaType::Country => write!(f, "Country"),
             AreaType::Subdivision => write!(f, "Subdivision"),
             AreaType::County => write!(f, "County"),
-            AreaType::Muncipality => write!(f, "Muncipality"),
+            AreaType::Municipality => write!(f, "Municipality"),
             AreaType::City => write!(f, "City"),
             AreaType::District => write!(f, "District"),
             AreaType::Island => write!(f, "Island"),

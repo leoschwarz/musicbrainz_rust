@@ -108,7 +108,7 @@ pub struct Artist {
     pub disambiguation: Option<String>,
 
     /// Whether this Artist is a person, group, or something else.
-    pub artist_type: ArtistType,
+    pub artist_type: Option<ArtistType>,
 
     /// If the Artist is a single person this indicates their gender.
     pub gender: Option<Gender>,
@@ -138,7 +138,7 @@ impl FromXml for Artist {
         Ok(Artist {
             aliases: reader.read_vec(".//mb:artist/mb:alias-list/mb:alias/text()")?,
             area: reader.read_option(".//mb:artist/mb:area")?,
-            artist_type: reader.read(".//mb:artist/@type")?,
+            artist_type: reader.read_option(".//mb:artist/@type")?,
             begin_date: reader.read_option(".//mb:artist/mb:life-span/mb:begin/text()")?,
             disambiguation: reader.read_option(".//mb:artist/mb:disambiguation/text()")?,
             end_date: reader.read_option(".//mb:artist/mb:life-span/mb:end/text()")?,
@@ -206,7 +206,7 @@ mod tests {
         assert_eq!(area.sort_name, "Japan".to_string());
         assert_eq!(area.iso_3166, Some("JP".to_string()));
 
-        assert_eq!(result.artist_type, ArtistType::Group);
+        assert_eq!(result.artist_type, Some(ArtistType::Group));
         assert_eq!(result.gender, None);
         assert_eq!(result.ipi_code, None);
         assert_eq!(result.isni_code, None);
@@ -257,7 +257,7 @@ mod tests {
         assert_eq!(area.sort_name, "United States".to_string());
         assert_eq!(area.iso_3166, Some("US".to_string()));
 
-        assert_eq!(result.artist_type, ArtistType::Person);
+        assert_eq!(result.artist_type, Some(ArtistType::Person));
         assert_eq!(result.gender, Some(Gender::Female));
         assert_eq!(result.ipi_code, Some("00519338442".to_string()));
         assert_eq!(result.isni_code, Some("0000000120254559".to_string()));

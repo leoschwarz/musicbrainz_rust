@@ -141,10 +141,10 @@ pub struct Release {
     pub artists: Vec<ArtistRef>,
 
     /// The date the release was issued.
-    pub date: Date,
+    pub date: Option<Date>,
 
     /// The country the release was issued in.
-    pub country: String,
+    pub country: Option<String>,
 
     /// The label which issued this release.
     pub labels: Vec<LabelRef>,
@@ -188,8 +188,8 @@ impl FromXml for Release {
             mbid: reader.read(".//mb:release/@id")?,
             title: reader.read(".//mb:release/mb:title/text()")?,
             artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
-            date: reader.read(".//mb:release/mb:date/text()")?,
-            country: reader.read(".//mb:release/mb:country/text()")?,
+            date: reader.read_option(".//mb:release/mb:date/text()")?,
+            country: reader.read_option(".//mb:release/mb:country/text()")?,
             labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
             catalogue_number: reader.read_option(
                 ".//mb:release/mb:label-info-list/mb:label-info/mb:\
@@ -253,8 +253,8 @@ mod tests {
                 },
             ]
         );
-        assert_eq!(release.date, Date::from_str("1992-09-21").unwrap());
-        assert_eq!(release.country, "GB".to_string());
+        assert_eq!(release.date, Some(Date::from_str("1992-09-21").unwrap()));
+        assert_eq!(release.country, Some("GB".to_string()));
         assert_eq!(
             release.labels,
             vec![

@@ -3,7 +3,7 @@ use entities::{Mbid, Resource};
 
 use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
-use reqwest_mock::Url;
+use reqwest_mock::{StatusCode, Url};
 use reqwest_mock::header::UserAgent;
 use xpath_reader::reader::{FromXmlContained, XpathStrReader};
 
@@ -46,6 +46,10 @@ pub struct ClientConfig {
     /// For more information see:
     /// https://musicbrainz.org/doc/XML_Web_Service/Rate_Limiting
     pub user_agent: String,
+
+    /// How many times to retry requests where MusicBrainz returned 503 because
+    /// too many requests were being made.
+    pub max_retries: u8,
 }
 
 /// The main struct to be used to communicate with the MusicBrainz API.
@@ -77,8 +81,10 @@ impl Client {
 
     /// Create a new `Client` instance with the specified `HttpClient`.
     ///
-    /// This is useful for testing purposes where you can inject a different `HttpClient`, i. e.
-    /// one replaying requests to save API calls or one providing explicit stubbing.
+    /// This is useful for testing purposes where you can inject a different
+    /// `HttpClient`, i. e.
+    /// one replaying requests to save API calls or one providing explicit
+    /// stubbing.
     pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self
     {
         Client {
@@ -120,10 +126,21 @@ impl Client {
     {
         self.wait_if_needed();
 
-        let response =
-            self.http_client.get(url).header(UserAgent(self.config.user_agent.clone())).send()?;
-        let response_body = response.body_to_utf8()?;
-        Ok(response_body)
+        let mut attempts = 0;
+        while attempts < self.config.max_retries {
+            let response =
+                self.http_client.get(url.clone()).header(UserAgent(self.config.user_agent.clone())).send()?;
+            if response.status == StatusCode::ServiceUnavailable {
+                attempts += 1;
+                sleep(Duration::from_millis(200));
+                // If we are in testing we want to avoid always failing.
+                self.http_client.force_record_next();
+            } else {
+                let response_body = response.body_to_utf8()?;
+                return Ok(response_body);
+            }
+        }
+        Err("MusicBrainz returned 503 (ServiceUnavailable) too many times.".into())
     }
 
     /// Returns a search builder to search for an area.
@@ -151,8 +168,8 @@ mod tests {
 
     fn get_client(testname: &str) -> Client
     {
-        Client::new_with_client(
-            ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() },
+        Client::with_http_client(
+            ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string(), max_retries: 5 },
             HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
         )
     }

@@ -20,9 +20,7 @@ TEST_PREAMBLE = """
 extern crate musicbrainz;
 extern crate reqwest_mock;
 
-use std::borrow::BorrowMut;
 use std::str::FromStr;
-use std::cell::RefCell;
 use musicbrainz::client::{Client, ClientConfig};
 use musicbrainz::entities::*;
 use musicbrainz::ClientError;
@@ -30,8 +28,9 @@ use reqwest_mock::GenericClient as HttpClient;
 
 #[test]
 fn run_tests() {
-    let mut client = Client::new_with_client(ClientConfig {
+    let mut client = Client::with_http_client(ClientConfig {
         user_agent: "musicbrainz_rust/testing (mail@leoschwarz.com)".to_owned(),
+        max_retries: 5,
     }, HttpClient::replay_dir("replay/test/test"));
 
     let mut results: Vec<(String, Result<(), ClientError>)> = Vec::new();

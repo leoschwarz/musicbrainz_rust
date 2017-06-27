@@ -44,7 +44,7 @@ pub struct Event {
     aliases: Vec<String>,
 
     /// Describes what type of event this is exactly.
-    event_type: EventType,
+    event_type: Option<EventType>,
 
     /// List of songs played at the event.
     ///
@@ -92,7 +92,7 @@ impl FromXml for Event {
             mbid: reader.read(".//mb:event/@id")?,
             name: reader.read(".//mb:event/mb:name")?,
             aliases: reader.read_vec(".//mb:event/mb:alias-list/mb:alias/text()")?,
-            event_type: reader.read(".//mb:event/@type")?,
+            event_type: reader.read_option(".//mb:event/@type")?,
             setlist: reader.read_option(".//mb:event/mb:setlist")?,
             begin_date: reader.read(".//mb:event/mb:life-span/mb:begin")?,
             end_date: reader.read(".//mb:event/mb:life-span/mb:end")?,
@@ -125,7 +125,7 @@ mod tests {
         );
         assert_eq!(event.name, "25. Wave-Gotik-Treffen".to_string());
         assert_eq!(event.aliases, vec!["WGT 2016".to_string()]);
-        assert_eq!(event.event_type, EventType::Festival);
+        assert_eq!(event.event_type, Some(EventType::Festival));
         assert_eq!(event.setlist, None);
         assert_eq!(event.begin_date, "2016-05-13".parse().unwrap());
         assert_eq!(event.end_date, "2016-05-16".parse().unwrap());
@@ -153,7 +153,7 @@ mod tests {
         let reader = XpathStrReader::new(xml, &context).unwrap();
 
         let event = Event::from_xml(&reader).unwrap();
-        assert_eq!(event.event_type, EventType::Concert);
+        assert_eq!(event.event_type, Some(EventType::Concert));
         assert_eq!(event.setlist.unwrap().len(), 225);
     }
 }
