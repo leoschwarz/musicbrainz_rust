@@ -79,7 +79,7 @@ pub enum ReleaseStatus {
     Official,
     /// A give-away release or a release intended to promote an upcoming
     /// official release.
-    Promotional,
+    Promotion,
     /// Unofficial/underground release that was not sanctioned by the artist
     /// and/or the record
     /// company. Includes unoffcial live recordings and pirated releases.
@@ -102,9 +102,9 @@ impl FromXml for ReleaseStatus {
         let s = String::from_xml(reader)?;
         match s.as_str() {
             "Official" => Ok(ReleaseStatus::Official),
-            "Promotional" => Ok(ReleaseStatus::Promotional),
+            "Promotion" => Ok(ReleaseStatus::Promotion),
             "Bootleg" => Ok(ReleaseStatus::Bootleg),
-            "PseudoRelease" => Ok(ReleaseStatus::PseudoRelease),
+            "Pseudo-Release" => Ok(ReleaseStatus::PseudoRelease),
             s => Err(format!("Unknown `ReleaseStatus`: '{}'", s).into()),
 
         }
@@ -117,9 +117,9 @@ impl Display for ReleaseStatus {
         use self::ReleaseStatus::*;
         let s = match *self {
             Official => "Official",
-            Promotional => "Promotional",
+            Promotion => "Promotion",
             Bootleg => "Bootleg",
-            PseudoRelease => "PseudoRelease",
+            PseudoRelease => "Pseudo-Release",
         };
         write!(f, "{}", s)
     }
