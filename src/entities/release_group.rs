@@ -217,7 +217,7 @@ mod tests {
                         year: 2012,
                         month: 03,
                     }),
-                    status: ReleaseStatus::Official,
+                    status: Some(ReleaseStatus::Official),
                     country: Some("US".to_string()),
                 },
             ]

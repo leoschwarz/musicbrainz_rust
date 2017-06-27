@@ -117,7 +117,7 @@ pub struct ReleaseRef {
     pub mbid: Mbid,
     pub title: String,
     pub date: Option<Date>,
-    pub status: ReleaseStatus,
+    pub status: Option<ReleaseStatus>,
     pub country: Option<String>,
 }
 
@@ -127,14 +127,11 @@ impl FromXml for ReleaseRef {
     where
         R: XpathReader<'d>,
     {
-        use xpath_reader::errors::ChainXpathErr;
         Ok(ReleaseRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
             date: reader.read_option(".//mb:date/text()")?,
-            status: reader.read::<String>(".//mb:status/text()")?.parse().chain_err(
-                || "Failed parsing Status",
-            )?,
+            status: reader.read_option(".//mb:status/text()")?,
             country: reader.read_option(".//mb:country/text()")?,
         })
     }

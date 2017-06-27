@@ -128,8 +128,10 @@ impl Client {
 
         let mut attempts = 0;
         while attempts < self.config.max_retries {
-            let response =
-                self.http_client.get(url.clone()).header(UserAgent(self.config.user_agent.clone())).send()?;
+            let response = self.http_client
+                .get(url.clone())
+                .header(UserAgent(self.config.user_agent.clone()))
+                .send()?;
             if response.status == StatusCode::ServiceUnavailable {
                 attempts += 1;
                 sleep(Duration::from_millis(200));
@@ -140,7 +142,9 @@ impl Client {
                 return Ok(response_body);
             }
         }
-        Err("MusicBrainz returned 503 (ServiceUnavailable) too many times.".into())
+        Err(
+            "MusicBrainz returned 503 (ServiceUnavailable) too many times.".into(),
+        )
     }
 
     /// Returns a search builder to search for an area.
@@ -169,7 +173,10 @@ mod tests {
     fn get_client(testname: &str) -> Client
     {
         Client::with_http_client(
-            ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string(), max_retries: 5 },
+            ClientConfig {
+                user_agent: "MusicBrainz-Rust/Testing".to_string(),
+                max_retries: 5,
+            },
             HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
         )
     }

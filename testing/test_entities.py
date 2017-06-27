@@ -17,7 +17,10 @@ def fetch_mbids(entity, num):
         return [line.strip() for line in random.sample(f.readlines(), num)]
 
 TEST_PREAMBLE = """
+#[macro_use]
+extern crate log;
 extern crate musicbrainz;
+extern crate pretty_env_logger;
 extern crate reqwest_mock;
 
 use std::str::FromStr;
@@ -28,36 +31,31 @@ use reqwest_mock::GenericClient as HttpClient;
 
 #[test]
 fn run_tests() {
+    pretty_env_logger::init().unwrap();
+
     let mut client = Client::with_http_client(ClientConfig {
         user_agent: "musicbrainz_rust/testing (mail@leoschwarz.com)".to_owned(),
         max_retries: 5,
     }, HttpClient::replay_dir("replay/test/test"));
 
-    let mut results: Vec<(String, Result<(), ClientError>)> = Vec::new();
-
+    let mut failures = 0;
 """
 
 TEST_TEMPLATE = """
     let mbid = Mbid::from_str("$MBID").unwrap();
     let res = client.get_by_mbid::<$ENTITY>(&mbid);
-    let testname = "$ENTITY-$MBID".to_string();
-    results.push((testname, res.map(|_| ())));
+    match res {
+        Ok(_) => {info!("Test $ENTITY-$MBID successful.");}
+        Err(e) => {
+            info!("Test $ENTITY-$MBID failed, error: {:?}", e);
+            failures += 1;
+        }
+    }
 """
 
 TEST_END = """
-
-    let mut failure = false;
-    for result in results {
-        match result {
-            (name, Ok(_)) => {println!("Test {} successful.", name);}
-            (name, Err(e)) => {
-                println!("Test {} failed, error: {:?}", name, e);
-                failure = true;
-            }
-        }
-    }
-
-    assert!(!failure);
+    println!("{} failures", failures);
+    assert!(failures == 0);
 }
 """
 

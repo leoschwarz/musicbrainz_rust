@@ -1,5 +1,4 @@
 use std::fmt::{self, Display};
-use std::str::FromStr;
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
@@ -7,7 +6,6 @@ use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 use entities::{Mbid, Resource};
 use entities::date::Date;
 use entities::refs::{ArtistRef, LabelRef, RecordingRef};
-use errors::{ParseError, ParseErrorKind};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReleaseTrack {
@@ -95,22 +93,20 @@ pub enum ReleaseStatus {
     PseudoRelease,
 }
 
-impl FromStr for ReleaseStatus {
-    type Err = ParseError;
-    fn from_str(s: &str) -> Result<Self, Self::Err>
+impl FromXmlElement for ReleaseStatus {}
+impl FromXml for ReleaseStatus {
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
+    where
+        R: XpathReader<'d>,
     {
-        match s {
+        let s = String::from_xml(reader)?;
+        match s.as_str() {
             "Official" => Ok(ReleaseStatus::Official),
             "Promotional" => Ok(ReleaseStatus::Promotional),
             "Bootleg" => Ok(ReleaseStatus::Bootleg),
             "PseudoRelease" => Ok(ReleaseStatus::PseudoRelease),
-            s => {
-                Err(
-                    ParseErrorKind::InvalidData(
-                        format!("Unknown `ReleaseStatus`: '{}'", s).to_string(),
-                    ).into(),
-                )
-            }
+            s => Err(format!("Unknown `ReleaseStatus`: '{}'", s).into()),
+
         }
     }
 }
@@ -156,17 +152,17 @@ pub struct Release {
     pub barcode: Option<String>,
 
     /// Official status of the release.
-    pub status: ReleaseStatus,
+    pub status: Option<ReleaseStatus>,
 
     /// Packaging of the release.
     /// TODO: Consider an enum for the possible packaging types.
     pub packaging: Option<String>,
 
     /// Language of the release. ISO 639-3 conformant string.
-    pub language: String,
+    pub language: Option<String>,
 
     /// Script used to write the track list. ISO 15924 conformant string.
-    pub script: String,
+    pub script: Option<String>,
 
     /// A disambiguation comment if present, which allows to differentiate this
     /// release easily from
@@ -183,7 +179,6 @@ impl FromXml for Release {
     where
         R: XpathReader<'d>,
     {
-        use xpath_reader::errors::ChainXpathErr;
         Ok(Release {
             mbid: reader.read(".//mb:release/@id")?,
             title: reader.read(".//mb:release/mb:title/text()")?,
@@ -196,14 +191,11 @@ impl FromXml for Release {
                               catalog-number/text()",
             )?,
             barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
-            status: reader
-                .evaluate(".//mb:release/mb:status/text()")?
-                .string()
-                .parse::<ReleaseStatus>()
-                .chain_err(|| "Failed parsing ReleaseStatus")?,
+            status: reader.read_option(".//mb:release/mb:status/text()")?,
             packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
-            language: reader.read(".//mb:release/mb:text-representation/mb:language/text()")?,
-            script: reader.read(".//mb:release/mb:text-representation/mb:script/text()")?,
+            language:
+                reader.read_option(".//mb:release/mb:text-representation/mb:language/text()")?,
+            script: reader.read_option(".//mb:release/mb:text-representation/mb:script/text()")?,
             disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
             mediums: reader.read_vec(".//mb:release/mb:medium-list/mb:medium")?,
         })
@@ -228,6 +220,7 @@ impl Resource for Release {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::str::FromStr;
     use xpath_reader::XpathStrReader;
 
     #[test]
@@ -268,9 +261,9 @@ mod tests {
         );
         assert_eq!(release.catalogue_number, Some("CDR 6078".to_string()));
         assert_eq!(release.barcode, Some("724388023429".to_string()));
-        assert_eq!(release.status, ReleaseStatus::Official);
-        assert_eq!(release.language, "eng".to_string());
-        assert_eq!(release.script, "Latn".to_string());
+        assert_eq!(release.status, Some(ReleaseStatus::Official));
+        assert_eq!(release.language, Some("eng".to_string()));
+        assert_eq!(release.script, Some("Latn".to_string()));
         // TODO: check disambiguation
         // assert_eq!(release.disambiguation,
         assert_eq!(release.mediums, Vec::new());
