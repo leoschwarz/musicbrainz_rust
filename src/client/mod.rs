@@ -127,14 +127,17 @@ impl Client {
         self.wait_if_needed();
 
         let mut attempts = 0;
+        let mut backoff = 200;
+
         while attempts < self.config.max_retries {
             let response = self.http_client
                 .get(url.clone())
                 .header(UserAgent(self.config.user_agent.clone()))
                 .send()?;
             if response.status == StatusCode::ServiceUnavailable {
+                sleep(Duration::from_millis(backoff));
                 attempts += 1;
-                sleep(Duration::from_millis(200));
+                backoff *= 2;
                 // If we are in testing we want to avoid always failing.
                 self.http_client.force_record_next();
             } else {
