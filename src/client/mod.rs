@@ -65,14 +65,27 @@ pub struct Client {
 }
 
 impl Client {
-    /// Create a new Client instance.
-    pub fn new(config: ClientConfig) -> Result<Self, ClientError>
+    /// Create a new `Client` instance.
+    pub fn new(config: ClientConfig) -> Self
     {
-        Ok(Client {
+        Client {
             config: config,
             http_client: HttpClient::direct(),
             last_request: past_instant(),
-        })
+        }
+    }
+
+    /// Create a new `Client` instance with the specified `HttpClient`.
+    ///
+    /// This is useful for testing purposes where you can inject a different `HttpClient`, i. e.
+    /// one replaying requests to save API calls or one providing explicit stubbing.
+    pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self
+    {
+        Client {
+            config: config,
+            http_client: client,
+            last_request: past_instant(),
+        }
     }
 }
 
@@ -135,15 +148,13 @@ impl Client {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use reqwest_mock::ReplayClient;
 
     fn get_client(testname: &str) -> Client
     {
-        Client {
-            config: ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() },
-            http_client: HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
-            last_request: past_instant(),
-        }
+        Client::new_with_client(
+            ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() },
+            HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
+        )
     }
 
     #[test]

@@ -25,25 +25,40 @@ use std::str::FromStr;
 use std::cell::RefCell;
 use musicbrainz::client::{Client, ClientConfig};
 use musicbrainz::entities::*;
+use musicbrainz::ClientError;
+use reqwest_mock::GenericClient as HttpClient;
 
-// Notice we are using this hack to share the Client only so we can use the default
-// way of testing with the same Client instance for all tests.
-// In your applications you will likely want to encapsulate our Client in a better way.
-thread_local! {
-    static MB_CLIENT: RefCell<Client> = RefCell::new(Client::new(ClientConfig {
+#[test]
+fn run_tests() {
+    let mut client = Client::new_with_client(ClientConfig {
         user_agent: "musicbrainz_rust/testing (mail@leoschwarz.com)".to_owned(),
-    }).unwrap());
-}
+    }, HttpClient::replay_dir("replay/test/test"));
+
+    let mut results: Vec<(String, Result<(), ClientError>)> = Vec::new();
 
 """
 
 TEST_TEMPLATE = """
-#[test]
-fn read_$TESTNAME() {
-    MB_CLIENT.with(|client| {
-        let mbid = Mbid::from_str("$MBID").unwrap();
-        (*client.borrow_mut()).get_by_mbid::<$ENTITY>(&mbid).unwrap();
-    })
+    let mbid = Mbid::from_str("$MBID").unwrap();
+    let res = client.get_by_mbid::<$ENTITY>(&mbid);
+    let testname = "$ENTITY-$MBID".to_string();
+    results.push((testname, res.map(|_| ())));
+"""
+
+TEST_END = """
+
+    let mut failure = false;
+    for result in results {
+        match result {
+            (name, Ok(_)) => {println!("Test {} successful.", name);}
+            (name, Err(e)) => {
+                println!("Test {} failed, error: {:?}", name, e);
+                failure = true;
+            }
+        }
+    }
+
+    assert!(!failure);
 }
 """
 
@@ -61,6 +76,8 @@ def generate_tests(entities, num):
                                 .replace("$MBID", mbid) \
                                 .replace("$ENTITY", entity)
             code.append(test)
+    
+    code.append(TEST_END)
 
     with open("tests.rs", "w") as f:
         f.write("".join(code))
