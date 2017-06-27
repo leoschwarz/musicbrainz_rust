@@ -141,7 +141,7 @@ mod tests {
     {
         Client {
             config: ClientConfig { user_agent: "MusicBrainz-Rust/Testing".to_string() },
-            http_client: HttpClient::replay(format!("replay/src/client/mod/{}.replay", testname)),
+            http_client: HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
             last_request: past_instant(),
         }
     }
