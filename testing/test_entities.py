@@ -80,19 +80,24 @@ def generate_tests(entities, num):
         f.write("".join(code))
 
 if __name__ == "__main__":
+    all_entities = "Area,Artist,Event,Label,Place,Recording,ReleaseGroup,Series,Track,URL,Work"
+
     parser = argparse.ArgumentParser()
     p_subs = parser.add_subparsers(dest="action")
     p_generate = p_subs.add_parser("generate")
-    #p_generate.add_argument("-e", "--entitiy", help="The entities for which tests are to be genarated.")
+    p_generate.add_argument("-e", "--entities", help="The entities for which tests are to be generated, comma separated without spaces.", default=all_entities)
     p_generate.add_argument("-n", "--num", default=25, help="Number of test cases per entity.")
 
     p_run = p_subs.add_parser("run")
 
     args = parser.parse_args()
     if args.action == "generate":
-        # TODO make configurable
-        #entities = ["Area", "Artist", "Event", "Label", "Recording", "Release", "ReleaseGroup"]
-        entities = ["Area", "Artist", "Event", "Release", "ReleaseGroup"]
+        entities = args.entities.split(",")
+        for e in entities:
+            if not e in all_entities:
+                print("Error: Unknown entity: " + e)
+                sys.exit(2)
+
         generate_tests(entities=entities, num=int(args.num))
     elif args.action == "run":
         print("Test running not implemented yet.")
