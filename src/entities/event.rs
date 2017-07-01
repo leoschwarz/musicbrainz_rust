@@ -4,30 +4,13 @@ use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 use entities::{Mbid, Resource};
 use entities::date::Date;
 
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum EventType {
-    Concert,
-    Festival,
-    LaunchEvent,
-    ConventionExpo,
-    MasterclassClinic,
-}
-
-impl FromXmlElement for EventType {}
-impl FromXml for EventType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match s.as_str() {
-            "Concert" => Ok(EventType::Concert),
-            "Festival" => Ok(EventType::Festival),
-            "Launch event" => Ok(EventType::LaunchEvent),
-            "Convention/Expo" => Ok(EventType::ConventionExpo),
-            "Masterclass/Clinic" => Ok(EventType::MasterclassClinic),
-            s => Err(format!("Unknown `EventType`: {}", s))?,
-        }
+enum_mb_xml! {
+    pub enum EventType {
+        var Concert = "Concert",
+        var Festival = "Festival",
+        var LaunchEvent = "Launch event",
+        var ConventionExpo = "Convention/Expo",
+        var MasterclassClinic = "Masterclass/Clinic",
     }
 }
 

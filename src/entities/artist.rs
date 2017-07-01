@@ -1,4 +1,3 @@
-use std::fmt;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
@@ -10,6 +9,7 @@ use entities::refs::AreaRef;
 /// docs but what does
 /// this mean. Is there a difference between unknown genders and non-binary
 /// genders?)
+/// TODO rewrite using macro.
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub enum Gender {
     Female,
@@ -32,46 +32,14 @@ impl FromXml for Gender {
     }
 }
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum ArtistType {
-    Person,
-    Group,
-    Orchestra,
-    Choir,
-    Character,
-    Other,
-}
-
-impl FromXmlElement for ArtistType {}
-impl FromXml for ArtistType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match &s[..] {
-            "Person" => Ok(ArtistType::Person),
-            "Group" => Ok(ArtistType::Group),
-            "Orchestra" => Ok(ArtistType::Orchestra),
-            "Choir" => Ok(ArtistType::Choir),
-            "Character" => Ok(ArtistType::Character),
-            "Other" => Ok(ArtistType::Other),
-            t => Err(format!("Unknown `ArtistType`: {}", t).into()),
-        }
-    }
-}
-
-impl fmt::Display for ArtistType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-    {
-        match *self {
-            ArtistType::Person => write!(f, "Person"),
-            ArtistType::Group => write!(f, "Group"),
-            ArtistType::Orchestra => write!(f, "Orchestra"),
-            ArtistType::Choir => write!(f, "Choir"),
-            ArtistType::Character => write!(f, "Character"),
-            ArtistType::Other => write!(f, "Other"),
-        }
+enum_mb_xml! {
+    pub enum ArtistType {
+        var Person = "Person",
+        var Group = "Group",
+        var Orchestra = "Orchestra",
+        var Choir = "Choir",
+        var Character = "Character",
+        var Other = "Other",
     }
 }
 

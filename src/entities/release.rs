@@ -1,4 +1,3 @@
-use std::fmt::{self, Display};
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
@@ -73,55 +72,24 @@ impl FromXml for ReleaseMedium {
     }
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ReleaseStatus {
-    /// Release officially sanctioned by the artist and/or their record company.
-    Official,
-    /// A give-away release or a release intended to promote an upcoming
-    /// official release.
-    Promotion,
-    /// Unofficial/underground release that was not sanctioned by the artist
-    /// and/or the record
-    /// company. Includes unoffcial live recordings and pirated releases.
-    Bootleg,
-    /// An alternate version of a release where the titles have been changed.
-    /// These don't correspond to any real release and should be linked to the
-    /// original release
-    /// using the transliteration relationship.
-    ///
-    /// TL;DR: Essentially this shouldn't be used.
-    PseudoRelease,
-}
-
-impl FromXmlElement for ReleaseStatus {}
-impl FromXml for ReleaseStatus {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match s.as_str() {
-            "Official" => Ok(ReleaseStatus::Official),
-            "Promotion" => Ok(ReleaseStatus::Promotion),
-            "Bootleg" => Ok(ReleaseStatus::Bootleg),
-            "Pseudo-Release" => Ok(ReleaseStatus::PseudoRelease),
-            s => Err(format!("Unknown `ReleaseStatus`: '{}'", s).into()),
-
-        }
-    }
-}
-
-impl Display for ReleaseStatus {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-    {
-        use self::ReleaseStatus::*;
-        let s = match *self {
-            Official => "Official",
-            Promotion => "Promotion",
-            Bootleg => "Bootleg",
-            PseudoRelease => "Pseudo-Release",
-        };
-        write!(f, "{}", s)
+enum_mb_xml! {
+    pub enum ReleaseStatus {
+        /// Release officially sanctioned by the artist and/or their record company.
+        var Official = "Official",
+        /// A give-away release or a release intended to promote an upcoming
+        /// official release.
+        var Promotion = "Promotion",
+        /// Unofficial/underground release that was not sanctioned by the artist
+        /// and/or the record
+        /// company. Includes unoffcial live recordings and pirated releases.
+        var Bootleg = "Bootleg",
+        /// An alternate version of a release where the titles have been changed.
+        /// These don't correspond to any real release and should be linked to the
+        /// original release
+        /// using the transliteration relationship.
+        ///
+        /// TL;DR: Essentially this shouldn't be used.
+        var PseudoRelease = "Pseudo-Release",
     }
 }
 

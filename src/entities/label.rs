@@ -91,51 +91,32 @@ impl FromXml for Label {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub enum LabelType {
-    /// The main `LabelType` in the MusicBrainz database.
-    /// That is a brand (and trademark) associated with the marketing of a
-    /// release.
-    Imprint,
+enum_mb_xml! {
+    pub enum LabelType {
+        /// The main `LabelType` in the MusicBrainz database.
+        /// That is a brand (and trademark) associated with the marketing of a
+        /// release.
+        var Imprint = "Imprint",
 
-    /// Production company producing entirely new releases.
-    ProductionOriginal,
-    /// Known bootleg production companies, not sanctioned by the rights owners
-    /// of the released
-    /// work.
-    ProductionBootleg,
-    /// Companies specialized in catalog reissues.
-    ProductionReissue,
+        /// Production company producing entirely new releases.
+        var ProductionOriginal = "Original Production",
+        /// Known bootleg production companies, not sanctioned by the rights owners
+        /// of the released
+        /// work.
+        var ProductionBootleg = "Bootleg Production",
+        /// Companies specialized in catalog reissues.
+        var ProductionReissue = "Reissue Production",
 
-    /// Companies mainly distributing other labels production, often in a
-    /// specfic region of the
-    /// world.
-    Distribution,
-    /// Holdings, conglomerates or other financial entities that don't mainly
-    /// produce records but
-    /// manage a large set of recording labels owned by them.
-    Holding,
-    /// An organization which collects royalties on behalf of the artists.
-    RightsSociety,
-}
-
-impl FromXmlElement for LabelType {}
-impl FromXml for LabelType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match s.as_str() {
-            "Imprint" => Ok(LabelType::Imprint),
-            "Original Production" => Ok(LabelType::ProductionOriginal),
-            "Bootleg Production" => Ok(LabelType::ProductionBootleg),
-            "Reissue Production" => Ok(LabelType::ProductionReissue),
-            "Distribution" => Ok(LabelType::Distribution),
-            "Holding" => Ok(LabelType::Holding),
-            "RightsSociety" => Ok(LabelType::RightsSociety),
-            s => Err(format!("Invalid `LabelType`: '{}'", s).into()),
-        }
+        /// Companies mainly distributing other labels production, often in a
+        /// specfic region of the
+        /// world.
+        var Distribution = "Distribution",
+        /// Holdings, conglomerates or other financial entities that don't mainly
+        /// produce records but
+        /// manage a large set of recording labels owned by them.
+        var Holding = "Holding",
+        /// An organization which collects royalties on behalf of the artists.
+        var RightsSociety = "RightsSociety",
     }
 }
 

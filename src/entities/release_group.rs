@@ -1,93 +1,33 @@
-use std::fmt::{self, Display};
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
 use entities::refs::{ArtistRef, ReleaseRef};
 
-/// The primary type of a release group.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ReleaseGroupPrimaryType {
-    Album,
-    Single,
-    EP,
-    Broadcast,
-    Other,
-}
-
-// TODO: Fix this in `xpath_reader`.
-// impl FromXmlElement for ReleaseGroupPrimaryType {}
-impl FromXml for ReleaseGroupPrimaryType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match s.as_str() {
-            "Album" => Ok(ReleaseGroupPrimaryType::Album),
-            "Single" => Ok(ReleaseGroupPrimaryType::Single),
-            "EP" => Ok(ReleaseGroupPrimaryType::EP),
-            "Broadcast" => Ok(ReleaseGroupPrimaryType::Broadcast),
-            "Other" => Ok(ReleaseGroupPrimaryType::Other),
-            "" => Err(FromXmlError::Absent),
-            s => Err(FromXmlError::from(
-                format!("Unknown ReleaseGroupPrimaryType: '{}'", s),
-            )),
-        }
+enum_mb_xml! {
+    /// The primary type of a release group.
+    pub enum ReleaseGroupPrimaryType {
+        var Album = "Album",
+        var Single = "Single",
+        var EP = "EP",
+        var Broadcast = "Broadcast",
+        var Other = "Other",
     }
 }
 
-impl Display for ReleaseGroupPrimaryType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-    {
-        use self::ReleaseGroupPrimaryType::*;
-        let s = match *self {
-            Album => "Album",
-            Single => "Single",
-            EP => "EP",
-            Broadcast => "Broadcast",
-            Other => "Other",
-        };
-        write!(f, "{}", s)
-    }
-}
-
-/// Secondary types of a release group. There can be any number of secondary
-/// types.
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub enum ReleaseGroupSecondaryType {
-    Compilation,
-    Soundtrack,
-    Spokenword,
-    Interview,
-    Audiobook,
-    Live,
-    Remix,
-    DjMix,
-    MixtapeStreet,
-}
-
-impl FromXmlElement for ReleaseGroupSecondaryType {}
-impl FromXml for ReleaseGroupSecondaryType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match s.as_str() {
-            "Compilation" => Ok(ReleaseGroupSecondaryType::Compilation),
-            "Soundtrack" => Ok(ReleaseGroupSecondaryType::Soundtrack),
-            "Spokenword" => Ok(ReleaseGroupSecondaryType::Spokenword),
-            "Interview" => Ok(ReleaseGroupSecondaryType::Interview),
-            "Audiobook" => Ok(ReleaseGroupSecondaryType::Audiobook),
-            "Live" => Ok(ReleaseGroupSecondaryType::Live),
-            "Remix" => Ok(ReleaseGroupSecondaryType::Remix),
-            "DJ-mix" => Ok(ReleaseGroupSecondaryType::DjMix),
-            "Mixtape/Street" => Ok(ReleaseGroupSecondaryType::MixtapeStreet),
-            s => Err(
-                format!("Unknown ReleaseSecondaryPrimaryType: '{}'", s).into(),
-            ),
-        }
+enum_mb_xml! {
+    /// Secondary types of a release group. There can be any number of secondary
+    /// types.
+    pub enum ReleaseGroupSecondaryType {
+        var Compilation = "Compilation",
+        var Soundtrack = "Soundtrack",
+        var Spokenword = "Spokenword",
+        var Interview = "Interview",
+        var Audiobook = "Audiobook",
+        var Live = "Live",
+        var Remix = "Remix",
+        var DjMix = "DJ-mix",
+        var MixtapeStreet = "Mixtape/Street",
     }
 }
 

@@ -1,6 +1,9 @@
 /// TODO consider what type to use
 pub use std::time::Duration;
 
+#[macro_use]
+mod helper;
+
 mod date;
 pub use self::date::{Date, ParseDateError};
 

@@ -1,71 +1,36 @@
-use std::fmt;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
 
-/// Specifies what a specific `Area` instance actually is.
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum AreaType {
-    /// Areas included (or previously included) in ISO 3166-1.
-    Country,
+enum_mb_xml!{
+    /// Specifies what a specific `Area` instance actually is.
+    pub enum AreaType {
+        /// Areas included (or previously included) in ISO 3166-1.
+        var Country = "Country",
 
-    /// Main administrative divisions of a countryr
-    Subdivision,
+        /// Main administrative divisions of a countryr
+        var Subdivision = "Subdivision",
 
-    /// Smaller administrative divisions of a country, which are not one of the
-    /// main administrative
-    /// divisions but are also not muncipalities.
-    County,
+        /// Smaller administrative divisions of a country, which are not one of the
+        /// main administrative
+        /// divisions but are also not muncipalities.
+        var County = "County",
 
-    /// Small administrative divisions. Urban municipalities often contain only
-    /// a single city and a
-    /// few surrounding villages, while rural municipalities often group several
-    /// villages together.
-    Municipality,
+        /// Small administrative divisions. Urban municipalities often contain only
+        /// a single city and a
+        /// few surrounding villages, while rural municipalities often group several
+        /// villages together.
+        var Municipality = "Municipality",
 
-    /// Settlements of any size, including towns and villages.
-    City,
+        /// Settlements of any size, including towns and villages.
+        var City = "City",
 
-    /// Used for a division of a large city.
-    District,
+        /// Used for a division of a large city.
+        var District = "District",
 
-    /// Islands and atolls which don't form subdivisions of their own.
-    Island,
-}
-
-impl FromXmlElement for AreaType {}
-impl FromXml for AreaType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        let s = String::from_xml(reader)?;
-        match &s[..] {
-            "Country" => Ok(AreaType::Country),
-            "Subdivision" => Ok(AreaType::Subdivision),
-            "County" => Ok(AreaType::County),
-            "Municipality" => Ok(AreaType::Municipality),
-            "City" => Ok(AreaType::City),
-            "District" => Ok(AreaType::District),
-            "Island" => Ok(AreaType::Island),
-            s => Err(format!("Invalid `AreaType`: '{}'", s).into()),
-        }
-    }
-}
-
-impl fmt::Display for AreaType {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
-    {
-        match *self {
-            AreaType::Country => write!(f, "Country"),
-            AreaType::Subdivision => write!(f, "Subdivision"),
-            AreaType::County => write!(f, "County"),
-            AreaType::Municipality => write!(f, "Municipality"),
-            AreaType::City => write!(f, "City"),
-            AreaType::District => write!(f, "District"),
-            AreaType::Island => write!(f, "Island"),
-        }
+        /// Islands and atolls which don't form subdivisions of their own.
+        var Island = "Island",
     }
 }
 
