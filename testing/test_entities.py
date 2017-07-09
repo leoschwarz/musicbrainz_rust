@@ -47,9 +47,9 @@ TEST_TEMPLATE = """
     let mbid = Mbid::from_str("$MBID").unwrap();
     let res = client.get_by_mbid::<$ENTITY>(&mbid);
     match res {
-        Ok(_) => {info!("Test $ENTITY-$MBID successful.");}
+        Ok(_) => {info!("Test $ENTITY/$MBID successful.");}
         Err(e) => {
-            info!("Test $ENTITY-$MBID failed, error: {:?}", e);
+            info!("Test $ENTITY/$MBID failed, error: {:?}", e);
             failures += 1;
         }
     }
