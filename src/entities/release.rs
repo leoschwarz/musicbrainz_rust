@@ -3,7 +3,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
-use entities::date::Date;
+use entities::date::PartialDate;
 use entities::refs::{ArtistRef, LabelRef, RecordingRef};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -105,7 +105,7 @@ pub struct Release {
     pub artists: Vec<ArtistRef>,
 
     /// The date the release was issued.
-    pub date: Option<Date>,
+    pub date: Option<PartialDate>,
 
     /// The country the release was issued in.
     pub country: Option<String>,
@@ -214,7 +214,7 @@ mod tests {
                 },
             ]
         );
-        assert_eq!(release.date, Some(Date::from_str("1992-09-21").unwrap()));
+        assert_eq!(release.date, Some(PartialDate::from_str("1992-09-21").unwrap()));
         assert_eq!(release.country, Some("GB".to_string()));
         assert_eq!(
             release.labels,

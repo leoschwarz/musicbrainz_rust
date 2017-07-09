@@ -1,4 +1,4 @@
-use entities::{Date, Mbid, Resource};
+use entities::{PartialDate, Mbid, Resource};
 use entities::refs::AreaRef;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
@@ -54,8 +54,8 @@ pub struct Place {
 
     pub area: AreaRef,
 
-    pub begin: Option<Date>,
-    pub end: Option<Date>,
+    pub begin: Option<PartialDate>,
+    pub end: Option<PartialDate>,
 
     pub aliases: Vec<String>,
 
@@ -141,8 +141,8 @@ mod tests {
                 iso_3166: None,
             }
         );
-        assert_eq!(p.begin, Date::from_str("1971").ok());
-        assert_eq!(p.end, Date::from_str("1999-10").ok());
+        assert_eq!(p.begin, PartialDate::from_str("1971").ok());
+        assert_eq!(p.end, PartialDate::from_str("1999-10").ok());
         assert_eq!(p.aliases, Vec::<String>::new());
         assert_eq!(p.disambiguation, None);
         assert_eq!(p.annotation, None);

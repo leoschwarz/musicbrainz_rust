@@ -2,7 +2,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
-use entities::date::Date;
+use entities::date::PartialDate;
 
 enum_mb_xml! {
     pub enum EventType {
@@ -36,10 +36,10 @@ pub struct Event {
     setlist: Option<String>,
 
     /// Begin date of the event.
-    begin_date: Date,
+    begin_date: PartialDate,
 
     /// End date of the event.
-    end_date: Date,
+    end_date: PartialDate,
 
     // TODO:    start_time: Time
     /// Disambiguation to distinguish Event from other Events with the same

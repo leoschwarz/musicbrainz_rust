@@ -16,7 +16,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::FromXmlElement;
 
 use entities::Mbid;
-use entities::date::Date;
+use entities::date::PartialDate;
 use entities::release::ReleaseStatus;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -116,7 +116,7 @@ impl FromXml for RecordingRef {
 pub struct ReleaseRef {
     pub mbid: Mbid,
     pub title: String,
-    pub date: Option<Date>,
+    pub date: Option<PartialDate>,
     pub status: Option<ReleaseStatus>,
     pub country: Option<String>,
 }

@@ -2,7 +2,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::FromXmlElement;
 
 use entities::{Mbid, Resource};
-use entities::date::Date;
+use entities::date::PartialDate;
 
 /// A label entity in the MusicBrainz database.
 /// There is quite some controversy in the music industry what a 'label'
@@ -50,11 +50,11 @@ pub struct Label {
     /// (Consult the MusicBrainz manual for disclaimers about the significance
     /// of these
     /// informations.)
-    pub begin_date: Option<Date>,
+    pub begin_date: Option<PartialDate>,
 
     /// The date when this label ceased to exist or its last release ever was
     /// released.
-    pub end_date: Option<Date>,
+    pub end_date: Option<PartialDate>,
 }
 
 impl Resource for Label {
@@ -150,7 +150,7 @@ mod tests {
         assert_eq!(label.country, Some("GB".to_string()));
         assert_eq!(label.ipi_code, None);
         assert_eq!(label.isni_code, None);
-        assert_eq!(label.begin_date, Some(Date::Year { year: 1972 }));
+        assert_eq!(label.begin_date, Some(PartialDate::from_str("1972").unwrap()));
         assert_eq!(label.end_date, None);
     }
 

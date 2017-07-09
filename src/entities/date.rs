@@ -1,4 +1,6 @@
 // TODO: this should probably be moved to a different file/directory
+// TODO validate input dates for validity
+// TODO: Write conversions to and from `chrono` date types for interoperability.
 use std;
 use std::str::FromStr;
 use std::num::ParseIntError;
@@ -6,63 +8,156 @@ use std::error::Error;
 use std::fmt::Display;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
-/// The `Date` type used by the `musicbrainz` crate.
-/// It allows the representation of partial dates.
-// TODO: Write conversions to and from `chrono` date types for interoperability.
-// TODO: Consider checking the field values for validity (i.e. month and day
-// within appropriate
-// ranges). To make sure only valid instances are created we might actually
-// need to do something
-// like it is described here: http://stackoverflow.com/a/28090996 because in
-// general Rust enum
-// constructors cannot be made private.
-// (And for the users of the `Date` type it actually shouldn't even matter that
-// much if they can
-// pattern match on it or not, it's just more about properly representing the
-// data returned from
-// the MusicBrainz API.)
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub enum Date {
-    /// Date with resolution up to a year.
-    Year { year: u16 },
-    /// Date with resolution up to a month.
-    Month { year: u16, month: u8 },
-    /// Date with resolution up to a day.
-    /// year=0 <=> year 0 in
-    Day { year: u16, month: u8, day: u8 },
+/// Represents a partial date as it is used across MusicBrainz.
+///
+/// Note that even completely empty dates are possible.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct PartialDate {
+    year: Option<u16>,
+    month: Option<u8>,
+    day: Option<u8>,
 }
 
-impl Date {
-    /// Return the year from the date.
+/// Represents a fully specified date.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct FullDate {
+    year: u16,
+    month: u8,
+    day: u8,
+}
+
+impl PartialDate {
+    pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate {
+        PartialDate {
+            year: year,
+            month: month,
+            day: day,
+        }
+    }
+
+    pub fn year(&self) -> Option<u16>
+    {
+        self.year
+    }
+
+    pub fn month(&self) -> Option<u8>
+    {
+        self.month
+    }
+
+    pub fn day(&self) -> Option<u8>
+    {
+        self.day
+    }
+
+    /// If this `PartialDate` is fully specified, `Some(FullDate)` will be returned,
+    /// otherwise `None` will be returned.
+    ///
+    /// # Examples
+    /// ```
+    /// use musicbrainz::entities::{FullDate, PartialDate};
+    ///
+    /// assert_eq!(PartialDate::new(None, None, None).full_date(), None);
+    /// assert_eq!(PartialDate::new(None, None, Some(2)).full_date(), None);
+    /// assert_eq!(PartialDate::new(None, Some(2), Some(2)).full_date(), None);
+    ///
+    /// assert_eq!(
+    ///     PartialDate::new(Some(2017), Some(2), Some(2)).full_date(),
+    ///     Some(FullDate::new(2017, 2, 2))
+    /// );
+    /// ```
+    pub fn full_date(&self) -> Option<FullDate> {
+        if self.year.is_some() && self.month.is_some() && self.day.is_some() {
+            Some(FullDate {
+                year: self.year.unwrap(),
+                month: self.month.unwrap(),
+                day: self.day.unwrap()
+            })
+        } else {
+            None
+        }
+    }
+}
+
+impl FullDate {
+    pub fn new(year: u16, month: u8, day: u8) -> FullDate
+    {
+        FullDate {
+            year: year,
+            month: month,
+            day: day,
+        }
+    }
+
     pub fn year(&self) -> u16
     {
-        match *self {
-            Date::Year { year } => year,
-            Date::Month { year, .. } => year,
-            Date::Day { year, .. } => year,
-        }
+        self.year
     }
 
-    /// Return the month from the date.
-    /// If it is not present, 0 will be returned.
     pub fn month(&self) -> u8
     {
-        match *self {
-            Date::Year { .. } => 0,
-            Date::Month { month, .. } => month,
-            Date::Day { month, .. } => month,
-        }
+        self.month
     }
 
-    /// Return the day from the date.
-    /// If it is not present, 0 will be returned.
     pub fn day(&self) -> u8
     {
-        match *self {
-            Date::Year { .. } => 0,
-            Date::Month { .. } => 0,
-            Date::Day { day, .. } => day,
+        self.day
+    }
+}
+
+impl FromStr for PartialDate {
+    type Err = ParseDateError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err>
+    {
+        // Get the pieces of the date.
+        let ps: Vec<&str> = s.split("-").collect();
+
+        // Create result.
+        if ps.len() == 1 {
+            Ok(PartialDate {
+                year: Some(ps[0].parse()?),
+                month: None,
+                day: None,
+            })
+        } else if ps.len() == 2 {
+            Ok(PartialDate {
+                year: Some(ps[0].parse()?),
+                month: Some(ps[1].parse()?),
+                day: None,
+            })
+        } else if ps.len() == 3 {
+            Ok(PartialDate {
+                year: Some(ps[0].parse()?),
+                month: Some(ps[1].parse()?),
+                day: Some(ps[2].parse()?),
+            })
+        } else {
+            Err(ParseDateError::WrongNumberOfComponents(ps.len()))
         }
+    }
+}
+
+impl Display for PartialDate {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
+    {
+        // TODO optimize later (no allocations)
+        let year = self.year.map(|n| format!("{:04}", n)).unwrap_or_else(|| "????".to_string());
+        let month = self.month.map(|n| format!("{:02}", n)).unwrap_or_else(|| "??".to_string());
+        let day = self.day.map(|n| format!("{:02}", n)).unwrap_or_else(|| "??".to_string());
+        write!(f, "{}-{}-{}", year, month, day)
+    }
+}
+
+impl FromXml for PartialDate {
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
+    where
+        R: XpathReader<'d>,
+    {
+        use xpath_reader::errors::ChainXpathErr;
+        String::from_xml(reader)?.parse().chain_err(|| "Parse Date error").map_err(
+            |e| FromXmlError::from(e),
+        )
     }
 }
 
@@ -86,6 +181,7 @@ impl Error for ParseDateError {
     }
 }
 
+// TODO: Evaluate if this is what we want and if we can use this like this in requests.
 impl Display for ParseDateError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
     {
@@ -106,57 +202,7 @@ impl From<ParseIntError> for ParseDateError {
     }
 }
 
-impl FromStr for Date {
-    type Err = ParseDateError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err>
-    {
-        // Get the pieces of the date.
-        let ps: Vec<&str> = s.split("-").collect();
-
-        // Create result.
-        if ps.len() == 1 {
-            Ok(Date::Year { year: ps[0].parse()? })
-        } else if ps.len() == 2 {
-            Ok(Date::Month {
-                year: ps[0].parse()?,
-                month: ps[1].parse()?,
-            })
-        } else if ps.len() == 3 {
-            Ok(Date::Day {
-                year: ps[0].parse()?,
-                month: ps[1].parse()?,
-                day: ps[2].parse()?,
-            })
-        } else {
-            Err(ParseDateError::WrongNumberOfComponents(ps.len()))
-        }
-    }
-}
-
-impl Display for Date {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
-    {
-        match *self {
-            Date::Year { year } => write!(f, "{:04}", year),
-            Date::Month { year, month } => write!(f, "{:04}-{:02}", year, month),
-            Date::Day { year, month, day } => write!(f, "{:04}-{:02}-{:02}", year, month, day),
-        }
-    }
-}
-
-impl FromXml for Date {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        use xpath_reader::errors::ChainXpathErr;
-        String::from_xml(reader)?.parse().chain_err(|| "Parse Date error").map_err(
-            |e| FromXmlError::from(e),
-        )
-    }
-}
-
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -229,4 +275,4 @@ mod tests {
         assert_eq!(DATE_2.to_string(), "2017-04".to_string());
         assert_eq!(DATE_3.to_string(), "2017-04-15".to_string());
     }
-}
+}*/

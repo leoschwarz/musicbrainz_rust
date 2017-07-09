@@ -2,7 +2,7 @@
 
 use super::{Mbid, full_entities};
 // use super::query::QueryExpression;
-use super::full_entities::Date;
+use super::full_entities::PartialDate;
 // use super::entities;
 
 pub trait SearchField {
@@ -42,12 +42,12 @@ define_fields!(
     ArtistNameAccent, String;
     ArtistType, full_entities::ArtistType;
     BeginArea, String;
-    BeginDate, Date;
+    BeginDate, PartialDate;
     Comment, String;
     Country, String;
     CreditName, String;
     EndArea, String;
-    EndDate, Date;
+    EndDate, PartialDate;
     Ended, bool;
     Gender, String;
     IpiCode, String;

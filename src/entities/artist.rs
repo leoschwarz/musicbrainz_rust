@@ -2,7 +2,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
-use entities::date::Date;
+use entities::date::PartialDate;
 use entities::refs::AreaRef;
 
 /// TODO: Find all possible variants. (It says "male, female or neither" in the
@@ -87,9 +87,9 @@ pub struct Artist {
     pub area: Option<AreaRef>,
 
     // TODO docs
-    pub begin_date: Option<Date>,
+    pub begin_date: Option<PartialDate>,
     // TODO docs
-    pub end_date: Option<Date>,
+    pub end_date: Option<PartialDate>,
 
     // TODO docs
     pub ipi_code: Option<String>,
@@ -158,10 +158,7 @@ mod tests {
 
         assert_eq!(
             result.begin_date,
-            Some(Date::Month {
-                year: 2014,
-                month: 3,
-            })
+            Some(PartialDate::from_str("2014-03").unwrap())
         );
         assert_eq!(result.end_date, None);
 
@@ -208,11 +205,7 @@ mod tests {
 
         assert_eq!(
             result.begin_date,
-            Some(Date::Day {
-                year: 1986,
-                month: 3,
-                day: 28,
-            })
+            Some(PartialDate::from_str("1986-03-28").unwrap())
         );
         assert_eq!(result.end_date, None);
 

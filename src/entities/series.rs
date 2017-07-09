@@ -1,4 +1,4 @@
-use entities::{Date, Mbid, Resource};
+use entities::{PartialDate, Mbid, Resource};
 use entities::refs::AreaRef;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
