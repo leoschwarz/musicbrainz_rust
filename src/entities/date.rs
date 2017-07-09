@@ -1,5 +1,5 @@
 // TODO: this should probably be moved to a different file/directory
-// TODO validate input dates for validity
+// TODO: validate input dates for validity
 // TODO: Write conversions to and from `chrono` date types for interoperability.
 use std;
 use std::str::FromStr;
@@ -27,7 +27,8 @@ pub struct FullDate {
 }
 
 impl PartialDate {
-    pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate {
+    pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate
+    {
         PartialDate {
             year: year,
             month: month,
@@ -50,7 +51,8 @@ impl PartialDate {
         self.day
     }
 
-    /// If this `PartialDate` is fully specified, `Some(FullDate)` will be returned,
+    /// If this `PartialDate` is fully specified, `Some(FullDate)` will be
+    /// returned,
     /// otherwise `None` will be returned.
     ///
     /// # Examples
@@ -66,12 +68,13 @@ impl PartialDate {
     ///     Some(FullDate::new(2017, 2, 2))
     /// );
     /// ```
-    pub fn full_date(&self) -> Option<FullDate> {
+    pub fn full_date(&self) -> Option<FullDate>
+    {
         if self.year.is_some() && self.month.is_some() && self.day.is_some() {
             Some(FullDate {
                 year: self.year.unwrap(),
                 month: self.month.unwrap(),
-                day: self.day.unwrap()
+                day: self.day.unwrap(),
             })
         } else {
             None
@@ -111,26 +114,33 @@ impl FromStr for PartialDate {
     fn from_str(s: &str) -> Result<Self, Self::Err>
     {
         // Get the pieces of the date.
-        let ps: Vec<&str> = s.split("-").collect();
+        let ps: Result<Vec<Option<u16>>, ParseIntError> = s.split("-")
+            .map(|x| if x == "??" || x == "????" {
+                Ok(None)
+            } else {
+                x.parse().map(|y| Some(y))
+            })
+            .collect();
 
         // Create result.
+        let ps = ps?;
         if ps.len() == 1 {
             Ok(PartialDate {
-                year: Some(ps[0].parse()?),
+                year: ps[0],
                 month: None,
                 day: None,
             })
         } else if ps.len() == 2 {
             Ok(PartialDate {
-                year: Some(ps[0].parse()?),
-                month: Some(ps[1].parse()?),
+                year: ps[0],
+                month: ps[1].map(|i| i as u8),
                 day: None,
             })
         } else if ps.len() == 3 {
             Ok(PartialDate {
-                year: Some(ps[0].parse()?),
-                month: Some(ps[1].parse()?),
-                day: Some(ps[2].parse()?),
+                year: ps[0],
+                month: ps[1].map(|i| i as u8),
+                day: ps[2].map(|i| i as u8),
             })
         } else {
             Err(ParseDateError::WrongNumberOfComponents(ps.len()))
@@ -181,7 +191,8 @@ impl Error for ParseDateError {
     }
 }
 
-// TODO: Evaluate if this is what we want and if we can use this like this in requests.
+// TODO: Evaluate if this is what we want and if we can use this like this in
+// requests.
 impl Display for ParseDateError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
     {
