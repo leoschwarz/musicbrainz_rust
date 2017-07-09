@@ -46,12 +46,15 @@ mod tests {
         let err = res.err().unwrap();
 
         assert_eq!(err.description(), "MusicBrainz server error");
-        // TODO FIXME currently this fails with RUST_BACKTRACE=1 as a backtrace is
-        // generated and
-        // appended to display, so we will have to come up with a better way to test
-        // this or emit a
-        // custom error instead of this "dynamic one".
-        assert_eq!(err.display().to_string(), "Error: MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd\n".to_string());
+
+        // If backtraces are enabled `error-chain` will appends some backtrace
+        // information to the end of the display string.
+        if ::std::env::var("RUST_BACKTRACE").unwrap_or_else(|_| "".to_string()).as_str() == "1" {
+            assert!(err.display().to_string().starts_with("Error: MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd\n"));
+
+        } else {
+            assert_eq!(err.display().to_string(), "Error: MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd\n".to_string());
+        }
     }
 
     #[test]
