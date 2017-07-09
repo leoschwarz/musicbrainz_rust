@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import argparse
+import datetime
 import os
 import random
+import shutil
 import subprocess
 import sys
 
@@ -73,22 +75,72 @@ def generate_tests(entities, num):
                                 .replace("$MBID", mbid) \
                                 .replace("$ENTITY", entity)
             code.append(test)
-    
+
     code.append(TEST_END)
 
     with open("tests.rs", "w") as f:
         f.write("".join(code))
+
+def run_tests(source_file, target, keep):
+    def target_path(t):
+        dirname = os.path.dirname(os.path.abspath(__file__))
+        return os.path.join(dirname, "..", "tests", t)
+
+    # Check the source file.
+    if os.path.exists(source_file):
+        print("Running test file: {}".format(source_file))
+    else:
+        print("Error: Source file `{}` doesn't exist.".format(source_file))
+
+    # Determine the target path if needed.
+    if target is None:
+        now = datetime.datetime.now()
+        template = now.strftime("entities_%Y_%m_%d_{}.rs")
+        i=1
+        target = template.format(i)
+        while os.path.exists(target_path(target)):
+            i += 1
+            target = template.format(i)
+
+    # Copy the source file to the target path.
+    shutil.copyfile(source_file, target_path(target))
+
+    # Run the tests.
+    env = os.environ.copy()
+    env["RUST_LOG"] = "{}=info".format(target.split(".")[0])
+    subprocess.Popen(["cargo", "test"], env=env).wait()
+
+    # Delete the file unless we are supposed.
+    if not keep:
+        os.remove(target_path(target))
+        print("Test file {} was removed from the tests directory.".format(target))
+
 
 if __name__ == "__main__":
     all_entities = "Area,Artist,Event,Label,Place,Recording,ReleaseGroup,Series,Track,URL,Work"
 
     parser = argparse.ArgumentParser()
     p_subs = parser.add_subparsers(dest="action")
+
     p_generate = p_subs.add_parser("generate")
-    p_generate.add_argument("-e", "--entities", help="The entities for which tests are to be generated, comma separated without spaces.", default=all_entities)
+    p_generate.add_argument(
+        "-e", "--entities",
+        help="The entities for which tests are to be generated, comma separated without spaces.",
+        default=all_entities)
     p_generate.add_argument("-n", "--num", default=25, help="Number of test cases per entity.")
 
-    p_run = p_subs.add_parser("run")
+    p_run = p_subs.add_parser(
+        "run",
+        help="Run the test file (by default it has to be the `tests.rs` file in the CWD but this can be changed with `--source`).")
+    p_run.add_argument(
+        "-k", "--keep", default=False, action="store_true",
+        help="If specified the test file will remain in the project's `tests` directory.")
+    p_run.add_argument(
+        "-s", "--source", default="tests.rs",
+        help="If wished you can opt to run a different tests file than `tests.rs` by specifying its name here.")
+    p_run.add_argument(
+        "-t", "--target", default=None,
+        help="Target name of the test case in the `tests` directory.")
 
     args = parser.parse_args()
     if args.action == "generate":
@@ -100,7 +152,7 @@ if __name__ == "__main__":
 
         generate_tests(entities=entities, num=int(args.num))
     elif args.action == "run":
-        print("Test running not implemented yet.")
+        run_tests(source_file=args.source, target=args.target, keep=args.keep)
     else:
         parser.print_help()
         sys.exit(2)
