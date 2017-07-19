@@ -132,7 +132,7 @@ impl Client {
         while attempts < self.config.max_retries {
             let response = self.http_client
                 .get(url.clone())
-                .header(UserAgent(self.config.user_agent.clone()))
+                .header(UserAgent::new(self.config.user_agent.clone()))
                 .send()?;
             if response.status == StatusCode::ServiceUnavailable {
                 sleep(Duration::from_millis(backoff));
