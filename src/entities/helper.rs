@@ -1,3 +1,6 @@
+use std::time::Duration;
+use xpath_reader::{FromXmlError, XpathReader};
+
 /// Note that the requirement of the `var` (variant) token is rather ugly but
 /// required,
 /// which is a limitation of the current Rust macro implementation.
@@ -55,5 +58,15 @@ macro_rules! enum_mb_xml
                 write!(f, "{}", s)
             }
         }
+    }
+}
+
+pub fn read_mb_duration<'d, R>(reader: &'d R, path: &str) -> Result<Option<Duration>, FromXmlError>
+where
+    R: XpathReader<'d>,
+{
+    match reader.read_option::<String>(path)? {
+        Some(millis) => Ok(Some(Duration::from_millis(millis.parse()?))),
+        None => Ok(None),
     }
 }

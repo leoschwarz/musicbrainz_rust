@@ -94,7 +94,7 @@ impl FromXml for LabelRef {
 pub struct RecordingRef {
     pub mbid: Mbid,
     pub title: String,
-    pub length: Duration,
+    pub length: Option<Duration>,
 }
 
 impl FromXmlElement for RecordingRef {}
@@ -106,8 +106,7 @@ impl FromXml for RecordingRef {
         Ok(RecordingRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
-            // TODO reader.read<Duration>
-            length: Duration::from_millis(reader.read(".//mb:length/text()")?),
+            length: ::entities::helper::read_mb_duration(reader, ".//mb:length/text()")?,
         })
     }
 }

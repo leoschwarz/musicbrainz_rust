@@ -5,7 +5,7 @@ pub use std::time::Duration;
 mod helper;
 
 mod date;
-pub use self::date::{PartialDate, FullDate, ParseDateError};
+pub use self::date::{FullDate, ParseDateError, PartialDate};
 
 pub mod refs;
 pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef};

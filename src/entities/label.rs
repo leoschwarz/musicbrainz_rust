@@ -150,7 +150,10 @@ mod tests {
         assert_eq!(label.country, Some("GB".to_string()));
         assert_eq!(label.ipi_code, None);
         assert_eq!(label.isni_code, None);
-        assert_eq!(label.begin_date, Some(PartialDate::from_str("1972").unwrap()));
+        assert_eq!(
+            label.begin_date,
+            Some(PartialDate::from_str("1972").unwrap())
+        );
         assert_eq!(label.end_date, None);
     }
 

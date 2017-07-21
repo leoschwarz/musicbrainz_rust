@@ -13,14 +13,18 @@ pub struct ReleaseTrack {
 
     // TODO: docstring ; what is the difference between `position` and `number`???
     pub position: u16,
-    // TODO: docstring
-    pub number: u16,
+
+    /// The track number as listed in the release.
+    ///
+    /// For CDs this will usually be numbers, but for example for vinyl this is
+    /// "A", "AA", etc.
+    pub number: String,
 
     /// The title of the track.
     pub title: String,
 
     /// The length of the track.
-    pub length: Duration,
+    pub length: Option<Duration>,
 
     /// The recording used for the track.
     pub recording: RecordingRef,
@@ -37,9 +41,7 @@ impl FromXml for ReleaseTrack {
             position: reader.read(".//mb:position/text()")?,
             number: reader.read(".//mb:number/text()")?,
             title: reader.read(".//mb:title/text()")?,
-            length: Duration::from_millis(
-                reader.evaluate(".//mb:length/text()")?.string().parse()?,
-            ),
+            length: ::entities::helper::read_mb_duration(reader, ".//mb:length/text()")?,
             recording: reader.read(".//mb:recording")?,
         })
     }
@@ -55,6 +57,7 @@ pub struct ReleaseMedium {
     /// The medium's position number providing a total order between all
     /// mediums of one `Release`.
     position: u16,
+
     /// The tracks stored on this medium.
     tracks: Vec<ReleaseTrack>,
 }
@@ -76,13 +79,16 @@ enum_mb_xml! {
     pub enum ReleaseStatus {
         /// Release officially sanctioned by the artist and/or their record company.
         var Official = "Official",
+
         /// A give-away release or a release intended to promote an upcoming
         /// official release.
         var Promotion = "Promotion",
+
         /// Unofficial/underground release that was not sanctioned by the artist
         /// and/or the record
         /// company. Includes unoffcial live recordings and pirated releases.
         var Bootleg = "Bootleg",
+
         /// An alternate version of a release where the titles have been changed.
         /// These don't correspond to any real release and should be linked to the
         /// original release
@@ -214,7 +220,10 @@ mod tests {
                 },
             ]
         );
-        assert_eq!(release.date, Some(PartialDate::from_str("1992-09-21").unwrap()));
+        assert_eq!(
+            release.date,
+            Some(PartialDate::from_str("1992-09-21").unwrap())
+        );
         assert_eq!(release.country, Some("GB".to_string()));
         assert_eq!(
             release.labels,
@@ -306,13 +315,13 @@ mod tests {
             ReleaseTrack {
                 mbid: Mbid::from_str("ac898be7-2965-4d17-9ac8-48d45852d73c").unwrap(),
                 position: 1,
-                number: 1,
+                number: "1".to_string(),
                 title: "puella tenebrarum".to_string(),
-                length: Duration::from_millis(232000),
+                length: Some(Duration::from_millis(232000)),
                 recording: RecordingRef {
                     mbid: Mbid::from_str("fd6f4cd8-9cff-43da-8cd7-3351357b6f5a").unwrap(),
                     title: "Puella Tenebrarum".to_string(),
-                    length: Duration::from_millis(232000),
+                    length: Some(Duration::from_millis(232000)),
                 },
             }
         );
@@ -321,13 +330,13 @@ mod tests {
             ReleaseTrack {
                 mbid: Mbid::from_str("21648b0b-deaf-4b93-a257-5fc18363b25d").unwrap(),
                 position: 2,
-                number: 2,
+                number: "2".to_string(),
                 title: "LAMINA MALEDICTUM".to_string(),
-                length: Duration::from_millis(258000),
+                length: Some(Duration::from_millis(258000)),
                 recording: RecordingRef {
                     mbid: Mbid::from_str("0eeb0621-8013-4c0e-8e49-ddfd78d56051").unwrap(),
                     title: "Lamina Maledictum".to_string(),
-                    length: Duration::from_millis(258000),
+                    length: Some(Duration::from_millis(258000)),
                 },
             }
         );
@@ -336,16 +345,33 @@ mod tests {
             ReleaseTrack {
                 mbid: Mbid::from_str("e57b3990-eb36-476e-beac-583e0bbe6f87").unwrap(),
                 position: 3,
-                number: 3,
+                number: "3".to_string(),
                 title: "SARNATH".to_string(),
-                length: Duration::from_millis(228000),
+                length: Some(Duration::from_millis(228000)),
                 recording: RecordingRef {
                     mbid: Mbid::from_str("53f87e98-351e-453e-b949-bdacf4cbeccd").unwrap(),
                     title: "Sarnath".to_string(),
-                    length: Duration::from_millis(228000),
+                    length: Some(Duration::from_millis(228000)),
                 },
             }
         );
+    }
+
+    #[test]
+    fn tracks_without_length()
+    {
+        // url: http://musicbrainz.org/ws/2/release/02173013-59ed-4229-b0a5-e5aa486ed5d7?inc=aliases+artists+labels+recordings
+        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><release id="02173013-59ed-4229-b0a5-e5aa486ed5d7"><title>蜃気楼 第二章</title><status id="4e304316-386d-3409-af2e-78857eec5cfe">Official</status><quality>normal</quality><text-representation><language>jpn</language><script>Jpan</script></text-representation><artist-credit><name-credit><artist id="477d67fd-65f3-4054-96a9-7117c8f0fec3"><name>童子-T</name><sort-name>Dohzi-T</sort-name><alias-list count="4"><alias sort-name="DOHZI-T">DOHZI-T</alias><alias sort-name="どうじティー">どうじティー</alias><alias locale="ja" sort-name="どうじT" type-id="894afba6-2816-3c24-8072-eadb66bd04bc" primary="primary" type="Artist name">童子-T</alias><alias type="Legal name" type-id="d4dcd0c0-b341-3612-a332-c0ce797b25cf" sort-name="たけすえみつる" locale="ja">竹末充</alias></alias-list></artist></name-credit></artist-credit><date>2004-06-09</date><country>JP</country><release-event-list count="1"><release-event><date>2004-06-09</date><area id="2db42837-c832-3c27-b4a3-08198f75693c"><name>Japan</name><sort-name>Japan</sort-name><iso-3166-1-code-list><iso-3166-1-code>JP</iso-3166-1-code></iso-3166-1-code-list></area></release-event></release-event-list><barcode>4988009031156</barcode><asin>B000EBCLLQ</asin><cover-art-archive><artwork>false</artwork><count>0</count><front>false</front><back>false</back></cover-art-archive><label-info-list count="1"><label-info><catalog-number>SRCL-6190</catalog-number><label id="ec7f9b15-9bc5-471e-ae8c-a35f0a968635"><name>Atomic Bomb</name><sort-name>Atomic Bomb</sort-name><disambiguation>Japanese imprint</disambiguation></label></label-info></label-info-list><medium-list count="1"><medium><position>1</position><format id="9712d52a-4509-3d4b-a1a2-67c88c643e31">CD</format><track-list offset="0" count="4"><track id="d0602913-34e8-406e-8071-ab4590796917"><position>1</position><number>1</number><recording id="ea93ce0e-2e9e-4727-8fee-e7774a8866ab"><title>蜃気楼 第二章</title></recording></track><track id="91f34974-612e-4b5f-9f24-07a35c50777e"><position>2</position><number>2</number><recording id="52fdd010-710f-424f-bd8d-7cad27a40044"><title>ファンファーレ</title></recording></track><track id="50d13b6e-0236-4242-aa53-9d35cfdbac11"><position>3</position><number>3</number><recording id="019ad40f-cf12-4023-b9eb-fa3ead48bf30"><title>蜃気楼 第二章 (Instrumental)</title></recording></track><track id="1eadfd07-4d24-4771-b48c-33e81e0214e8"><position>4</position><number>4</number><recording id="0ca76f38-0647-4fe2-bbff-4cee6c016a4d"><title>ファンファーレ (Instrumental)</title></recording></track></track-list></medium></medium-list></release></metadata>"#;
+
+        let context = ::util::musicbrainz_context();
+        let reader = XpathStrReader::new(xml, &context).unwrap();
+        let release = Release::from_xml(&reader).unwrap();
+
+        let ref medium = release.mediums[0];
+        assert_eq!(medium.tracks[0].length, None);
+        assert_eq!(medium.tracks[1].length, None);
+        assert_eq!(medium.tracks[2].length, None);
+        assert_eq!(medium.tracks[3].length, None);
     }
 
     #[test]
@@ -365,15 +391,15 @@ mod tests {
         assert_eq!(mediums[0].position, 1);
         assert_eq!(mediums[0].tracks.len(), 11);
         assert_eq!(mediums[0].tracks[0].position, 1);
-        assert_eq!(mediums[0].tracks[0].number, 1);
+        assert_eq!(mediums[0].tracks[0].number, "1".to_string());
         assert_eq!(mediums[0].tracks[1].position, 2);
-        assert_eq!(mediums[0].tracks[1].number, 2);
+        assert_eq!(mediums[0].tracks[1].number, "2".to_string());
 
         assert_eq!(mediums[1].position, 2);
         assert_eq!(mediums[1].tracks.len(), 9);
         assert_eq!(mediums[1].tracks[0].position, 1);
-        assert_eq!(mediums[1].tracks[0].number, 1);
+        assert_eq!(mediums[1].tracks[0].number, "1".to_string());
         assert_eq!(mediums[1].tracks[1].position, 2);
-        assert_eq!(mediums[1].tracks[1].number, 2);
+        assert_eq!(mediums[1].tracks[1].number, "2".to_string());
     }
 }
