@@ -437,6 +437,14 @@ mod tests {
         let mbid = Mbid::from_str("61f8b05f-a3b5-49f4-a3a6-8f0d564c1664").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        // TODO check extracted entities
+        assert_eq!(
+            release.labels,
+            vec![
+                LabelInfo {
+                    label: None,
+                    catalog_number: Some("BIRD 4".to_string()),
+                },
+            ]
+        );
     }
 }
