@@ -29,7 +29,7 @@ pub use self::event::{Event, EventType};
 pub use self::label::Label;
 pub use self::place::{Coordinates, Place, PlaceType};
 pub use self::recording::Recording;
-pub use self::release::{Release, ReleaseMedium, ReleaseStatus, ReleaseTrack};
+pub use self::release::{LabelInfo, Release, ReleaseMedium, ReleaseStatus, ReleaseTrack};
 pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGroupSecondaryType,
                               ReleaseGroupType};
 pub use self::series::Series;

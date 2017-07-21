@@ -99,6 +99,38 @@ enum_mb_xml! {
     }
 }
 
+/// Lists information about a release.
+///
+/// Note that its both possible to find a `LabelInfo` with only one of `label`
+/// or `cat_num`.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LabelInfo {
+    /// A reference to the label issuing the release.
+    pub label: Option<LabelRef>,
+
+    /// Catalog number of the release as released by the label.
+    pub catalog_number: Option<String>,
+}
+
+impl FromXmlContained for LabelInfo {}
+impl FromXml for LabelInfo {
+    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
+    where
+        R: XpathReader<'d>,
+    {
+        Ok(LabelInfo {
+            label: {
+                let id: Option<String> = reader.read_option(".//@id")?;
+                match id {
+                    Some(_) => Some(reader.read(".")?),
+                    None => None,
+                }
+            },
+            catalog_number: reader.read_option(".//mb:catalog-number/text()")?,
+        })
+    }
+}
+
 #[derive(Clone, Debug)]
 pub struct Release {
     /// MBID of the entity in the MusicBrainz database.
@@ -116,11 +148,8 @@ pub struct Release {
     /// The country the release was issued in.
     pub country: Option<String>,
 
-    /// The label which issued this release.
-    pub labels: Vec<LabelRef>,
-
-    /// Number assigned to the release by the label.
-    pub catalogue_number: Option<String>,
+    /// The labels which issued this release.
+    pub labels: Vec<LabelInfo>,
 
     /// Barcode of the release, if it has one.
     pub barcode: Option<String>,
@@ -160,10 +189,6 @@ impl FromXml for Release {
             date: reader.read_option(".//mb:release/mb:date/text()")?,
             country: reader.read_option(".//mb:release/mb:country/text()")?,
             labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
-            catalogue_number: reader.read_option(
-                ".//mb:release/mb:label-info-list/mb:label-info/mb:\
-                              catalog-number/text()",
-            )?,
             barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
             status: reader.read_option(".//mb:release/mb:status/text()")?,
             packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
@@ -228,15 +253,17 @@ mod tests {
         assert_eq!(
             release.labels,
             vec![
-                LabelRef {
-                    mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
-                    name: "Parlophone".to_string(),
-                    sort_name: "Parlophone".to_string(),
-                    label_code: Some("299".to_string()),
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                        name: "Parlophone".to_string(),
+                        sort_name: "Parlophone".to_string(),
+                        label_code: Some("299".to_string()),
+                    }),
+                    catalog_number: Some("CDR 6078".to_string()),
                 },
             ]
         );
-        assert_eq!(release.catalogue_number, Some("CDR 6078".to_string()));
         assert_eq!(release.barcode, Some("724388023429".to_string()));
         assert_eq!(release.status, Some(ReleaseStatus::Official));
         assert_eq!(release.language, Some("eng".to_string()));
@@ -257,39 +284,53 @@ mod tests {
 
         // We check for the things we didn't check in the previous test.
         assert_eq!(release.packaging, Some("Jewel Case".to_string()));
-        assert_eq!(release.catalogue_number, Some("0251766489".to_string()));
         assert_eq!(
             release.labels,
             vec![
-                LabelRef {
-                    mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
-                    name: "Cherrytree Records".to_string(),
-                    sort_name: "Cherrytree Records".to_string(),
-                    label_code: None,
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
+                        name: "Cherrytree Records".to_string(),
+                        sort_name: "Cherrytree Records".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
                 },
-                LabelRef {
-                    mbid: Mbid::from_str("2182a316-c4bd-4605-936a-5e2fac52bdd2").unwrap(),
-                    name: "Interscope Records".to_string(),
-                    sort_name: "Interscope Records".to_string(),
-                    label_code: Some("6406".to_string()),
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("2182a316-c4bd-4605-936a-5e2fac52bdd2").unwrap(),
+                        name: "Interscope Records".to_string(),
+                        sort_name: "Interscope Records".to_string(),
+                        label_code: Some("6406".to_string()),
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
                 },
-                LabelRef {
-                    mbid: Mbid::from_str("061587cb-0262-46bc-9427-cb5e177c36a2").unwrap(),
-                    name: "Konlive".to_string(),
-                    sort_name: "Konlive".to_string(),
-                    label_code: None,
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("061587cb-0262-46bc-9427-cb5e177c36a2").unwrap(),
+                        name: "Konlive".to_string(),
+                        sort_name: "Konlive".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
                 },
-                LabelRef {
-                    mbid: Mbid::from_str("244dd29f-b999-40e4-8238-cb760ad05ac6").unwrap(),
-                    name: "Streamline Records".to_string(),
-                    sort_name: "Streamline Records".to_string(),
-                    label_code: None,
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("244dd29f-b999-40e4-8238-cb760ad05ac6").unwrap(),
+                        name: "Streamline Records".to_string(),
+                        sort_name: "Streamline Records".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
                 },
-                LabelRef {
-                    mbid: Mbid::from_str("6cee07d5-4cc3-4555-a629-480590e0bebd").unwrap(),
-                    name: "Universal Music Canada".to_string(),
-                    sort_name: "Universal Music Canada".to_string(),
-                    label_code: None,
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("6cee07d5-4cc3-4555-a629-480590e0bebd").unwrap(),
+                        name: "Universal Music Canada".to_string(),
+                        sort_name: "Universal Music Canada".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
                 },
             ]
         );
@@ -401,5 +442,21 @@ mod tests {
         assert_eq!(mediums[1].tracks[0].number, "1".to_string());
         assert_eq!(mediums[1].tracks[1].position, 2);
         assert_eq!(mediums[1].tracks[1].number, "2".to_string());
+    }
+
+    /// It's possible that a release has a catalog number but is not linked to
+    /// any label in the
+    /// database.
+    #[test]
+    fn catalog_number_but_no_label_ref()
+    {
+        // url: http://musicbrainz.org/ws/2/release/61f8b05f-a3b5-49f4-a3a6-8f0d564c1664?inc=aliases+artists+labels+recordings
+        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><release id="61f8b05f-a3b5-49f4-a3a6-8f0d564c1664"><title>Love Somebody EP</title><status id="4e304316-386d-3409-af2e-78857eec5cfe">Official</status><quality>normal</quality><packaging id="119eba76-b343-3e02-a292-f0f00644bb9b">None</packaging><text-representation><language>eng</language></text-representation><artist-credit><name-credit><artist id="29042cf5-0583-45a6-b77c-ba2601008691"><name>Robyn Sherwell</name><sort-name>Sherwell, Robyn</sort-name></artist></name-credit></artist-credit><date>2014-09-07</date><country>XW</country><release-event-list count="1"><release-event><date>2014-09-07</date><area id="525d4e18-3d00-31b9-a58b-a146a916de8f"><name>[Worldwide]</name><sort-name>[Worldwide]</sort-name><iso-3166-1-code-list><iso-3166-1-code>XW</iso-3166-1-code></iso-3166-1-code-list></area></release-event></release-event-list><barcode>5065002081001</barcode><cover-art-archive><artwork>true</artwork><count>1</count><front>true</front><back>false</back></cover-art-archive><label-info-list count="1"><label-info><catalog-number>BIRD 4</catalog-number></label-info></label-info-list><medium-list count="1"><medium><position>1</position><track-list offset="0" count="4"><track id="0d0fea83-07c3-47b2-80ea-7d2dc1099e49"><position>1</position><number>1</number><length>249000</length><recording id="3a2de788-a07f-450f-baaf-b5e71182cd7c"><title>Love Somebody</title><length>249000</length></recording></track><track id="2f318359-3f93-4cc5-a095-f8971fbe7377"><position>2</position><number>2</number><length>211000</length><recording id="e3991f48-0ac0-4273-b45a-05aedf5ece22"><title>Low</title><length>211000</length></recording></track><track id="0f85ae3a-61f9-4aff-ae8f-87c06070d304"><position>3</position><number>3</number><length>353000</length><recording id="7a42290f-1031-4902-9a62-35fbdcbf45d6"><title>Love Somebody (Turtle remix)</title><length>353000</length></recording></track><track id="d1cb1d31-1a9e-4aa3-ad7a-d41fdaf81290"><position>4</position><number>4</number><length>274000</length><recording id="f6513a66-1217-4170-bf60-288f624011d0"><title>Love Somebody (Field Kit remix)</title><length>274000</length></recording></track></track-list></medium></medium-list></release></metadata>"#;
+
+        let context = ::util::musicbrainz_context();
+        let reader = XpathStrReader::new(xml, &context).unwrap();
+        let release = Release::from_xml(&reader).unwrap();
+
+        // TODO check extracted entities
     }
 }

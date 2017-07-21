@@ -127,7 +127,8 @@ impl Client {
         self.wait_if_needed();
 
         let mut attempts = 0;
-        // TODO : make initial value configurable once we allow users to run against their own
+        // TODO : make initial value configurable once we allow users to run against
+        // their own
         // mirrors of the musicbrainz api.
         let mut backoff = 400;
 
