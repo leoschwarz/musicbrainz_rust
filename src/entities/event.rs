@@ -51,6 +51,11 @@ pub struct Event {
 }
 
 impl Resource for Event {
+    fn get_name() -> &'static str
+    {
+        "Resource"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!(
@@ -89,23 +94,14 @@ impl FromXml for Event {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_1()
     {
-        // url: https://musicbrainz.
-        // org/ws/2/event/6e2ab7d5-f340-4c41-99a3-c901733402b4?inc=annotation+aliases
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><event type="Festival" id="6e2ab7d5-f340-4c41-99a3-c901733402b4" type-id="b6ded574-b592-3f0e-b56e-5b5f06aa0678"><name>25. Wave-Gotik-Treffen</name><life-span><begin>2016-05-13</begin><end>2016-05-16</end></life-span><annotation><text>ANNOTATION</text></annotation><alias-list count="1"><alias sort-name="WGT 2016">WGT 2016</alias></alias-list></event></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
+        let mbid = Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap();
+        let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        let event = Event::from_xml(&reader).unwrap();
-
-        assert_eq!(
-            event.mbid,
-            Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap()
-        );
+        assert_eq!(event.mbid, mbid);
         assert_eq!(event.name, "25. Wave-Gotik-Treffen".to_string());
         assert_eq!(event.aliases, vec!["WGT 2016".to_string()]);
         assert_eq!(event.event_type, Some(EventType::Festival));
@@ -113,29 +109,15 @@ mod tests {
         assert_eq!(event.begin_date, "2016-05-13".parse().unwrap());
         assert_eq!(event.end_date, "2016-05-16".parse().unwrap());
         assert_eq!(event.disambiguation, None);
-        assert_eq!(event.annotation, Some("ANNOTATION".to_string()));
+        assert_eq!(event.annotation.unwrap().len(), 2233);
     }
 
     #[test]
     fn read_2()
     {
-        // url: https://musicbrainz.org/ws/2/event/9754f4dd-6fad-49b7-8f30-940c9af6b776
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><event type="Concert" id="9754f4dd-6fad-49b7-8f30-940c9af6b776" type-id="ef55e8d7-3d00-394a-8012-f5506a29ff0b"><name>Lady Gaga at Roseland Ballroom</name><life-span><begin>2014-03-28</begin><end>2014-03-28</end></life-span><setlist>* &quot;Born This Way&quot; (Piano Version)
-* &quot;Black Jesus + Amen Fashion&quot;
-* &quot;Monster&quot;
-* &quot;Bad Romance&quot;
-* &quot;Sexxx Dreams&quot;
-* &quot;Dope&quot;
-* &quot;You and I&quot;
-* &quot;Just Dance&quot;
-* &quot;Poker Face&quot; (Piano Version)
-* &quot;Artpop&quot; (Interlude)
-* &quot;Applause&quot;
-* &quot;G.U.Y.&quot;</setlist></event></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
+        let mbid = Mbid::from_str("9754f4dd-6fad-49b7-8f30-940c9af6b776").unwrap();
+        let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        let event = Event::from_xml(&reader).unwrap();
         assert_eq!(event.event_type, Some(EventType::Concert));
         assert_eq!(event.setlist.unwrap().len(), 225);
     }

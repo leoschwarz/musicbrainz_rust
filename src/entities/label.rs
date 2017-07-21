@@ -1,5 +1,5 @@
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::FromXmlElement;
+use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 use entities::{Mbid, Resource};
 use entities::date::PartialDate;
@@ -58,6 +58,11 @@ pub struct Label {
 }
 
 impl Resource for Label {
+    fn get_name() -> &'static str
+    {
+        "Label"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!("https://musicbrainz.org/ws/2/label/{}?inc=aliases", mbid)
@@ -69,6 +74,7 @@ impl Resource for Label {
     }
 }
 
+impl FromXmlContained for Label {}
 impl FromXml for Label {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Label, FromXmlError>
     where
@@ -124,27 +130,29 @@ enum_mb_xml! {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn label_read_xml1()
     {
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><label id="c029628b-6633-439e-bcee-ed02e8a338f7" type="Original Production" type-id="7aaa37fe-2def-3476-b359-80245850062d"><name>EMI</name><sort-name>EMI</sort-name><disambiguation>EMI Records, since 1972</disambiguation><label-code>542</label-code><country>GB</country><area id="8a754a16-0027-3a29-b6d7-2b40ea0481ed"><name>United Kingdom</name><sort-name>United Kingdom</sort-name><iso-3166-1-code-list><iso-3166-1-code>GB</iso-3166-1-code></iso-3166-1-code-list></area><life-span><begin>1972</begin></life-span></label></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let label = Label::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap();
+        let label: Label = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        assert_eq!(
-            label.mbid,
-            Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap()
-        );
+        assert_eq!(label.mbid, mbid);
         assert_eq!(label.name, "EMI".to_string());
         assert_eq!(label.sort_name, "EMI".to_string());
         assert_eq!(
             label.disambiguation,
             Some("EMI Records, since 1972".to_string())
         );
-        assert_eq!(label.aliases, Vec::<String>::new());
+        assert_eq!(
+            label.aliases,
+            vec![
+                "EMI".to_string(),
+                "EMI Records (UK)".to_string(),
+                "EMI Records Ltd".to_string(),
+                "EMI UK".to_string(),
+            ]
+        );
         assert_eq!(label.label_code, Some("542".to_string()));
         assert_eq!(label.label_type, LabelType::ProductionOriginal);
         assert_eq!(label.country, Some("GB".to_string()));
@@ -160,12 +168,8 @@ mod tests {
     #[test]
     fn read_aliases()
     {
-        // url: https://musicbrainz.
-        // org/ws/2/label/168f48c8-057e-4974-9600-aa9956d21e1a?inc=aliases
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><label type-id="7aaa37fe-2def-3476-b359-80245850062d" id="168f48c8-057e-4974-9600-aa9956d21e1a" type="Original Production"><name>avex trax</name><sort-name>avex trax</sort-name><country>JP</country><area id="2db42837-c832-3c27-b4a3-08198f75693c"><name>Japan</name><sort-name>Japan</sort-name><iso-3166-1-code-list><iso-3166-1-code>JP</iso-3166-1-code></iso-3166-1-code-list></area><life-span><begin>1990-09</begin></life-span><alias-list count="2"><alias sort-name="Avex Trax Japan">Avex Trax Japan</alias><alias sort-name="エイベックス・トラックス">エイベックス・トラックス</alias></alias-list></label></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let label = Label::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("168f48c8-057e-4974-9600-aa9956d21e1a").unwrap();
+        let label: Label = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
         let mut expected = vec![
             "Avex Trax Japan".to_string(),

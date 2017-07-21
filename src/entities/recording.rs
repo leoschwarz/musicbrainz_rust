@@ -1,5 +1,6 @@
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::reader::FromXmlContained;
 
 use entities::{Mbid, Resource};
 use entities::refs::ArtistRef;
@@ -32,6 +33,7 @@ pub struct Recording {
     pub annotation: Option<String>,
 }
 
+impl FromXmlContained for Recording {}
 impl FromXml for Recording {
     fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
     where
@@ -52,6 +54,11 @@ impl FromXml for Recording {
 }
 
 impl Resource for Recording {
+    fn get_name() -> &'static str
+    {
+        "Recording"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!(
@@ -70,21 +77,14 @@ impl Resource for Recording {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_xml1()
     {
-        // url: https://musicbrainz.org/ws/2/recording/fbe3d0b9-3990-4a76-bddb-12f4a0447a2c?inc=artists+annotation+isrcs
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><recording id="fbe3d0b9-3990-4a76-bddb-12f4a0447a2c"><title>The Perfect Drug (Nine Inch Nails)</title><length>499000</length><artist-credit><name-credit><artist id="b7ffd2af-418f-4be2-bdd1-22f8b48613da"><name>Nine Inch Nails</name><sort-name>Nine Inch Nails</sort-name></artist></name-credit></artist-credit><isrc-list count="1"><isrc id="USIR19701296" /></isrc-list></recording></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let recording = Recording::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap();
+        let recording: Recording = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        assert_eq!(
-            recording.mbid,
-            Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap()
-        );
+        assert_eq!(recording.mbid, mbid);
         assert_eq!(
             recording.title,
             "The Perfect Drug (Nine Inch Nails)".to_string()

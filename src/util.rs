@@ -8,18 +8,28 @@ pub fn musicbrainz_context<'d>() -> Context<'d>
 }
 
 #[cfg(test)]
-mod test_utils {
-    use entities::Resource;
+pub mod test_utils {
+    use client::{Client, ClientConfig};
+    use entities::{Mbid, Resource};
+    use errors::ClientError;
+    use reqwest_mock::GenericClient as HttpClient;
     use xpath_reader::XpathStrReader;
     use xpath_reader::reader::FromXmlContained;
 
-    // TODO right now this just saves us a couple lines of code per test,
-    // however in the future this should use `ReplayClient`.
-    pub fn extract_entity<E: Resource + FromXmlContained>(source: &str) -> E
+    pub fn fetch_entity<E: Resource + FromXmlContained>(mbid: &Mbid) -> Result<E, ClientError>
     {
-        let context = super::musicbrainz_context();
-        let reader = XpathStrReader::new(source, &context).unwrap();
-        E::from_xml(&reader).unwrap()
+        let mut client = Client::with_http_client(
+            ClientConfig {
+                user_agent: "MusicBrainz-Rust/Testing".to_string(),
+                max_retries: 5,
+            },
+            HttpClient::replay_file(format!(
+                "replay/test_entities/{}/{}.json",
+                E::get_name(),
+                mbid
+            )),
+        );
+        client.get_by_mbid(mbid)
     }
 }
 

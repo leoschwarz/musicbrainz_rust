@@ -77,6 +77,11 @@ impl FromXml for Area {
 }
 
 impl Resource for Area {
+    fn get_name() -> &'static str
+    {
+        "Area"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!("https://musicbrainz.org/ws/2/area/{}", mbid)
@@ -92,43 +97,30 @@ impl Resource for Area {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn area_read_xml1()
     {
-        // url: https://musicbrainz.org/ws/2/area/a1411661-be21-4290-8dc1-50f3d8e3ea67
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><area type="City" type-id="6fd8f29a-3d0a-32fc-980d-ea697b69da78" id="a1411661-be21-4290-8dc1-50f3d8e3ea67"><name>Honolulu</name><sort-name>Honolulu</sort-name></area></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let result = Area::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap();
+        let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        assert_eq!(
-            result.mbid,
-            Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap()
-        );
-        assert_eq!(result.name, "Honolulu".to_string());
-        assert_eq!(result.sort_name, "Honolulu".to_string());
-        assert_eq!(result.area_type, AreaType::City);
-        assert_eq!(result.iso_3166, None);
+        assert_eq!(area.mbid, mbid);
+        assert_eq!(area.name, "Honolulu".to_string());
+        assert_eq!(area.sort_name, "Honolulu".to_string());
+        assert_eq!(area.area_type, AreaType::City);
+        assert_eq!(area.iso_3166, None);
     }
 
     #[test]
     fn area_read_xml2()
     {
-        // url: https://musicbrainz.org/ws/2/area/2db42837-c832-3c27-b4a3-08198f75693c
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><area type="Country" id="2db42837-c832-3c27-b4a3-08198f75693c" type-id="06dd0ae4-8c74-30bb-b43d-95dcedf961de"><name>Japan</name><sort-name>Japan</sort-name><iso-3166-1-code-list><iso-3166-1-code>JP</iso-3166-1-code></iso-3166-1-code-list></area></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let result = Area::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap();
+        let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        assert_eq!(
-            result.mbid,
-            Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap()
-        );
-        assert_eq!(result.name, "Japan".to_string());
-        assert_eq!(result.sort_name, "Japan".to_string());
-        assert_eq!(result.area_type, AreaType::Country);
-        assert_eq!(result.iso_3166, Some("JP".to_string()));
+        assert_eq!(area.mbid, mbid);
+        assert_eq!(area.name, "Japan".to_string());
+        assert_eq!(area.sort_name, "Japan".to_string());
+        assert_eq!(area.area_type, AreaType::Country);
+        assert_eq!(area.iso_3166, Some("JP".to_string()));
     }
 }

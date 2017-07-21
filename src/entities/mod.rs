@@ -37,7 +37,12 @@ pub use self::series::Series;
 mod mbid;
 pub use self::mbid::Mbid;
 
+// TODO: Convert get_name and base_url into associated consts once these land
+// in stable rust.
 pub trait Resource {
+    /// Returns the name of the Resource, e. g. "Artist".
+    fn get_name() -> &'static str;
+
     /// Returns the url where one can get a ressource in the valid format for
     /// parsing from.
     fn get_url(mbid: &Mbid) -> String;

@@ -51,6 +51,11 @@ impl FromXml for Series {
 }
 
 impl Resource for Series {
+    fn get_name() -> &'static str
+    {
+        "Series"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!(
@@ -73,13 +78,10 @@ mod tests {
     #[test]
     fn read_series_1()
     {
-        // url: https://musicbrainz.org/ws/2/series/d977f7fd-96c9-4e3e-83b5-eb484a9e6582?inc=annotation+aliases
-        let series: Series = ::util::extract_entity(r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><series id="d977f7fd-96c9-4e3e-83b5-eb484a9e6582" type="Catalogue" type-id="49482ff0-fc9e-3b8c-a2d0-30e84d9df002"><name>Bach-Werke-Verzeichnis</name><alias-list count="1"><alias sort-name="BWV">BWV</alias></alias-list></series></metadata>"#);
+        let mbid = Mbid::from_str("d977f7fd-96c9-4e3e-83b5-eb484a9e6582").unwrap();
+        let series: Series = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
-        assert_eq!(
-            series.mbid,
-            Mbid::from_str("d977f7fd-96c9-4e3e-83b5-eb484a9e6582").unwrap()
-        );
+        assert_eq!(series.mbid, mbid);
         assert_eq!(series.series_type, SeriesType::Catalogue);
         assert_eq!(series.aliases, vec!["BWV".to_string()]);
         assert_eq!(series.disambiguation, None);

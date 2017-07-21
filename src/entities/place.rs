@@ -87,6 +87,11 @@ impl FromXml for Place {
 }
 
 impl Resource for Place {
+    fn get_name() -> &'static str
+    {
+        "Place"
+    }
+
     fn get_url(mbid: &Mbid) -> String
     {
         format!(
@@ -105,23 +110,15 @@ impl Resource for Place {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn place_read_1()
     {
-        // url: https://musicbrainz.
-        // org/ws/2/place/d1ab65f8-d082-492a-bd70-ce375548dabf?inc=annotation+aliases
-        let xml = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><place type="Studio" type-id="05fa6a09-ff92-3d34-bdbb-5141d3c24f38" id="d1ab65f8-d082-492a-bd70-ce375548dabf"><name>Chipping Norton Recording Studios</name><address>28–30 New Street, Chipping Norton</address><coordinates><latitude>51.9414</latitude><longitude>-1.548</longitude></coordinates><area id="716234d3-b8ed-45ac-8983-e7219eb85956"><name>Chipping Norton</name><sort-name>Chipping Norton</sort-name></area><life-span><begin>1971</begin><end>1999-10</end><ended>true</ended></life-span></place></metadata>"#;
-        let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(xml, &context).unwrap();
-        let p = Place::from_xml(&reader).unwrap();
+        let mbid = Mbid::from_str("d1ab65f8-d082-492a-bd70-ce375548dabf").unwrap();
+        let p: Place = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
         // Check parsed values.
-        assert_eq!(
-            p.mbid,
-            Mbid::from_str("d1ab65f8-d082-492a-bd70-ce375548dabf").unwrap()
-        );
+        assert_eq!(p.mbid, mbid);
         assert_eq!(p.name, "Chipping Norton Recording Studios".to_string());
         assert_eq!(p.place_type, PlaceType::Studio);
         assert_eq!(p.address, "28–30 New Street, Chipping Norton".to_string());
