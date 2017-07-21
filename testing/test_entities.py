@@ -116,7 +116,8 @@ def run_tests(source_file, target, keep):
 
 
 if __name__ == "__main__":
-    all_entities = "Area,Artist,Event,Label,Place,Recording,ReleaseGroup,Series,Track,URL,Work"
+    #all_entities = "Area,Artist,Event,Label,Place,Recording,ReleaseGroup,Series,Track,URL,Work"
+    all_entities = "Area,Artist,Event,Label,Place,Recording,ReleaseGroup,Series"
 
     parser = argparse.ArgumentParser()
     p_subs = parser.add_subparsers(dest="action")
