@@ -127,7 +127,9 @@ impl Client {
         self.wait_if_needed();
 
         let mut attempts = 0;
-        let mut backoff = 200;
+        // TODO : make initial value configurable once we allow users to run against their own
+        // mirrors of the musicbrainz api.
+        let mut backoff = 400;
 
         while attempts < self.config.max_retries {
             let response = self.http_client
