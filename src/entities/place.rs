@@ -45,14 +45,14 @@ pub struct Place {
     pub name: String,
 
     /// The type of the place.
-    pub place_type: PlaceType,
+    pub place_type: Option<PlaceType>,
 
     /// Address of the place in the local adressing format.
-    pub address: String,
+    pub address: Option<String>,
 
-    pub coordinates: Coordinates,
+    pub coordinates: Option<Coordinates>,
 
-    pub area: AreaRef,
+    pub area: Option<AreaRef>,
 
     pub begin: Option<PartialDate>,
     pub end: Option<PartialDate>,
@@ -73,10 +73,10 @@ impl FromXml for Place {
         Ok(Place {
             mbid: reader.read(".//mb:place/@id")?,
             name: reader.read(".//mb:place/mb:name/text()")?,
-            place_type: reader.read(".//mb:place/@type")?,
-            address: reader.read(".//mb:place/mb:address/text()")?,
-            coordinates: reader.read(".//mb:place/mb:coordinates")?,
-            area: reader.read(".//mb:place/mb:area")?,
+            place_type: reader.read_option(".//mb:place/@type")?,
+            address: reader.read_option(".//mb:place/mb:address/text()")?,
+            coordinates: reader.read_option(".//mb:place/mb:coordinates")?,
+            area: reader.read_option(".//mb:place/mb:area")?,
             begin: reader.read_option(".//mb:place/mb:life-span/mb:begin/text()")?,
             end: reader.read_option(".//mb:place/mb:life-span/mb:end/text()")?,
             aliases: reader.read_vec(".//mb:place/mb:aliases/text()")?,
@@ -120,23 +120,26 @@ mod tests {
         // Check parsed values.
         assert_eq!(p.mbid, mbid);
         assert_eq!(p.name, "Chipping Norton Recording Studios".to_string());
-        assert_eq!(p.place_type, PlaceType::Studio);
-        assert_eq!(p.address, "28–30 New Street, Chipping Norton".to_string());
+        assert_eq!(p.place_type, Some(PlaceType::Studio));
+        assert_eq!(
+            p.address,
+            Some("28–30 New Street, Chipping Norton".to_string())
+        );
         assert_eq!(
             p.coordinates,
-            Coordinates {
+            Some(Coordinates {
                 latitude: "51.9414".to_string(),
                 longitude: "-1.548".to_string(),
-            }
+            })
         );
         assert_eq!(
             p.area,
-            AreaRef {
+            Some(AreaRef {
                 mbid: Mbid::from_str("716234d3-b8ed-45ac-8983-e7219eb85956").unwrap(),
                 name: "Chipping Norton".to_string(),
                 sort_name: "Chipping Norton".to_string(),
                 iso_3166: None,
-            }
+            })
         );
         assert_eq!(p.begin, PartialDate::from_str("1971").ok());
         assert_eq!(p.end, PartialDate::from_str("1999-10").ok());

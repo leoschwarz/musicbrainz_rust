@@ -13,7 +13,6 @@ pub mod test_utils {
     use entities::{Mbid, Resource};
     use errors::ClientError;
     use reqwest_mock::GenericClient as HttpClient;
-    use xpath_reader::XpathStrReader;
     use xpath_reader::reader::FromXmlContained;
 
     pub fn fetch_entity<E: Resource + FromXmlContained>(mbid: &Mbid) -> Result<E, ClientError>

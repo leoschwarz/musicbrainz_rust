@@ -39,7 +39,7 @@ pub struct Event {
     begin_date: PartialDate,
 
     /// End date of the event.
-    end_date: PartialDate,
+    end_date: Option<PartialDate>,
 
     // TODO:    start_time: Time
     /// Disambiguation to distinguish Event from other Events with the same
@@ -83,7 +83,7 @@ impl FromXml for Event {
             event_type: reader.read_option(".//mb:event/@type")?,
             setlist: reader.read_option(".//mb:event/mb:setlist")?,
             begin_date: reader.read(".//mb:event/mb:life-span/mb:begin")?,
-            end_date: reader.read(".//mb:event/mb:life-span/mb:end")?,
+            end_date: reader.read_option(".//mb:event/mb:life-span/mb:end")?,
             disambiguation: reader.read_option(".//mb:event/mb:disambiguation")?,
             annotation: reader.read_option(".//mb:event/mb:annotation/mb:text/text()")?,
         })
@@ -107,7 +107,7 @@ mod tests {
         assert_eq!(event.event_type, Some(EventType::Festival));
         assert_eq!(event.setlist, None);
         assert_eq!(event.begin_date, "2016-05-13".parse().unwrap());
-        assert_eq!(event.end_date, "2016-05-16".parse().unwrap());
+        assert_eq!(event.end_date.unwrap(), "2016-05-16".parse().unwrap());
         assert_eq!(event.disambiguation, None);
         assert_eq!(event.annotation.unwrap().len(), 2233);
     }
