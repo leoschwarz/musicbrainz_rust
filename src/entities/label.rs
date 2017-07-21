@@ -35,7 +35,7 @@ pub struct Label {
     pub label_code: Option<String>,
 
     /// Describes the main activity of the label.
-    pub label_type: LabelType,
+    pub label_type: Option<LabelType>,
 
     /// ISO 3166 country of origin for the label.
     pub country: Option<String>,
@@ -87,7 +87,7 @@ impl FromXml for Label {
             disambiguation: reader.read_option(".//mb:label/mb:disambiguation/text()")?,
             aliases: reader.read_vec(".//mb:label/mb:alias-list/mb:alias/text()")?,
             label_code: reader.read_option(".//mb:label/mb:label-code/text()")?,
-            label_type: reader.read(".//mb:label/@type")?,
+            label_type: reader.read_option(".//mb:label/@type")?,
             country: reader.read_option(".//mb:label/mb:country/text()")?,
             ipi_code: None, // TODO
             isni_code: None, // TODO
@@ -103,6 +103,9 @@ enum_mb_xml! {
         /// That is a brand (and trademark) associated with the marketing of a
         /// release.
         var Imprint = "Imprint",
+
+        var Production = "Production",
+        var Publisher = "Publisher",
 
         /// Production company producing entirely new releases.
         var ProductionOriginal = "Original Production",
@@ -154,7 +157,7 @@ mod tests {
             ]
         );
         assert_eq!(label.label_code, Some("542".to_string()));
-        assert_eq!(label.label_type, LabelType::ProductionOriginal);
+        assert_eq!(label.label_type, Some(LabelType::ProductionOriginal));
         assert_eq!(label.country, Some("GB".to_string()));
         assert_eq!(label.ipi_code, None);
         assert_eq!(label.isni_code, None);
