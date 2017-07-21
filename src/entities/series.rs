@@ -69,7 +69,6 @@ impl Resource for Series {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use xpath_reader::XpathStrReader;
 
     #[test]
     fn read_series_1()

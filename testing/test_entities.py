@@ -28,7 +28,6 @@ extern crate reqwest_mock;
 use std::str::FromStr;
 use musicbrainz::client::{Client, ClientConfig};
 use musicbrainz::entities::*;
-use musicbrainz::ClientError;
 use reqwest_mock::GenericClient as HttpClient;
 
 #[test]
