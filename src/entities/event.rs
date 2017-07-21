@@ -53,7 +53,7 @@ pub struct Event {
 impl Resource for Event {
     fn get_name() -> &'static str
     {
-        "Resource"
+        "Event"
     }
 
     fn get_url(mbid: &Mbid) -> String
