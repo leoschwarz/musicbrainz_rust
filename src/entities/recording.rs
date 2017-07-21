@@ -21,7 +21,7 @@ pub struct Recording {
 
     /// Approximation of the length of the recording, calculated from the
     /// tracks using it.
-    pub duration: Duration,
+    pub duration: Option<Duration>,
 
     /// ISRC (International Standard Recording Code) assigned to the recording.
     pub isrc_code: Option<String>,
@@ -43,9 +43,10 @@ impl FromXml for Recording {
             mbid: reader.read(".//mb:recording/@id")?,
             title: reader.read(".//mb:recording/mb:title/text()")?,
             artists: reader.read_vec(".//mb:recording/mb:artist-credit/mb:name-credit")?,
-            duration: Duration::from_millis(
-                reader.read::<u64>(".//mb:recording/mb:length/text()")?,
-            ),
+            duration: ::entities::helper::read_mb_duration(
+                reader,
+                ".//mb:recording/mb:length/text()",
+            )?,
             isrc_code: reader.read_option(".//mb:recording/mb:isrc-list/mb:isrc/@id")?,
             disambiguation: reader.read_option(".//mb:recording/mb:disambiguation/text()")?,
             annotation: reader.read_option(".//mb:recording/mb:annotation/text()")?,
@@ -89,7 +90,7 @@ mod tests {
             recording.title,
             "The Perfect Drug (Nine Inch Nails)".to_string()
         );
-        assert_eq!(recording.duration, Duration::from_millis(499000));
+        assert_eq!(recording.duration, Some(Duration::from_millis(499000)));
         assert_eq!(
             recording.artists,
             vec![
