@@ -8,8 +8,8 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 pub mod fields;
 use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField};
 
-pub mod entities;
-use self::entities::SearchEntity;
+pub mod search_entities;
+use self::search_entities::SearchEntity;
 
 pub type SearchResult<Entity> = Result<Vec<SearchEntry<Entity>>, ClientError>;
 
@@ -125,7 +125,7 @@ macro_rules! define_search_builder {
 define_search_builder!(
     AreaSearchBuilder,
     AreaSearchField,
-    entities::Area,
+    search_entities::Area,
     full_entities::Area,
     "area-list"
 );
@@ -133,7 +133,7 @@ define_search_builder!(
 define_search_builder!(
     ArtistSearchBuilder,
     ArtistSearchField,
-    entities::Artist,
+    search_entities::Artist,
     full_entities::Artist,
     "artist-list"
 );
@@ -141,7 +141,7 @@ define_search_builder!(
 define_search_builder!(
     ReleaseGroupSearchBuilder,
     ReleaseGroupSearchField,
-    entities::ReleaseGroup,
+    search_entities::ReleaseGroup,
     full_entities::ReleaseGroup,
     "release-group-list"
 );
@@ -156,7 +156,7 @@ mod tests {
         // url: https://musicbrainz.org/ws/2/release-group/?query=releasegroup:
         // %E9%9C%8A%E9%AD%82%E6%B6%88%E6%BB%85
         let xml = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><metadata created="2017-05-06T09:45:01.432Z" xmlns="http://musicbrainz.org/ns/mmd-2.0#" xmlns:ext="http://musicbrainz.org/ns/ext#-2.0"><release-group-list count="1" offset="0"><release-group id="739de9cd-7e81-4bb0-9fdb-0feb7ea709c7" type="Single" ext:score="100"><title>霊魂消滅</title><primary-type>Single</primary-type><artist-credit><name-credit><artist id="90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e"><name>NECRONOMIDOL</name><sort-name>NECRONOMIDOL</sort-name></artist></name-credit></artist-credit><release-list count="1"><release id="d3d2a860-0093-461d-8d95-b77939c2e944"><title>霊魂消滅</title><status>Official</status></release></release-list></release-group></release-group-list></metadata>"#;
-        let res: Vec<SearchEntry<entities::ReleaseGroup>> =
+        let res: Vec<SearchEntry<search_entities::ReleaseGroup>> =
             ReleaseGroupSearchBuilder::parse_xml(xml).unwrap();
 
         assert_eq!(res.len(), 1);

@@ -70,7 +70,7 @@ define_fields!(
 
 macro_rules! define_entity_fields {
     (
-        $search_entity:ty, $field_trait:ident, $modname:ident;
+        $field_trait:ident, $modname:ident;
         $(
             $field_type:ident, $strname:expr
         );*
@@ -110,7 +110,7 @@ macro_rules! define_entity_fields {
 }
 
 define_entity_fields!(
-    entities::Area, AreaSearchField, area;
+    AreaSearchField, area;
 
     Alias, "alias";
     AreaId, "aid";
@@ -128,7 +128,7 @@ define_entity_fields!(
 );
 
 define_entity_fields!(
-    entities::Artist, ArtistSearchField, artist;
+    ArtistSearchField, artist;
 
     Alias, "alias";
     AreaName, "area";
@@ -150,7 +150,7 @@ define_entity_fields!(
 );
 
 define_entity_fields!(
-    entities::ReleaseGroup, ReleaseGroupSearchField, release_group;
+    ReleaseGroupSearchField, release_group;
 
     ArtistCredit, "artist";
     ArtistId, "arid";
