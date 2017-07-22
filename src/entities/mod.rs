@@ -34,7 +34,8 @@ pub use self::recording::Recording;
 pub use self::release::{LabelInfo, Release, ReleaseMedium, ReleaseStatus, ReleaseTrack};
 pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGroupSecondaryType,
                               ReleaseGroupType};
-pub use self::series::Series;
+// TODO it's pretty useless as of now.
+//pub use self::series::Series;
 
 mod mbid;
 pub use self::mbid::Mbid;

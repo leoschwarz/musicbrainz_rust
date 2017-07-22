@@ -1,4 +1,8 @@
-/// ! For now only including the search fields of release group.
+//! The fields that can be used in queries.
+//!
+//! Some field types can be used for multiple entities, to make it more user friendly the types are
+//! reexported to the submodules corresponding to the names of the entities which they can be used
+//! to query.
 
 use super::{Mbid, full_entities};
 // use super::query::QueryExpression;

@@ -1,3 +1,5 @@
+//! Contains the types and functions to communicate with the MusicBrainz API.
+
 use errors::{ClientError, ClientErrorKind};
 use entities::{Mbid, Resource};
 
@@ -183,14 +185,14 @@ mod tests {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),
                 max_retries: 5,
             },
-            HttpClient::replay_file(format!("replay/src/client/mod/{}.json", testname)),
+            HttpClient::replay_file(format!("replay/test_client/search/{}.json", testname)),
         )
     }
 
     #[test]
     fn search_release_group()
     {
-        let mut client = get_client("search_release_group");
+        let mut client = get_client("release_group_01");
         let results = client
             .search_release_group()
             .add(search::fields::release_group::ReleaseGroupName(

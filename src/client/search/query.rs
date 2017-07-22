@@ -1,4 +1,8 @@
 //! Query builder code.
+//!
+//! In general you won't need to use any of these types directly, but instead through the
+//! facilities provided by `Client`.
+
 use super::*;
 use regex::Regex;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
@@ -7,7 +11,8 @@ use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 /// for a url string.
 ///
 /// This is to be used for attribute values, like for example a release name.
-pub fn escape_full(text: &str) -> String
+pub(crate)
+fn escape_full(text: &str) -> String
 {
     // Replace all special lucene syntax elements.
     let re = Regex::new(r#"([+\-!\(\)\{\}\[\]\^"~\*\?:\\]|[&\|]{2})"#).unwrap();
