@@ -17,8 +17,7 @@ use search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder};
 pub use search::SearchBuilder;
 
 mod error;
-pub(crate)
-use self::error::check_response_error;
+pub(crate) use self::error::check_response_error;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
 fn as_millis(duration: &Duration) -> f64
@@ -38,10 +37,9 @@ pub struct ClientConfig {
     /// The user-agent to be sent with every request to the API.
     ///
     /// Provide a meaningful one as it will be used by MusicBrainz to identify
-    /// your application and
-    /// without a user agent sever throttling will be undertaken. The official
-    /// suggestion is to use
-    /// either one of the following two options:
+    /// your application and without a user agent sever throttling will be
+    /// undertaken. The official suggestion is to use either one of the
+    /// following two options:
     ///
     /// * `Application name/<version> ( contact-url )`
     /// * `Application name/<version> ( contact-email )`
@@ -125,8 +123,7 @@ impl Client {
         Ok(Res::from_xml(&reader)?)
     }
 
-    pub(crate)
-    fn get_body(&mut self, url: Url) -> Result<String, ClientError>
+    pub(crate) fn get_body(&mut self, url: Url) -> Result<String, ClientError>
     {
         self.wait_if_needed();
 
