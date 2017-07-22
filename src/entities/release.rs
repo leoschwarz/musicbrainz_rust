@@ -51,16 +51,31 @@ impl FromXml for ReleaseTrack {
     }
 }
 
-/// A medium is a collection of multiple `ReleaseTrack`. For physical releases
-/// one medium might
-/// equal one CD, so an album released as a release with two CDs would have two
-/// associated
-/// `ReleaseMedium` instances.
+/*
+TODO: Parse the format. We have to yet consider if everything should get its own variant or only the larger classes of mediums should get one and subclasses would be specified as string variants.
+enum_mb_xml! {
+    /// Specifies the format of a `ReleaseMedium`.
+    pub enum ReleaseMediumFormat {
+        var DigitalMedia = "Digital Media",
+    }
+}
+*/
+
+/// A medium is a collection of multiple `ReleaseTrack`.
+///
+/// For physical releases one medium might equal one CD, so an album released
+/// as a release with two CDs would have two associated `ReleaseMedium`
+/// instances.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReleaseMedium {
     /// The medium's position number providing a total order between all
     /// mediums of one `Release`.
     position: u16,
+
+    /// The format of this `ReleaseMedium`.
+    ///
+    /// TODO: Parse into `ReleaseMediumFormat` enum.
+    format: Option<String>,
 
     /// The tracks stored on this medium.
     tracks: Vec<ReleaseTrack>,
@@ -74,6 +89,7 @@ impl FromXml for ReleaseMedium {
     {
         Ok(ReleaseMedium {
             position: reader.read(".//mb:position/text()")?,
+            format: reader.read_option(".//mb:format/text()")?,
             tracks: reader.read_vec(".//mb:track-list/mb:track")?,
         })
     }

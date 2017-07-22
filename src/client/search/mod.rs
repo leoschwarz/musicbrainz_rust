@@ -6,7 +6,7 @@ use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 
 pub mod fields;
-use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField};
+use self::fields::{AreaSearchField, ArtistSearchField, ReleaseSearchField, ReleaseGroupSearchField};
 
 pub mod search_entities;
 use self::search_entities::SearchEntity;
@@ -137,6 +137,16 @@ define_search_builder!(
     full_entities::Artist,
     "artist-list"
 );
+
+/* TODO
+define_search_builder!(
+    ReleaseSearchBuilder,
+    ReleaseSearchField,
+    search_entities::Release,
+    full_entities::Release,
+    "release-list"
+);
+*/
 
 define_search_builder!(
     ReleaseGroupSearchBuilder,

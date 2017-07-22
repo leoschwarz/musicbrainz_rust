@@ -1,8 +1,15 @@
 //! The fields that can be used in queries.
 //!
-//! Some field types can be used for multiple entities, to make it more user friendly the types are
-//! reexported to the submodules corresponding to the names of the entities which they can be used
-//! to query.
+//! Some field types can be used for multiple entities, to make it more user
+//! friendly the types are reexported to the submodules corresponding to the
+//! names of the entities which they can be used to query.
+//!
+//! Link to [MusicBrainz
+//! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
+
+// TODO: To verify we actually implemented all fields it might make more sense to swap our type
+// and the string value in the following declarations and then sort the entries alphabetically
+// again.
 
 use super::{Mbid, full_entities};
 // use super::query::QueryExpression;
@@ -31,6 +38,10 @@ macro_rules! define_fields {
     }
 }
 
+// TODO consider whether we should rename `Comment` to `Disambiguation` or something like that to
+// be more consistent with the rest of the crate.
+//
+// TODO: enums for quality, lang, script, etc
 define_fields!(
     Alias, String;
     AreaId, Mbid;
@@ -45,24 +56,39 @@ define_fields!(
     ArtistName, String;
     ArtistNameAccent, String;
     ArtistType, full_entities::ArtistType;
+    Asin, String;
+    Barcode, String;
     BeginArea, String;
     BeginDate, PartialDate;
+    CatalogNumber, String;
     Comment, String;
     Country, String;
     CreditName, String;
+    DataQuality, String;
     EndArea, String;
     EndDate, PartialDate;
     Ended, bool;
     Gender, String;
     IpiCode, String;
+    LabelId, String;
+    Language, String;
+    MediumCount, u32;
+    MediumFormat, String;
+    NumDiscIds, u32;
+    NumDiscIdsMedium, u32;
+    NumTracks, u32;
+    NumTracksMedium, u32;
     PrimaryType, full_entities::ReleaseGroupPrimaryType;
+    ReleaseDate, full_entities::PartialDate;
     ReleaseGroupId, Mbid;
     ReleaseGroupName, String;
     ReleaseGroupNameAccent, String;
     ReleaseId, Mbid;
     ReleaseName, String;
+    ReleaseNameAccent, String;
     ReleaseNumber, u16;
     ReleaseStatus, full_entities::ReleaseStatus;
+    Script, String;
     SecondaryType, String;
     SortName, String;
     Tag, String
@@ -81,18 +107,6 @@ macro_rules! define_entity_fields {
         pub trait $field_trait : SearchField {
             fn name() -> &'static str;
         }
-
-        /*
-         TODO: Implement something like this. However we will have to make sure we are escaping every value exactly one time.
-        impl QueryExpression for $field_trait {
-            type Entity = $search_entity;
-
-            fn build_query(&self) -> String {
-                use super::query::escape_full;
-                format!("{}:{}", escape_full(Self::name()), escape_full(self.to_string().as_ref()))
-            }
-        }
-        */
 
         pub mod $modname {
             pub use super::$field_trait;
@@ -147,6 +161,39 @@ define_entity_fields!(
     IpiCode, "ipi";
     SortName, "sortname";
     Tag, "tag"
+);
+
+// TODO what are puids?
+define_entity_fields!(
+    ReleaseSearchField, release;
+
+    ArtistId, "arid";
+    ArtistName, "artist";
+    Asin, "asin";
+    Barcode, "barcode";
+    CatalogNumber, "catno";
+    Comment, "comment";
+    Country, "country";
+    CreditName, "creditname";
+    ReleaseDate, "date";
+    NumDiscIds, "discids";
+    NumDiscIdsMedium, "discidsmedium";
+    MediumFormat, "format";
+    LabelId, "laid";
+    Language, "lang";
+    MediumCount, "mediums";
+    PrimaryType, "primarytype";
+    DataQuality, "quality";
+    ReleaseId, "reid";
+    ReleaseName, "release";
+    ReleaseNameAccent, "releaseaccent";
+    ReleaseGroupId, "rgid";
+    Script, "script";
+    SecondaryType, "secondarytype";
+    ReleaseStatus, "status";
+    Tag, "tag";
+    NumTracks, "tracks";
+    NumTracksMedium, "tracksmedium"
 );
 
 define_entity_fields!(

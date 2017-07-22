@@ -41,6 +41,25 @@ impl SearchEntity for Artist {
     }
 }
 
+pub struct Release {
+    pub mbid: Mbid,
+    pub title: String,
+    pub status: full_entities::ReleaseStatus,
+    pub language: Option<String>,
+    pub script: Option<String>,
+    pub artists: Vec<ArtistRef>,
+    // release group refs (TODO)
+}
+
+impl SearchEntity for Release {
+    type FullEntity = full_entities::Release;
+
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError>
+    {
+        client.get_by_mbid(&self.mbid)
+    }
+}
+
 pub struct ReleaseGroup {
     pub mbid: Mbid,
     pub title: String,
