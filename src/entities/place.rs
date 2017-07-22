@@ -4,6 +4,7 @@ use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
 enum_mb_xml! {
+    /// Specifies what a `Place` instance actually is.
     pub enum PlaceType {
         var Studio = "Studio",
         var Venue = "Venue",
@@ -14,7 +15,10 @@ enum_mb_xml! {
     }
 }
 
-/// TODO: Parsing of the coordinate values.
+/// A pair of coordinates on the surface of planet earth.
+///
+/// TODO: Parsing of the coordinate values, currently they are only unchecked
+/// string values.
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Coordinates {
     pub latitude: String,
@@ -36,31 +40,43 @@ impl FromXml for Coordinates {
 
 /// A venue, studio or other place where music is performed, recorded,
 /// engineered, etc.
+///
+/// Additional information can be found in the [MusicBrainz
+/// docs](https://musicbrainz.org/doc/Place).
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Place {
     /// MBID of the entity in the MusicBrainz database.
     pub mbid: Mbid,
 
-    /// The official name of a place.
+    /// The official name of a `Place`.
     pub name: String,
 
-    /// The type of the place.
+    /// The type of the `Place`.
     pub place_type: Option<PlaceType>,
 
-    /// Address of the place in the local adressing format.
+    /// Address of the `Place` in the local adressing format.
     pub address: Option<String>,
 
+    /// The exact coordinates of the place.
     pub coordinates: Option<Coordinates>,
 
+    /// Specifies the `Area` the `Place` is located in.
     pub area: Option<AreaRef>,
 
+    /// When the `Place` was founded.
     pub begin: Option<PartialDate>,
+
+    /// When the `Place` closed down.
     pub end: Option<PartialDate>,
 
+    /// Alternative versions of this `Place`'s name.
     pub aliases: Vec<String>,
 
+    /// Additional disambiguation if there are multiple places with the same
+    /// name.
     pub disambiguation: Option<String>,
 
+    /// Any additional free form annotation for this `Place`.
     pub annotation: Option<String>,
 }
 
@@ -71,17 +87,17 @@ impl FromXml for Place {
         R: XpathReader<'d>,
     {
         Ok(Place {
+            address: reader.read_option(".//mb:place/mb:address/text()")?,
+            aliases: reader.read_vec(".//mb:place/mb:aliases/text()")?,
+            annotation: reader.read_option(".//mb:place/mb:annotation/text()")?,
+            area: reader.read_option(".//mb:place/mb:area")?,
+            begin: reader.read_option(".//mb:place/mb:life-span/mb:begin/text()")?,
+            coordinates: reader.read_option(".//mb:place/mb:coordinates")?,
+            disambiguation: reader.read_option(".//mb:place/mb:disambiguation/text()")?,
+            end: reader.read_option(".//mb:place/mb:life-span/mb:end/text()")?,
             mbid: reader.read(".//mb:place/@id")?,
             name: reader.read(".//mb:place/mb:name/text()")?,
             place_type: reader.read_option(".//mb:place/@type")?,
-            address: reader.read_option(".//mb:place/mb:address/text()")?,
-            coordinates: reader.read_option(".//mb:place/mb:coordinates")?,
-            area: reader.read_option(".//mb:place/mb:area")?,
-            begin: reader.read_option(".//mb:place/mb:life-span/mb:begin/text()")?,
-            end: reader.read_option(".//mb:place/mb:life-span/mb:end/text()")?,
-            aliases: reader.read_vec(".//mb:place/mb:aliases/text()")?,
-            disambiguation: reader.read_option(".//mb:place/mb:disambiguation/text()")?,
-            annotation: reader.read_option(".//mb:place/mb:annotation/text()")?,
         })
     }
 }

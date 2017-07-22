@@ -54,8 +54,9 @@ impl FromXml for ReleaseGroupType {
 }
 
 /// Groups multiple `Release`s into one a single logical entity.
-/// Even if there is only one release of a kind, it belongs to exactly one
-/// release group.
+///
+/// Even if there is only one `Release` of a kind, it belongs to exactly one
+/// `ReleaseGroup`.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReleaseGroup {
     /// MBID of the entity in the MusicBrainz database.
@@ -74,10 +75,11 @@ pub struct ReleaseGroup {
     /// The type of this release group.
     pub release_type: ReleaseGroupType,
 
-    // TODO docstring
+    /// Additional disambiguation if there are multiple `ReleaseGroup`s with
+    /// the same name.
     pub disambiguation: Option<String>,
 
-    // TODO: docstring
+    /// Any additional free form annotation for this `ReleaseGroup`.
     pub annotation: Option<String>,
 }
 

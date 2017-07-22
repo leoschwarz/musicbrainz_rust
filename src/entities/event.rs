@@ -14,40 +14,43 @@ enum_mb_xml! {
     }
 }
 
+/// An organized event people can attend, these are generally live performances.
+///
+/// Additional information can be found in the [MusicBrainz
+/// docs](https://musicbrainz.org/doc/Event)
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Event {
     /// MBID of the entity in the MusicBrainz database.
-    mbid: Mbid,
+    pub mbid: Mbid,
 
     /// The official name of the event or a descriptive name if the event
-    /// doesn't have an official
-    /// name.
-    name: String,
+    /// doesn't have an official name.
+    pub name: String,
 
     /// Aternative event names.
-    aliases: Vec<String>,
+    pub aliases: Vec<String>,
 
     /// Describes what type of event this is exactly.
-    event_type: Option<EventType>,
+    pub event_type: Option<EventType>,
 
     /// List of songs played at the event.
     ///
     /// This is provided in an extensive text format, for which parsing is not
     /// yet implemented.
-    setlist: Option<String>,
+    pub setlist: Option<String>,
 
     /// Begin date of the event.
-    begin_date: PartialDate,
+    pub begin_date: PartialDate,
 
     /// End date of the event.
-    end_date: Option<PartialDate>,
+    pub end_date: Option<PartialDate>,
 
-    // TODO:    start_time: Time
-    /// Disambiguation to distinguish Event from other Events with the same
-    /// name (if existent).
-    disambiguation: Option<String>,
+    /// Additional disambiguation if there are multiple `Event`s with the same
+    /// name.
+    pub disambiguation: Option<String>,
 
-    /// Additional, unstructured information about the event.
-    annotation: Option<String>,
+    /// Any additional free form annotation for this `Event`.
+    pub annotation: Option<String>,
 }
 
 impl Resource for Event {

@@ -1,3 +1,5 @@
+//! Defines types representing the entities from the MusicBrainz database.
+
 /// TODO consider what type to use
 pub use std::time::Duration;
 
@@ -39,23 +41,28 @@ pub use self::mbid::Mbid;
 
 // TODO: Convert get_name and base_url into associated consts once these land
 // in stable rust.
+/// A Resource is any entity which can be directly retrieved from MusicBrainz.
+///
+/// We define this trait for the sake of using the `Client` type more
+/// efficiently, users of the `musicbrainz` crate shouldn't need to use this
+/// type directly.
 pub trait Resource {
-    /// Returns the name of the Resource, e. g. "Artist".
+    /// Returns the name of the Resource, e. g. `"Artist"`.
     fn get_name() -> &'static str;
 
-    /// Returns the url where one can get a ressource in the valid format for
+    /// Returns the url where one can get a resource in the valid format for
     /// parsing from.
     fn get_url(mbid: &Mbid) -> String;
 
-    /// Base url of the entity, for example:
-    /// `https://musicbrainz.org/ws/2/artist/`.
-    /// These are used for searches for example.
+    /// Base url of the entity, e. g. `"https://musicbrainz.org/ws/2/artist/"`.
+    ///
+    /// These are used for building search requests.
     fn base_url() -> &'static str;
 }
 
-pub struct Work {}
+// TODO pub struct Work {}
 
-pub struct Url {}
+// TODO pub struct Url {}
 
 // TODO: rating, tag, collection
 // TODO: discid, isrc, iswc

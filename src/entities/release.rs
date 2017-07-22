@@ -6,12 +6,16 @@ use entities::{Mbid, Resource};
 use entities::date::PartialDate;
 use entities::refs::{ArtistRef, LabelRef, RecordingRef};
 
+/// Describes a single track, `Releases` consist of multiple `ReleaseTrack`s.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ReleaseTrack {
     /// MBID of the entity in the MusicBrainz database.
     pub mbid: Mbid,
 
-    // TODO: docstring ; what is the difference between `position` and `number`???
+    /// The position of the track on the `Release`.
+    ///
+    /// TODO (clarification) : what is the difference between `position` and
+    /// `number`???
     pub position: u16,
 
     /// The track number as listed in the release.
@@ -90,16 +94,15 @@ enum_mb_xml! {
         var Bootleg = "Bootleg",
 
         /// An alternate version of a release where the titles have been changed.
-        /// These don't correspond to any real release and should be linked to the
-        /// original release
-        /// using the transliteration relationship.
+        /// These don't correspond to any real release and should actually be linked to the
+        /// original release using the transliteration relationship.
         ///
         /// TL;DR: Essentially this shouldn't be used.
         var PseudoRelease = "Pseudo-Release",
     }
 }
 
-/// Lists information about a release.
+/// Lists information about a `Release`.
 ///
 /// Note that its both possible to find a `LabelInfo` with only one of `label`
 /// or `cat_num`.
@@ -131,7 +134,8 @@ impl FromXml for LabelInfo {
     }
 }
 
-#[derive(Clone, Debug)]
+/// A `Release` is any publication of one or more tracks.
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Release {
     /// MBID of the entity in the MusicBrainz database.
     pub mbid: Mbid,
@@ -183,20 +187,20 @@ impl FromXml for Release {
         R: XpathReader<'d>,
     {
         Ok(Release {
-            mbid: reader.read(".//mb:release/@id")?,
-            title: reader.read(".//mb:release/mb:title/text()")?,
             artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
-            date: reader.read_option(".//mb:release/mb:date/text()")?,
-            country: reader.read_option(".//mb:release/mb:country/text()")?,
-            labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
             barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
-            status: reader.read_option(".//mb:release/mb:status/text()")?,
-            packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
+            country: reader.read_option(".//mb:release/mb:country/text()")?,
+            date: reader.read_option(".//mb:release/mb:date/text()")?,
+            disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
+            labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
             language:
                 reader.read_option(".//mb:release/mb:text-representation/mb:language/text()")?,
-            script: reader.read_option(".//mb:release/mb:text-representation/mb:script/text()")?,
-            disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
+            mbid: reader.read(".//mb:release/@id")?,
             mediums: reader.read_vec(".//mb:release/mb:medium-list/mb:medium")?,
+            packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
+            script: reader.read_option(".//mb:release/mb:text-representation/mb:script/text()")?,
+            status: reader.read_option(".//mb:release/mb:status/text()")?,
+            title: reader.read(".//mb:release/mb:title/text()")?,
         })
     }
 }

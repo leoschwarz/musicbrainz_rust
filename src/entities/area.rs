@@ -35,10 +35,11 @@ enum_mb_xml!{
 }
 
 /// A geographic region or settlement.
+///
 /// The exact type is distinguished by the `area_type` field.
 /// This is one of the *core entities* of MusicBrainz.
 ///
-/// https://musicbrainz.org/doc/Area
+/// [MusicBrainz documentation](https://musicbrainz.org/doc/Area).
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Area {
     /// MBID of the entity in the MusicBrainz database.
@@ -51,7 +52,7 @@ pub struct Area {
     /// characters.
     pub sort_name: String,
 
-    /// The type of the area.
+    /// Type of the area, gives more information about
     pub area_type: AreaType,
 
     /// ISO 3166 code, assigned to countries and subdivisions.
