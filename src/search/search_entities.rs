@@ -4,9 +4,9 @@
 //! They are only contained in search results and provide a means to retrive
 //! the full entitity a further API request.
 
-use super::{Client, ClientError, Mbid, full_entities};
+use super::{Client, ClientError, full_entities};
 use self::full_entities::refs::*;
-use self::full_entities::Resource;
+use self::full_entities::{Mbid, Resource};
 use xpath_reader::FromXmlError;
 use xpath_reader::reader::{FromXml, FromXmlElement, XpathReader};
 

@@ -1,9 +1,11 @@
-use super::*;
-use super::super::entities as full_entities;
+use entities as full_entities;
+use entities::Resource;
+use errors::ClientError;
+use client::Client;
 
 use reqwest_mock::Url;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::{FromXml, FromXmlError, XpathReader, XpathStrReader};
 
 pub mod fields;
 use self::fields::{AreaSearchField, ArtistSearchField, ReleaseSearchField, ReleaseGroupSearchField};
@@ -49,11 +51,11 @@ macro_rules! define_search_builder {
       $list_tag:expr ) => {
         pub struct $builder<'cl> {
             params: Vec<(&'static str, String)>,
-            client: &'cl mut super::Client,
+            client: &'cl mut Client,
         }
 
         impl<'cl> $builder<'cl> {
-            pub fn new(client: &'cl mut super::Client) -> Self {
+            pub fn new(client: &'cl mut Client) -> Self {
                 Self {
                     params: Vec::new(),
                     client: client,
@@ -91,7 +93,7 @@ macro_rules! define_search_builder {
                 context.set_namespace("ext", "http://musicbrainz.org/ns/ext#-2.0");
 
                 let reader = XpathStrReader::new(xml, &context)?;
-                check_response_error(&reader)?;
+                ::client::check_response_error(&reader)?;
                 Ok(reader.read_vec("//mb:metadata")?)
             }
         }

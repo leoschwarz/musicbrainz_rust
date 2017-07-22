@@ -11,9 +11,9 @@
 // and the string value in the following declarations and then sort the entries alphabetically
 // again.
 
-use super::{Mbid, full_entities};
+use super::{full_entities};
 // use super::query::QueryExpression;
-use super::full_entities::PartialDate;
+use super::full_entities::{Mbid, PartialDate};
 // use super::entities;
 
 pub trait SearchField {

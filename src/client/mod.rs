@@ -12,11 +12,12 @@ use xpath_reader::reader::{FromXmlContained, XpathStrReader};
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
-pub mod search;
-use self::search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder};
-pub use self::search::SearchBuilder;
+use search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder};
+// TODO reconsider reexport
+pub use search::SearchBuilder;
 
 mod error;
+pub(crate)
 use self::error::check_response_error;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
@@ -124,6 +125,7 @@ impl Client {
         Ok(Res::from_xml(&reader)?)
     }
 
+    pub(crate)
     fn get_body(&mut self, url: Url) -> Result<String, ClientError>
     {
         self.wait_if_needed();
@@ -195,7 +197,7 @@ mod tests {
         let mut client = get_client("release_group_01");
         let results = client
             .search_release_group()
-            .add(search::fields::release_group::ReleaseGroupName(
+            .add(::search::fields::release_group::ReleaseGroupName(
                 "霊魂消滅".to_owned(),
             ))
             .search()

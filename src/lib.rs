@@ -17,6 +17,7 @@ pub use self::errors::*;
 
 pub mod client;
 pub mod entities;
+pub mod search;
 
 mod util;
 
