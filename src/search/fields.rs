@@ -7,10 +7,6 @@
 //! Link to [MusicBrainz
 //! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
 
-// TODO: To verify we actually implemented all fields it might make more sense to swap our type
-// and the string value in the following declarations and then sort the entries alphabetically
-// again.
-
 use super::{full_entities};
 // use super::query::QueryExpression;
 use super::full_entities::{Mbid, PartialDate};
@@ -108,8 +104,9 @@ macro_rules! define_entity_fields {
     (
         $field_trait:ident, $modname:ident;
         $(
-            $field_type:ident, $strname:expr
+             $strname:expr, $field_type:ident
         );*
+        ;
     )
         =>
     {
@@ -136,92 +133,92 @@ macro_rules! define_entity_fields {
 define_entity_fields!(
     AreaSearchField, area;
 
-    Alias, "alias";
-    AreaId, "aid";
-    AreaIso, "iso";
-    AreaIso1, "iso1";
-    AreaIso2, "iso2";
-    AreaIso3, "iso3";
-    AreaName, "area";
-    AreaType, "type";
-    BeginDate, "begin";
-    Comment, "comment";
-    EndDate, "end";
-    Ended, "ended";
-    SortName, "sortname"
+    "aid", AreaId;
+    "alias", Alias;
+    "area", AreaName;
+    "begin", BeginDate;
+    "comment", Comment;
+    "end", EndDate;
+    "ended", Ended;
+    "iso", AreaIso;
+    "iso1", AreaIso1;
+    "iso2", AreaIso2;
+    "iso3", AreaIso3;
+    "sortname", SortName;
+    "type", AreaType;
 );
 
 define_entity_fields!(
     ArtistSearchField, artist;
 
-    Alias, "alias";
-    AreaName, "area";
-    ArtistId, "arid";
-    ArtistName, "artist";
-    ArtistNameAccent, "artistaccent";
-    ArtistType, "type";
-    BeginArea, "beginarea";
-    BeginDate, "begin";
-    Comment, "comment";
-    Country, "country";
-    EndArea, "endarea";
-    EndDate, "end";
-    Ended, "ended";
-    Gender, "gender";
-    IpiCode, "ipi";
-    SortName, "sortname";
-    Tag, "tag"
+    "alias", Alias;
+    "area", AreaName;
+    "arid", ArtistId;
+    "artist", ArtistName;
+    "artistaccent", ArtistNameAccent;
+    "begin", BeginDate;
+    "beginarea", BeginArea;
+    "comment", Comment;
+    "country", Country;
+    "end", EndDate;
+    "endarea", EndArea;
+    "ended", Ended;
+    "gender", Gender;
+    "ipi", IpiCode;
+    "sortname", SortName;
+    "tag", Tag;
+    "type", ArtistType;
 );
 
 // TODO what are puids?
 define_entity_fields!(
     ReleaseSearchField, release;
 
-    ArtistId, "arid";
-    ArtistName, "artist";
-    Asin, "asin";
-    Barcode, "barcode";
-    CatalogNumber, "catno";
-    Comment, "comment";
-    Country, "country";
-    CreditName, "creditname";
-    ReleaseDate, "date";
-    NumDiscIds, "discids";
-    NumDiscIdsMedium, "discidsmedium";
-    MediumFormat, "format";
-    LabelId, "laid";
-    Language, "lang";
-    MediumCount, "mediums";
-    PrimaryType, "primarytype";
-    DataQuality, "quality";
-    ReleaseId, "reid";
-    ReleaseName, "release";
-    ReleaseNameAccent, "releaseaccent";
-    ReleaseGroupId, "rgid";
-    Script, "script";
-    SecondaryType, "secondarytype";
-    ReleaseStatus, "status";
-    Tag, "tag";
-    NumTracks, "tracks";
-    NumTracksMedium, "tracksmedium"
+    "arid", ArtistId;
+    "artist", ArtistName;
+    "asin", Asin;
+    "barcode", Barcode;
+    "catno", CatalogNumber;
+    "comment", Comment;
+    "country", Country;
+    "creditname", CreditName;
+    "date", ReleaseDate;
+    "discids", NumDiscIds;
+    "discidsmedium", NumDiscIdsMedium;
+    "format", MediumFormat;
+    "laid", LabelId;
+    "lang", Language;
+    "mediums", MediumCount;
+    "primarytype", PrimaryType;
+    "quality", DataQuality;
+    "reid", ReleaseId;
+    "release", ReleaseName;
+    "releaseaccent", ReleaseNameAccent;
+    "rgid", ReleaseGroupId;
+    "script", Script;
+    "secondarytype", SecondaryType;
+    "status", ReleaseStatus;
+    "tag", Tag;
+    "tracks", NumTracks;
+    "tracksmedium", NumTracksMedium;
 );
 
 define_entity_fields!(
     ReleaseGroupSearchField, release_group;
 
-    ArtistCredit, "artist";
-    ArtistId, "arid";
-    ArtistName, "artistname";
-    Comment, "comment";
-    CreditName, "creditname";
-    PrimaryType, "primarytype";
-    ReleaseGroupId, "rgid";
-    ReleaseGroupName, "releasegroup";
-    ReleaseGroupNameAccent, "releasegroupaccent";
-    ReleaseId, "reid";
-    ReleaseName, "release";
-    ReleaseNumber, "releases";
-    ReleaseStatus, "status";
-    SecondaryType, "secondarytype";
-    Tag, "tag"
+    "arid", ArtistId;
+    "artist", ArtistCredit;
+    "artistname", ArtistName;
+    "comment", Comment;
+    "creditname", CreditName;
+    "primarytype", PrimaryType;
+    "reid", ReleaseId;
+    "release", ReleaseName;
+    "releasegroup", ReleaseGroupName;
+    "releasegroupaccent", ReleaseGroupNameAccent;
+    "releases", ReleaseNumber;
+    "rgid", ReleaseGroupId;
+    "secondarytype", SecondaryType;
+    "status", ReleaseStatus;
+    "tag", Tag;
 );
