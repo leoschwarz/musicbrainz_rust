@@ -19,7 +19,7 @@ pub trait SearchField {
 }
 
 macro_rules! define_fields {
-    ( $( $(#[$attr:meta])* f, $type:ident, $value:ty );* ) => {
+    ( $( $(#[$attr:meta])* - $type:ident, $value:ty );* ) => {
         $(
             $(#[$attr])*
             pub struct $type ( pub $value );
@@ -39,89 +39,88 @@ macro_rules! define_fields {
 // something like that to
 // be more consistent with the rest of the crate.
 //
-// TODO: enums for quality, lang, script, etc
-// TODO it's a bit ugly we have f, at the beginning of every line but its a
-// workaround around the
-// parsing ambiguity we'd have if we don't.
+// TODO: enums for quality, script, etc
+// TODO it's a bit ugly we have `-` at the beginning of every line but its a
+// workaround around the parsing ambiguity we'd have if we didn't.
 define_fields!(
     /// Alias of the searched entity's name.
-    f, Alias, String;
+    - Alias, String;
     /// The MBID of the `Area`.
-    f, AreaMbid, Mbid;
+    - AreaMbid, Mbid;
     /// An ISO 3166-1/2/3 code attached to the `Area`.
-    f, AreaIso, String;
+    - AreaIso, String;
     /// An ISO 3166-1 code attached to the `Area`.
-    f, AreaIso1, String;
+    - AreaIso1, String;
     /// An ISO 3166-2 code attached to the `Area`.
-    f, AreaIso2, String;
+    - AreaIso2, String;
     /// An ISO 3166-3 code attached to the `Area`.
-    f, AreaIso3, String;
+    - AreaIso3, String;
     /// The name of thea `Area`.
-    f, AreaName, String;
+    - AreaName, String;
     /// The type of the `Area`.
-    f, AreaType, full_entities::AreaType;
-    f, ArtistCredit, String;
+    - AreaType, full_entities::AreaType;
+    - ArtistCredit, String;
     /// The MBID of the `Artist`.
-    f, ArtistMbid, Mbid;
+    - ArtistMbid, Mbid;
     /// The name of the `Artist` without accented characters.
-    f, ArtistName, String;
+    - ArtistName, String;
     /// The name of the `Artist` with accented characters.
-    f, ArtistNameAccent, String;
+    - ArtistNameAccent, String;
     /// The type of the `Artist`.
-    f, ArtistType, full_entities::ArtistType;
-    f, Asin, String;
+    - ArtistType, full_entities::ArtistType;
+    - Asin, String;
     /// The barcode of a `Release`.
-    f, Barcode, String;
-    f, BeginArea, String;
+    - Barcode, String;
+    - BeginArea, String;
     /// Begin date of the searched entity.
     ///
     /// Check the searched entity's documentation for more information what this means concretely.
-    f, BeginDate, PartialDate;
-    f, CatalogNumber, String;
+    - BeginDate, PartialDate;
+    - CatalogNumber, String;
     /// Disambiguation comment of the searched entity.
-    f, Comment, String;
-    f, Country, String;
-    f, CreditName, String;
-    f, DataQuality, String;
-    f, EndArea, String;
+    - Comment, String;
+    - Country, String;
+    - CreditName, String;
+    - DataQuality, String;
+    - EndArea, String;
     /// End date of the searched entity.
     ///
     /// Check the searched entity's documentation for more information what this means concretely.
-    f, EndDate, PartialDate;
+    - EndDate, PartialDate;
     /// Whether the searched entity has already ended.
     ///
     /// Check the searched entity's documentation for more information what this means concretely.
-    f, Ended, bool;
+    - Ended, bool;
     /// The gender of an `Artist`.
-    f, Gender, String;
-    f, IpiCode, String;
-    f, LabelId, String;
-    f, Language, full_entities::Language;
-    f, MediumCount, u32;
-    f, MediumFormat, String;
+    - Gender, String;
+    - IpiCode, String;
+    - LabelId, String;
+    - Language, full_entities::Language;
+    - MediumCount, u32;
+    - MediumFormat, String;
     /// The searched entity's name. (TODO implement for all relevant searches)
-    f, Name, String;
-    f, NumDiscIds, u32;
-    f, NumDiscIdsMedium, u32;
-    f, NumTracks, u32;
-    f, NumTracksMedium, u32;
-    f, PrimaryType, full_entities::ReleaseGroupPrimaryType;
-    f, ReleaseDate, full_entities::PartialDate;
-    f, ReleaseGroupId, Mbid;
-    f, ReleaseGroupName, String;
-    f, ReleaseGroupNameAccent, String;
-    f, ReleaseId, Mbid;
+    - Name, String;
+    - NumDiscIds, u32;
+    - NumDiscIdsMedium, u32;
+    - NumTracks, u32;
+    - NumTracksMedium, u32;
+    - PrimaryType, full_entities::ReleaseGroupPrimaryType;
+    - ReleaseDate, full_entities::PartialDate;
+    - ReleaseGroupId, Mbid;
+    - ReleaseGroupName, String;
+    - ReleaseGroupNameAccent, String;
+    - ReleaseId, Mbid;
     /// The name of the `Release`, without special accent characters.
-    f, ReleaseName, String;
+    - ReleaseName, String;
     /// The name of the `Release`, including special accent characters.
-    f, ReleaseNameAccent, String;
-    f, ReleaseNumber, u16;
-    f, ReleaseStatus, full_entities::ReleaseStatus;
-    f, Script, String;
-    f, SecondaryType, String;
+    - ReleaseNameAccent, String;
+    - ReleaseNumber, u16;
+    - ReleaseStatus, full_entities::ReleaseStatus;
+    - Script, String;
+    - SecondaryType, String;
     /// The sort name of the searched entity.
-    f, SortName, String;
-    f, Tag, String
+    - SortName, String;
+    - Tag, String
 );
 
 macro_rules! define_entity_fields {
