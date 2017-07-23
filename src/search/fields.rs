@@ -7,7 +7,7 @@
 //! Link to [MusicBrainz
 //! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
 
-use super::{full_entities};
+use super::full_entities;
 // use super::query::QueryExpression;
 use super::full_entities::{Mbid, PartialDate};
 // use super::entities;
@@ -35,39 +35,62 @@ macro_rules! define_fields {
     }
 }
 
-// TODO consider whether we should rename `Comment` to `Disambiguation` or something like that to
+// TODO consider whether we should rename `Comment` to `Disambiguation` or
+// something like that to
 // be more consistent with the rest of the crate.
 //
 // TODO: enums for quality, lang, script, etc
-// TODO it's a bit ugly we have f, at the beginning of every line but its a workaround around the
+// TODO it's a bit ugly we have f, at the beginning of every line but its a
+// workaround around the
 // parsing ambiguity we'd have if we don't.
 define_fields!(
     /// Alias of the searched entity's name.
     f, Alias, String;
-    f, AreaId, Mbid;
+    /// The MBID of the `Area`.
+    f, AreaMbid, Mbid;
+    /// An ISO 3166-1/2/3 code attached to the `Area`.
     f, AreaIso, String;
+    /// An ISO 3166-1 code attached to the `Area`.
     f, AreaIso1, String;
+    /// An ISO 3166-2 code attached to the `Area`.
     f, AreaIso2, String;
+    /// An ISO 3166-3 code attached to the `Area`.
     f, AreaIso3, String;
+    /// The name of thea `Area`.
     f, AreaName, String;
+    /// The type of the `Area`.
     f, AreaType, full_entities::AreaType;
     f, ArtistCredit, String;
-    f, ArtistId, Mbid;
+    /// The MBID of the `Artist`.
+    f, ArtistMbid, Mbid;
+    /// The name of the `Artist` without accented characters.
     f, ArtistName, String;
+    /// The name of the `Artist` with accented characters.
     f, ArtistNameAccent, String;
+    /// The type of the `Artist`.
     f, ArtistType, full_entities::ArtistType;
     f, Asin, String;
     /// The barcode of a `Release`.
     f, Barcode, String;
     f, BeginArea, String;
+    /// Begin date of the searched entity.
+    ///
+    /// Check the searched entity's documentation for more information what this means concretely.
     f, BeginDate, PartialDate;
     f, CatalogNumber, String;
+    /// Disambiguation comment of the searched entity.
     f, Comment, String;
     f, Country, String;
     f, CreditName, String;
     f, DataQuality, String;
     f, EndArea, String;
+    /// End date of the searched entity.
+    ///
+    /// Check the searched entity's documentation for more information what this means concretely.
     f, EndDate, PartialDate;
+    /// Whether the searched entity has already ended.
+    ///
+    /// Check the searched entity's documentation for more information what this means concretely.
     f, Ended, bool;
     /// The gender of an `Artist`.
     f, Gender, String;
@@ -96,6 +119,7 @@ define_fields!(
     f, ReleaseStatus, full_entities::ReleaseStatus;
     f, Script, String;
     f, SecondaryType, String;
+    /// The sort name of the searched entity.
     f, SortName, String;
     f, Tag, String
 );
@@ -133,9 +157,10 @@ macro_rules! define_entity_fields {
 define_entity_fields!(
     AreaSearchField, area;
 
-    "aid", AreaId;
+    "aid", AreaMbid;
     "alias", Alias;
     "area", AreaName;
+    "area", Name;
     "begin", BeginDate;
     "comment", Comment;
     "end", EndDate;
@@ -153,7 +178,7 @@ define_entity_fields!(
 
     "alias", Alias;
     "area", AreaName;
-    "arid", ArtistId;
+    "arid", ArtistMbid;
     "artist", ArtistName;
     "artistaccent", ArtistNameAccent;
     "begin", BeginDate;
