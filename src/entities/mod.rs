@@ -9,6 +9,9 @@ mod helper;
 mod date;
 pub use self::date::{FullDate, ParseDateError, PartialDate};
 
+mod lang;
+pub use self::lang::Language;
+
 pub mod refs;
 pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef};
 
@@ -35,7 +38,7 @@ pub use self::release::{LabelInfo, Release, ReleaseMedium, ReleaseStatus, Releas
 pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGroupSecondaryType,
                               ReleaseGroupType};
 // TODO it's pretty useless as of now.
-//pub use self::series::Series;
+// pub use self::series::Series;
 
 mod mbid;
 pub use self::mbid::Mbid;

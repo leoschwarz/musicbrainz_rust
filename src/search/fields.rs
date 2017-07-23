@@ -96,7 +96,7 @@ define_fields!(
     f, Gender, String;
     f, IpiCode, String;
     f, LabelId, String;
-    f, Language, String;
+    f, Language, full_entities::Language;
     f, MediumCount, u32;
     f, MediumFormat, String;
     /// The searched entity's name. (TODO implement for all relevant searches)
@@ -199,7 +199,7 @@ define_entity_fields!(
 define_entity_fields!(
     ReleaseSearchField, release;
 
-    "arid", ArtistId;
+    "arid", ArtistMbid;
     "artist", ArtistName;
     "asin", Asin;
     "barcode", Barcode;
@@ -231,7 +231,7 @@ define_entity_fields!(
 define_entity_fields!(
     ReleaseGroupSearchField, release_group;
 
-    "arid", ArtistId;
+    "arid", ArtistMbid;
     "artist", ArtistCredit;
     "artistname", ArtistName;
     "comment", Comment;

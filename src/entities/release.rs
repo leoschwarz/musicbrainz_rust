@@ -2,7 +2,7 @@ use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
 use xpath_reader::reader::{FromXmlContained, FromXmlElement};
 
-use entities::{Mbid, Resource};
+use entities::{Language, Mbid, Resource};
 use entities::date::PartialDate;
 use entities::refs::{ArtistRef, LabelRef, RecordingRef};
 
@@ -182,7 +182,7 @@ pub struct Release {
     pub packaging: Option<String>,
 
     /// Language of the release. ISO 639-3 conformant string.
-    pub language: Option<String>,
+    pub language: Option<Language>,
 
     /// Script used to write the track list. ISO 15924 conformant string.
     pub script: Option<String>,
@@ -285,7 +285,7 @@ mod tests {
         );
         assert_eq!(release.barcode, Some("724388023429".to_string()));
         assert_eq!(release.status, Some(ReleaseStatus::Official));
-        assert_eq!(release.language, Some("eng".to_string()));
+        assert_eq!(release.language, Some(Language::from_639_3("eng").unwrap()));
         assert_eq!(release.script, Some("Latn".to_string()));
         // TODO: check disambiguation
         // assert_eq!(release.disambiguation,

@@ -8,7 +8,7 @@ use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 use xpath_reader::{FromXml, FromXmlError, XpathReader, XpathStrReader};
 
 pub mod fields;
-use self::fields::{AreaSearchField, ArtistSearchField, ReleaseSearchField, ReleaseGroupSearchField};
+use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField, ReleaseSearchField};
 
 pub mod search_entities;
 use self::search_entities::SearchEntity;

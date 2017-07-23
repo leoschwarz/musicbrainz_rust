@@ -6,6 +6,7 @@
 
 #[macro_use]
 extern crate error_chain;
+extern crate isolang;
 extern crate regex;
 extern crate reqwest_mock;
 extern crate uuid;
