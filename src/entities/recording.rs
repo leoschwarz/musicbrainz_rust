@@ -29,7 +29,7 @@ pub struct Recording {
     /// Disambiguation comment.
     pub disambiguation: Option<String>,
 
-    /// Annotation if present.
+    /// Any additional free form annotation for this `Recording`.
     pub annotation: Option<String>,
 }
 

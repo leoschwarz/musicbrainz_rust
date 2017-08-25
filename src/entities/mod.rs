@@ -1,6 +1,5 @@
 //! Defines types representing the entities from the MusicBrainz database.
 
-/// TODO consider what type to use
 pub use std::time::Duration;
 
 #[macro_use]

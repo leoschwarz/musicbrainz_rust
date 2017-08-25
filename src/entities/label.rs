@@ -84,8 +84,8 @@ impl FromXml for Label {
             label_code: reader.read_option(".//mb:label/mb:label-code/text()")?,
             label_type: reader.read_option(".//mb:label/@type")?,
             country: reader.read_option(".//mb:label/mb:country/text()")?,
-            ipi_code: None, // TODO
-            isni_code: None, // TODO
+            ipi_code: reader.read_option(".//mb:label/mb:ipi/text()")?,
+            isni_code: reader.read_option(".//mb:label/mb:isni-list/mb-isni/text()")?,
             begin_date: reader.read_option(".//mb:label/mb:life-span/mb:begin/text()")?,
             end_date: reader.read_option(".//mb:label/mb:life-span/mb:end/text()")?,
         })

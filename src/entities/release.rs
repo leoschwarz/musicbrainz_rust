@@ -190,7 +190,10 @@ pub struct Release {
     /// A disambiguation comment if present, which allows to differentiate this
     /// release easily from
     /// other releases with the same or very similar name.
-    pub disambiguation: Option<String>, // TODO: annotations
+    pub disambiguation: Option<String>,
+
+    /// Any additional free form annotation for this `Release`.
+    pub annotation: Option<String>,
 
     /// The mediums (disks) of the release.
     pub mediums: Vec<ReleaseMedium>,
@@ -203,6 +206,7 @@ impl FromXml for Release {
         R: XpathReader<'d>,
     {
         Ok(Release {
+            annotation: reader.read_option(".//mb:release/mb:annotation/mb:text/text()")?,
             artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
             barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
             country: reader.read_option(".//mb:release/mb:country/text()")?,
@@ -229,7 +233,7 @@ impl Resource for Release {
 
     fn get_incs() -> &'static str
     {
-        "aliases+artists+labels+recordings"
+        "aliases+annotation+artists+labels+recordings"
     }
 }
 

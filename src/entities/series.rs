@@ -31,6 +31,7 @@ pub struct Series {
 
     pub disambiguation: Option<String>,
 
+    /// Any additional free form annotation for this `Series`.
     pub annotation: Option<String>,
 }
 

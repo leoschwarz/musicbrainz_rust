@@ -67,11 +67,7 @@ impl FromXml for Language {
     }
 }
 
-// This is needed for it to be able to be used as `SearchField` value.
-//
-// TODO: Consider whether we should actually create our own trait as `ToString`
-// might be a bit
-// misleading. Maybe `to_search_value` would be more precise?
+// This is needed when we use a `Language` as a `SearchField` value.
 impl ToString for Language {
     fn to_string(&self) -> String
     {
