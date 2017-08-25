@@ -117,17 +117,12 @@ impl FromXml for Artist {
 impl Resource for Artist {
     fn get_name() -> &'static str
     {
-        "Artist"
+        "artist"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!("https://musicbrainz.org/ws/2/artist/{}?inc=aliases", mbid)
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/artist/"
+        "aliases"
     }
 }
 

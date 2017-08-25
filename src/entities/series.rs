@@ -53,20 +53,12 @@ impl FromXml for Series {
 impl Resource for Series {
     fn get_name() -> &'static str
     {
-        "Series"
+        "series"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/series/{}?inc=annotation+aliases",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/series/"
+        "annotation+aliases"
     }
 }
 

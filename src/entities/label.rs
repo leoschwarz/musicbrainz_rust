@@ -60,17 +60,12 @@ pub struct Label {
 impl Resource for Label {
     fn get_name() -> &'static str
     {
-        "Label"
+        "label"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!("https://musicbrainz.org/ws/2/label/{}?inc=aliases", mbid)
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/label/"
+        "aliases"
     }
 }
 

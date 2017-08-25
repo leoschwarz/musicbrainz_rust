@@ -12,17 +12,15 @@ use xpath_reader::reader::{FromXmlContained, XpathStrReader};
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
-use search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder};
-// TODO reconsider reexport
-pub use search::SearchBuilder;
+use search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder, SearchBuilder};
 
 mod error;
 pub(crate) use self::error::check_response_error;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
-fn as_millis(duration: &Duration) -> f64
+fn as_millis(duration: &Duration) -> u64
 {
-    (duration.as_secs() as f64) + (duration.subsec_nanos() as f64) * 1e6
+    ((duration.as_secs() as f64) + (duration.subsec_nanos() as f64) * 1e6) as u64
 }
 
 /// Returns an `Instant` at least 1000 seconds ago.
@@ -51,6 +49,34 @@ pub struct ClientConfig {
     /// How many times to retry requests where MusicBrainz returned 503 because
     /// too many requests were being made.
     pub max_retries: u8,
+
+    /// Specifies amounts of time to wait between certain actions.
+    pub waits: ClientWaits,
+}
+
+/// Specification of the wait time between requests.
+///
+/// Times are specified in miliseconds.
+#[derive(Clone, Debug)]
+pub struct ClientWaits {
+    /// Initial wait time after a ServiceUnavailable to use for the exponential
+    /// backoff strategy.
+    pub backoff_init: u64,
+
+    // TODO: Make this configurable if and only if a custom server instance is used,
+    //       to make abuse of the main servers harder.
+    /// Minimal time between requests
+    requests: u64,
+}
+
+impl Default for ClientWaits {
+    fn default() -> Self
+    {
+        ClientWaits {
+            backoff_init: 400,
+            requests: 1000,
+        }
+    }
 }
 
 /// The main struct to be used to communicate with the MusicBrainz API.
@@ -83,9 +109,8 @@ impl Client {
     /// Create a new `Client` instance with the specified `HttpClient`.
     ///
     /// This is useful for testing purposes where you can inject a different
-    /// `HttpClient`, i. e.
-    /// one replaying requests to save API calls or one providing explicit
-    /// stubbing.
+    /// `HttpClient`, i. e. one replaying requests to save API calls or one
+    /// providing explicit stubbing.
     pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self
     {
         Client {
@@ -97,13 +122,14 @@ impl Client {
 }
 
 impl Client {
+    /// Waits until we are allowed to make the next request to the MusicBrainz
+    /// API.
     fn wait_if_needed(&mut self)
     {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_request);
-        if as_millis(&elapsed) < 1000. {
-            // We have to wait a bit.
-            sleep(Duration::new(1, 0) - elapsed);
+        if as_millis(&elapsed) < self.config.waits.requests {
+            sleep(Duration::from_millis(self.config.waits.requests) - elapsed);
         }
         self.last_request = now;
     }
@@ -128,10 +154,7 @@ impl Client {
         self.wait_if_needed();
 
         let mut attempts = 0;
-        // TODO : make initial value configurable once we allow users to run against
-        // their own
-        // mirrors of the musicbrainz api.
-        let mut backoff = 400;
+        let mut backoff = self.config.waits.backoff_init;
 
         while attempts < self.config.max_retries {
             let response = self.http_client
@@ -183,6 +206,7 @@ mod tests {
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),
                 max_retries: 5,
+                waits: ClientWaits::default(),
             },
             HttpClient::replay_file(format!("replay/test_client/search/{}.json", testname)),
         )

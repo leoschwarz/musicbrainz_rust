@@ -9,7 +9,7 @@ pub fn musicbrainz_context<'d>() -> Context<'d>
 
 #[cfg(test)]
 pub mod test_utils {
-    use client::{Client, ClientConfig};
+    use client::{Client, ClientConfig, ClientWaits};
     use entities::{Mbid, Resource};
     use errors::ClientError;
     use reqwest_mock::GenericClient as HttpClient;
@@ -21,6 +21,7 @@ pub mod test_utils {
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),
                 max_retries: 5,
+                waits: ClientWaits::default(),
             },
             HttpClient::replay_file(format!(
                 "replay/test_entities/{}/{}.json",

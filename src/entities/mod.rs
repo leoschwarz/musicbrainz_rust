@@ -51,17 +51,30 @@ pub use self::mbid::Mbid;
 /// efficiently, users of the `musicbrainz` crate shouldn't need to use this
 /// type directly.
 pub trait Resource {
-    /// Returns the name of the Resource, e. g. `"Artist"`.
+    /// Returns the name of the Resource, e. g. `"artist"`.
     fn get_name() -> &'static str;
+
+    fn get_incs() -> &'static str;
 
     /// Returns the url where one can get a resource in the valid format for
     /// parsing from.
-    fn get_url(mbid: &Mbid) -> String;
+    fn get_url(mbid: &Mbid) -> String
+    {
+        format!(
+            "https://musicbrainz.org/ws/2/{}/{}?inc={}",
+            Self::get_name(),
+            mbid,
+            Self::get_incs()
+        )
+    }
 
     /// Base url of the entity, e. g. `"https://musicbrainz.org/ws/2/artist/"`.
     ///
     /// These are used for building search requests.
-    fn base_url() -> &'static str;
+    fn base_url() -> String
+    {
+        format!("https://musicbrainz.org/ws/2/{}/", Self::get_name())
+    }
 }
 
 // TODO pub struct Work {}

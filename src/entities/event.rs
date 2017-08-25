@@ -56,20 +56,12 @@ pub struct Event {
 impl Resource for Event {
     fn get_name() -> &'static str
     {
-        "Event"
+        "event"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/event/{}?inc=aliases+annotation",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/event/"
+        "aliases+annotation"
     }
 }
 

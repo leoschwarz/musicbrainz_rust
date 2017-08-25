@@ -86,20 +86,12 @@ pub struct ReleaseGroup {
 impl Resource for ReleaseGroup {
     fn get_name() -> &'static str
     {
-        "ReleaseGroup"
+        "release-group"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/release-group/{}?inc=annotation+artists+releases",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/release-group/"
+        "annotation+artists+releases"
     }
 }
 

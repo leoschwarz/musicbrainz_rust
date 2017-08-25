@@ -1,8 +1,7 @@
 //! Query builder code.
 //!
 //! In general you won't need to use any of these types directly, but instead
-//! through the
-//! facilities provided by `Client`.
+//! through the facilities provided by `Client`.
 
 use super::*;
 use regex::Regex;

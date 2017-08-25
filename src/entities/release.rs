@@ -224,20 +224,12 @@ impl FromXml for Release {
 impl Resource for Release {
     fn get_name() -> &'static str
     {
-        "Release"
+        "release"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/release/{}?inc=aliases+artists+labels+recordings",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/release/"
+        "aliases+artists+labels+recordings"
     }
 }
 

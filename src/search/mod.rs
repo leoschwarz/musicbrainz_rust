@@ -1,3 +1,18 @@
+//! Provides an ergonomic way to query entries from the MusicBrainz database.
+//!
+//! First a bit of terminology: You can search entities using different fields,
+//! which are all in the module [::search::fields](fields/index.html). Either
+//! use them directly from that module or use on of the  submodules, which
+//! organize the fields by entity. It's impossible to use  invalid search
+//! fields  on the wrong entity.
+//!
+//! When performing a search you will get an  instance of
+//! [SearchResult](struct.SearchResult.html)  wrapping instances of
+//! [SearchEntity](search_entities/trait.SearchEntity.html) corresponding to
+//! the full entity  you want to query from the database. You  can fetch the
+//! full  entity from a  search entity, using the `fetch_full()` method on the
+//! search entity.
+
 use entities as full_entities;
 use entities::Resource;
 use errors::ClientError;

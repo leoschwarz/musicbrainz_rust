@@ -13,7 +13,7 @@ use super::full_entities::{Mbid, PartialDate};
 // use super::entities;
 
 pub trait SearchField {
-    type Value: ToString;
+    type Value;
 
     fn to_string(&self) -> String;
 }

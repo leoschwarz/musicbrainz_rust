@@ -105,20 +105,12 @@ impl FromXml for Place {
 impl Resource for Place {
     fn get_name() -> &'static str
     {
-        "Place"
+        "place"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/place/{}?inc=annotation+aliases",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/place/"
+        "annotation+aliases"
     }
 }
 

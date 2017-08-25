@@ -80,17 +80,12 @@ impl FromXml for Area {
 impl Resource for Area {
     fn get_name() -> &'static str
     {
-        "Area"
+        "area"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!("https://musicbrainz.org/ws/2/area/{}", mbid)
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/area/"
+        ""
     }
 }
 

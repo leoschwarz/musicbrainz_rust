@@ -57,20 +57,12 @@ impl FromXml for Recording {
 impl Resource for Recording {
     fn get_name() -> &'static str
     {
-        "Recording"
+        "recording"
     }
 
-    fn get_url(mbid: &Mbid) -> String
+    fn get_incs() -> &'static str
     {
-        format!(
-            "https://musicbrainz.org/ws/2/recording/{}?inc=artists+annotation+isrcs",
-            mbid
-        )
-    }
-
-    fn base_url() -> &'static str
-    {
-        "https://musicbrainz.org/ws/2/recording/"
+        "artists+annotation+isrcs"
     }
 }
 
