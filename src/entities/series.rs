@@ -33,6 +33,8 @@ pub struct Series {
 
     /// Any additional free form annotation for this `Series`.
     pub annotation: Option<String>,
+
+    // TODO parse work rels
 }
 
 impl FromXmlContained for Series {}
@@ -59,7 +61,7 @@ impl Resource for Series {
 
     fn get_incs() -> &'static str
     {
-        "annotation+aliases"
+        "annotation+aliases+work-rels"
     }
 }
 

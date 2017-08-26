@@ -12,7 +12,7 @@ mod lang;
 pub use self::lang::Language;
 
 pub mod refs;
-pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef};
+pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef, FetchFull};
 
 mod area;
 mod artist;
@@ -72,7 +72,6 @@ pub trait Resource {
     /// Base url of the entity, e. g. `"https://musicbrainz.org/ws/2/artist/"`.
     ///
     /// These are used for building search requests.
-    ///
     /// TODO: Consider moving this to the search code.
     fn base_url() -> String
     {

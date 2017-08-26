@@ -1,15 +1,7 @@
-//! This module contains structs for types we call *reference types* in this
-//! library.
-//!
-//! These types only contain some basic data but reference a full entity in the
-//! MusicBrainz
-//! database which can be retrieved.
+//! Reference entities holding some basic information about an entity and
+//! pointing to a full entity.
 
 // TODO: Better documentation in this file.
-// TODO: When writing the API interfacing code, provide some form of helpers so
-// the full referenced
-// types corresponding to these ref types can be easily retrieved from
-// the server.
 
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlError, XpathReader};
@@ -18,6 +10,15 @@ use xpath_reader::reader::FromXmlElement;
 use entities::Mbid;
 use entities::date::PartialDate;
 use entities::release::ReleaseStatus;
+
+use client::Client;
+use errors::ClientError;
+
+pub trait FetchFull {
+    type Full;
+
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, ClientError>;
+}
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct AreaRef {
@@ -42,10 +43,6 @@ impl FromXml for AreaRef {
     }
 }
 
-/// A small variation of `Artist` which is used only to refer to an actual
-/// artist entity from other
-/// entities.
-/// TODO: new docstring
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct ArtistRef {
     pub mbid: Mbid,
@@ -135,3 +132,29 @@ impl FromXml for ReleaseRef {
         })
     }
 }
+
+macro_rules! ref_fetch_full
+{
+    ($($ref:ty, $full:ty);+)
+=>
+    {
+        $(
+            impl FetchFull for $ref {
+                type Full = $full;
+
+                fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, ClientError>
+                {
+                    client.get_by_mbid(&self.mbid)
+                }
+            }
+        )+
+    }
+}
+
+ref_fetch_full!(
+    AreaRef, ::entities::Area;
+    ArtistRef, ::entities::Artist;
+    LabelRef, ::entities::Label;
+    RecordingRef, ::entities::Recording;
+    ReleaseRef, ::entities::Release
+);
