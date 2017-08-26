@@ -42,7 +42,7 @@ pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGrou
 mod mbid;
 pub use self::mbid::Mbid;
 
-// TODO: Convert get_name and base_url into associated consts once these land
+// TODO: Convert get_name and get_incs into associated consts once these land
 // in stable rust.
 /// A Resource is any entity which can be directly retrieved from MusicBrainz.
 ///
@@ -53,6 +53,8 @@ pub trait Resource {
     /// Returns the name of the Resource, e. g. `"artist"`.
     fn get_name() -> &'static str;
 
+    /// Returns the query string value of the things to include in a request
+    /// fetching an instance of the full entity.
     fn get_incs() -> &'static str;
 
     /// Returns the url where one can get a resource in the valid format for
@@ -70,6 +72,8 @@ pub trait Resource {
     /// Base url of the entity, e. g. `"https://musicbrainz.org/ws/2/artist/"`.
     ///
     /// These are used for building search requests.
+    ///
+    /// TODO: Consider moving this to the search code.
     fn base_url() -> String
     {
         format!("https://musicbrainz.org/ws/2/{}/", Self::get_name())
