@@ -68,15 +68,6 @@ pub trait Resource {
             Self::get_incs()
         )
     }
-
-    /// Base url of the entity, e. g. `"https://musicbrainz.org/ws/2/artist/"`.
-    ///
-    /// These are used for building search requests.
-    /// TODO: Consider moving this to the search code.
-    fn base_url() -> String
-    {
-        format!("https://musicbrainz.org/ws/2/{}/", Self::get_name())
-    }
 }
 
 // TODO pub struct Work {}
