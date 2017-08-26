@@ -283,9 +283,17 @@ mod tests {
         assert_eq!(release.status, Some(ReleaseStatus::Official));
         assert_eq!(release.language, Some(Language::from_639_3("eng").unwrap()));
         assert_eq!(release.script, Some("Latn".to_string()));
-        // TODO: check disambiguation
-        // assert_eq!(release.disambiguation,
+        assert_eq!(release.disambiguation, None);
         assert_eq!(release.mediums.len(), 1);
+    }
+
+    #[test]
+    fn disambiguation()
+    {
+        let mbid = Mbid::from_str("9642c552-a5b3-4b7e-9168-aeb2a1a06f27").unwrap();
+        let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        assert_eq!(release.disambiguation, Some("通常盤".to_string()));
     }
 
     #[test]
