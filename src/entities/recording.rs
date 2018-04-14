@@ -55,15 +55,8 @@ impl FromXml for Recording {
 }
 
 impl Resource for Recording {
-    fn get_name() -> &'static str
-    {
-        "recording"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "artists+annotation+isrcs"
-    }
+    const NAME: &'static str = "recording";
+    const INCL: &'static str = "artists+annotation+isrcs";
 }
 
 #[cfg(test)]

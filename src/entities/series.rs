@@ -54,15 +54,8 @@ impl FromXml for Series {
 }
 
 impl Resource for Series {
-    fn get_name() -> &'static str
-    {
-        "series"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "annotation+aliases+work-rels"
-    }
+    const NAME: &'static str = "series";
+    const INCL: &'static str = "annotation+aliases+work-rels";
 }
 
 #[cfg(test)]

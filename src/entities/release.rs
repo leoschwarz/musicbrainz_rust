@@ -226,15 +226,8 @@ impl FromXml for Release {
 }
 
 impl Resource for Release {
-    fn get_name() -> &'static str
-    {
-        "release"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "aliases+annotation+artists+labels+recordings"
-    }
+    const NAME: &'static str = "release";
+    const INCL: &'static str = "aliases+annotation+artists+labels+recordings";
 }
 
 #[cfg(test)]

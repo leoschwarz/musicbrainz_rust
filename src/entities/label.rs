@@ -58,15 +58,8 @@ pub struct Label {
 }
 
 impl Resource for Label {
-    fn get_name() -> &'static str
-    {
-        "label"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "aliases"
-    }
+    const NAME: &'static str = "label";
+    const INCL: &'static str = "aliases";
 }
 
 impl FromXmlContained for Label {}

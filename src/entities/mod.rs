@@ -39,23 +39,37 @@ pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGrou
 // TODO it's pretty useless as of now.
 // pub use self::series::Series;
 
+use std::marker::PhantomData;
+
 mod mbid;
 pub use self::mbid::Mbid;
 
-// TODO: Convert get_name and get_incs into associated consts once these land
-// in stable rust.
+/// Represents an instance of an entity from the database.
+///
+/// Along with the data of the entity this can also optionally hold
+/// relationship data from the database.
+pub struct Entity<E> {
+    /// The actual data of the entity.
+    pub data: E,
+
+    /// The relationship data of the entity.
+    pub rels: Vec<Relationship<E>>,
+}
+
+pub struct Relationship<E> {
+    _e: PhantomData<E>,
+}
+
 /// A Resource is any entity which can be directly retrieved from MusicBrainz.
 ///
 /// We define this trait for the sake of using the `Client` type more
 /// efficiently, users of the `musicbrainz` crate shouldn't need to use this
 /// type directly.
 pub trait Resource {
-    /// Returns the name of the Resource, e. g. `"artist"`.
-    fn get_name() -> &'static str;
-
-    /// Returns the query string value of the things to include in a request
-    /// fetching an instance of the full entity.
-    fn get_incs() -> &'static str;
+    /// Name of the resource for inclusion in api paths, e.g. `artist`.
+    const NAME: &'static str;
+    /// Query string component of includes to be requested by default.
+    const INCL: &'static str;
 
     /// Returns the url where one can get a resource in the valid format for
     /// parsing from.
@@ -63,9 +77,9 @@ pub trait Resource {
     {
         format!(
             "https://musicbrainz.org/ws/2/{}/{}?inc={}",
-            Self::get_name(),
+            Self::NAME,
             mbid,
-            Self::get_incs()
+            Self::INCL
         )
     }
 }

@@ -78,15 +78,8 @@ impl FromXml for Area {
 }
 
 impl Resource for Area {
-    fn get_name() -> &'static str
-    {
-        "area"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        ""
-    }
+    const NAME: &'static str = "area";
+    const INCL: &'static str = "";
 }
 
 #[cfg(test)]

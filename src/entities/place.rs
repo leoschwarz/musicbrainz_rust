@@ -103,15 +103,8 @@ impl FromXml for Place {
 }
 
 impl Resource for Place {
-    fn get_name() -> &'static str
-    {
-        "place"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "annotation+aliases"
-    }
+    const NAME: &'static str = "place";
+    const INCL: &'static str = "annotation+aliases";
 }
 
 #[cfg(test)]

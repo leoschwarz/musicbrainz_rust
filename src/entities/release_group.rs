@@ -84,15 +84,8 @@ pub struct ReleaseGroup {
 }
 
 impl Resource for ReleaseGroup {
-    fn get_name() -> &'static str
-    {
-        "release-group"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "annotation+artists+releases"
-    }
+    const NAME: &'static str = "release-group";
+    const INCL: &'static str = "annotation+artists+releases";
 }
 
 impl FromXmlContained for ReleaseGroup {}

@@ -99,7 +99,7 @@ macro_rules! define_search_builder {
                 // TODO: In the future support OR queries too.
                 let query = query_parts.join("%20AND%20");
                 type FE = $full_entity;
-                let base_url = format!("https://musicbrainz.org/ws/2/{}/", FE::get_name());
+                let base_url = format!("https://musicbrainz.org/ws/2/{}/", FE::NAME);
                 Ok(Url::parse(format!("{}?query={}", base_url, query).as_ref())?)
             }
 

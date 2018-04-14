@@ -54,15 +54,8 @@ pub struct Event {
 }
 
 impl Resource for Event {
-    fn get_name() -> &'static str
-    {
-        "event"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "aliases+annotation"
-    }
+    const NAME: &'static str = "event";
+    const INCL: &'static str = "aliases+annotation";
 }
 
 impl FromXmlContained for Event {}

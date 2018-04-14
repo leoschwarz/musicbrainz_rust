@@ -115,15 +115,8 @@ impl FromXml for Artist {
 }
 
 impl Resource for Artist {
-    fn get_name() -> &'static str
-    {
-        "artist"
-    }
-
-    fn get_incs() -> &'static str
-    {
-        "aliases"
-    }
+    const NAME: &'static str = "artist";
+    const INCL: &'static str = "aliases";
 }
 
 #[cfg(test)]

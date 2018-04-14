@@ -25,7 +25,7 @@ pub mod test_utils {
             },
             HttpClient::replay_file(format!(
                 "replay/test_entities/{}/{}.json",
-                E::get_name(),
+                E::NAME,
                 mbid
             )),
         );
