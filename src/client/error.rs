@@ -47,14 +47,7 @@ mod tests {
 
         assert_eq!(err.description(), "MusicBrainz server error");
 
-        // If backtraces are enabled `error-chain` will appends some backtrace
-        // information to the end of the display string.
-        if ::std::env::var("RUST_BACKTRACE").unwrap_or_else(|_| "".to_string()).as_str() == "1" {
-            assert!(err.display().to_string().starts_with("Error: MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd\n"));
-
-        } else {
-            assert_eq!(err.display().to_string(), "Error: MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd\n".to_string());
-        }
+        assert!(format!("{}", err).starts_with("MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd"));
     }
 
     #[test]
