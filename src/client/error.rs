@@ -1,15 +1,14 @@
 use super::*;
-use xpath_reader::XpathReader;
+use xpath_reader::Reader;
 
 /// Checks if there is an error in the document provided by the reader and
 /// returns Ok if there
 /// wasn't and Err parsing the MusicBrainz error if the API actually returned
 /// an error.
-pub fn check_response_error<'d, R>(reader: &'d R) -> Result<(), ClientError>
-where
-    R: XpathReader<'d>,
-{
-    match reader.read_vec::<String>("//error/text") {
+pub fn check_response_error<'d>(reader: &'d Reader<'d>) -> Result<(), ClientError> {
+    let r: Result<Vec<String>, _> = reader.read("//error/text");
+
+    match r {
         Ok(errs) => {
             if errs.len() > 0 {
                 let text = errs.join("\n");
@@ -26,7 +25,7 @@ where
 mod tests {
     use super::*;
     use error_chain::ChainedError;
-    use xpath_reader::XpathStrReader;
+    use xpath_reader::Reader;
 
     const XML_ERR: &'static str = r#"<?xml version="1.0" encoding="UTF-8"?>
 <error>
@@ -37,10 +36,9 @@ mod tests {
     const XML_OK: &'static str = r#"<?xml version="1.0" encoding="UTF-8"?><metadata xmlns="http://musicbrainz.org/ns/mmd-2.0#"><release-group type="Album" type-id="f529b476-6e62-324f-b0aa-1f3e33d313fc" id="23c74936-ad4f-45bb-8b6b-527d4aeaaad6"><title>A.I Complex</title><first-release-date>2014-07-26</first-release-date><primary-type id="f529b476-6e62-324f-b0aa-1f3e33d313fc">Album</primary-type></release-group></metadata>"#;
 
     #[test]
-    fn error()
-    {
+    fn error() {
         let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(XML_ERR, &context).unwrap();
+        let reader = Reader::from_str(XML_ERR, Some(&context)).unwrap();
 
         let res = check_response_error(&reader);
         let err = res.err().unwrap();
@@ -51,10 +49,9 @@ mod tests {
     }
 
     #[test]
-    fn ok()
-    {
+    fn ok() {
         let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(XML_OK, &context).unwrap();
+        let reader = Reader::from_str(XML_OK, Some(&context)).unwrap();
 
         // should not raise error
         check_response_error(&reader).unwrap();

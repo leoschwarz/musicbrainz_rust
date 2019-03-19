@@ -1,5 +1,5 @@
 use std::time::Duration;
-use xpath_reader::{FromXmlError, XpathReader};
+use xpath_reader::{Reader, FromXml, FromXmlOptional};
 
 /// Note that the requirement of the `var` (variant) token is rather ugly but
 /// required,
@@ -31,18 +31,18 @@ macro_rules! enum_mb_xml
             )+
         }
 
-        impl FromXmlElement for $enum {}
         impl FromXml for $enum {
-            fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-            where
-                R: XpathReader<'d>,
+            fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, ::xpath_reader::Error>
             {
                 match String::from_xml(reader)?.as_str() {
                     $(
                         $str => Ok($enum::$variant),
                     )+
-                    "" => Err(FromXmlError::Absent),
-                    s => Err(format!("Unknown `{}` value: '{}'", stringify!($enum), s).into()),
+                    s => Err(
+                        ::xpath_reader::Error::custom_msg(
+                            format!("Unknown `{}` value: '{}'", stringify!($enum), s)
+                        )
+                    )
                 }
             }
         }
@@ -61,12 +61,71 @@ macro_rules! enum_mb_xml
     }
 }
 
-pub fn read_mb_duration<'d, R>(reader: &'d R, path: &str) -> Result<Option<Duration>, FromXmlError>
-where
-    R: XpathReader<'d>,
+macro_rules! enum_mb_xml_optional
 {
-    match reader.read_option::<String>(path)? {
-        Some(millis) => Ok(Some(Duration::from_millis(millis.parse()?))),
+    (
+        $(#[$attr:meta])* pub enum $enum:ident {
+            $(
+                $(#[$attr2:meta])*
+                var $variant:ident = $str:expr
+            ),+
+            ,
+        }
+    )
+        =>
+    {
+        $(#[$attr])*
+        #[derive(Clone, Debug, Eq, PartialEq)]
+        pub enum $enum {
+            $(
+                $(#[$attr2])* $variant ,
+            )+
+        }
+
+        impl FromXmlOptional for $enum {
+            fn from_xml_optional<'d>(reader: &'d Reader<'d>) -> Result<Option<Self>, ::xpath_reader::Error>
+            {
+                let s = Option::<String>::from_xml(reader)?;
+                if let Some(s) = s {
+                    match s.as_ref() {
+                        $(
+                            $str => Ok(Some($enum::$variant)),
+                        )+
+                        s => Err(
+                            ::xpath_reader::Error::custom_msg(
+                                format!("Unknown `{}` value: '{}'", stringify!($enum), s)
+                            )
+                        )
+                    }
+                } else {
+                    Ok(None)
+                }
+            }
+        }
+
+        impl ::std::fmt::Display for $enum {
+            fn fmt(&self, f: &mut ::std::fmt::Formatter) -> ::std::fmt::Result
+            {
+                let s = match *self {
+                    $(
+                        $enum::$variant => $str,
+                    )+
+                };
+                write!(f, "{}", s)
+            }
+        }
+    }
+}
+
+pub fn read_mb_duration<'d>(
+    reader: &'d Reader<'d>,
+    path: &str,
+) -> Result<Option<Duration>, ::xpath_reader::Error> {
+    let s: Option<String> = reader.read(path)?;
+    match s {
+        Some(millis) => Ok(Some(Duration::from_millis(
+            millis.parse().map_err(::xpath_reader::Error::custom_err)?,
+        ))),
         None => Ok(None),
     }
 }

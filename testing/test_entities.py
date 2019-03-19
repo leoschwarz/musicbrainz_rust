@@ -26,17 +26,18 @@ extern crate pretty_env_logger;
 extern crate reqwest_mock;
 
 use std::str::FromStr;
-use musicbrainz::client::{Client, ClientConfig};
+use musicbrainz::client::{Client, ClientConfig, ClientWaits};
 use musicbrainz::entities::*;
 use reqwest_mock::GenericClient as HttpClient;
 
 #[test]
 fn run_tests() {
-    pretty_env_logger::init().unwrap();
+    pretty_env_logger::init();
 
     let mut client = Client::with_http_client(ClientConfig {
         user_agent: "musicbrainz_rust/testing (mail@leoschwarz.com)".to_owned(),
         max_retries: 5,
+        waits: ClientWaits::default()
     }, HttpClient::replay_dir("replay/test/test"));
 
     let mut failures = 0;

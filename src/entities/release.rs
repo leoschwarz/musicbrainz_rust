@@ -1,6 +1,5 @@
 use std::time::Duration;
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::{Language, Mbid, Resource};
 use entities::date::PartialDate;
@@ -34,12 +33,8 @@ pub struct ReleaseTrack {
     pub recording: RecordingRef,
 }
 
-impl FromXmlElement for ReleaseTrack {}
 impl FromXml for ReleaseTrack {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseTrack {
             mbid: reader.read(".//@id")?,
             position: reader.read(".//mb:position/text()")?,
@@ -81,21 +76,17 @@ pub struct ReleaseMedium {
     tracks: Vec<ReleaseTrack>,
 }
 
-impl FromXmlElement for ReleaseMedium {}
 impl FromXml for ReleaseMedium {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseMedium {
             position: reader.read(".//mb:position/text()")?,
-            format: reader.read_option(".//mb:format/text()")?,
-            tracks: reader.read_vec(".//mb:track-list/mb:track")?,
+            format: reader.read(".//mb:format/text()")?,
+            tracks: reader.read(".//mb:track-list/mb:track")?,
         })
     }
 }
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     pub enum ReleaseStatus {
         /// Release officially sanctioned by the artist and/or their record company.
         var Official = "Official",
@@ -131,21 +122,17 @@ pub struct LabelInfo {
     pub catalog_number: Option<String>,
 }
 
-impl FromXmlContained for LabelInfo {}
 impl FromXml for LabelInfo {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(LabelInfo {
             label: {
-                let id: Option<String> = reader.read_option(".//@id")?;
+                let id: Option<String> = reader.read(".//@id")?;
                 match id {
                     Some(_) => Some(reader.read(".")?),
                     None => None,
                 }
             },
-            catalog_number: reader.read_option(".//mb:catalog-number/text()")?,
+            catalog_number: reader.read(".//mb:catalog-number/text()")?,
         })
     }
 }
@@ -199,27 +186,22 @@ pub struct Release {
     pub mediums: Vec<ReleaseMedium>,
 }
 
-impl FromXmlContained for Release {}
 impl FromXml for Release {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(Release {
-            annotation: reader.read_option(".//mb:release/mb:annotation/mb:text/text()")?,
-            artists: reader.read_vec(".//mb:release/mb:artist-credit/mb:name-credit")?,
-            barcode: reader.read_option(".//mb:release/mb:barcode/text()")?,
-            country: reader.read_option(".//mb:release/mb:country/text()")?,
-            date: reader.read_option(".//mb:release/mb:date/text()")?,
-            disambiguation: reader.read_option(".//mb:release/mb:disambiguation/text()")?,
-            labels: reader.read_vec(".//mb:release/mb:label-info-list/mb:label-info")?,
-            language:
-                reader.read_option(".//mb:release/mb:text-representation/mb:language/text()")?,
+            annotation: reader.read(".//mb:release/mb:annotation/mb:text/text()")?,
+            artists: reader.read(".//mb:release/mb:artist-credit/mb:name-credit")?,
+            barcode: reader.read(".//mb:release/mb:barcode/text()")?,
+            country: reader.read(".//mb:release/mb:country/text()")?,
+            date: reader.read(".//mb:release/mb:date/text()")?,
+            disambiguation: reader.read(".//mb:release/mb:disambiguation/text()")?,
+            labels: reader.read(".//mb:release/mb:label-info-list/mb:label-info")?,
+            language: reader.read(".//mb:release/mb:text-representation/mb:language/text()")?,
             mbid: reader.read(".//mb:release/@id")?,
-            mediums: reader.read_vec(".//mb:release/mb:medium-list/mb:medium")?,
-            packaging: reader.read_option(".//mb:release/mb:packaging/text()")?,
-            script: reader.read_option(".//mb:release/mb:text-representation/mb:script/text()")?,
-            status: reader.read_option(".//mb:release/mb:status/text()")?,
+            mediums: reader.read(".//mb:release/mb:medium-list/mb:medium")?,
+            packaging: reader.read(".//mb:release/mb:packaging/text()")?,
+            script: reader.read(".//mb:release/mb:text-representation/mb:script/text()")?,
+            status: reader.read(".//mb:release/mb:status/text()")?,
             title: reader.read(".//mb:release/mb:title/text()")?,
         })
     }
@@ -236,8 +218,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn release_read_xml1()
-    {
+    fn release_read_xml1() {
         let mbid = Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -245,13 +226,11 @@ mod tests {
         assert_eq!(release.title, "Creep".to_string());
         assert_eq!(
             release.artists,
-            vec![
-                ArtistRef {
-                    mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
-                    name: "Radiohead".to_string(),
-                    sort_name: "Radiohead".to_string(),
-                },
-            ]
+            vec![ArtistRef {
+                mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
+                name: "Radiohead".to_string(),
+                sort_name: "Radiohead".to_string(),
+            },]
         );
         assert_eq!(
             release.date,
@@ -260,17 +239,15 @@ mod tests {
         assert_eq!(release.country, Some("GB".to_string()));
         assert_eq!(
             release.labels,
-            vec![
-                LabelInfo {
-                    label: Some(LabelRef {
-                        mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
-                        name: "Parlophone".to_string(),
-                        sort_name: "Parlophone".to_string(),
-                        label_code: Some("299".to_string()),
-                    }),
-                    catalog_number: Some("CDR 6078".to_string()),
-                },
-            ]
+            vec![LabelInfo {
+                label: Some(LabelRef {
+                    mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                    name: "Parlophone".to_string(),
+                    sort_name: "Parlophone".to_string(),
+                    label_code: Some("299".to_string()),
+                }),
+                catalog_number: Some("CDR 6078".to_string()),
+            },]
         );
         assert_eq!(release.barcode, Some("724388023429".to_string()));
         assert_eq!(release.status, Some(ReleaseStatus::Official));
@@ -281,8 +258,7 @@ mod tests {
     }
 
     #[test]
-    fn disambiguation()
-    {
+    fn disambiguation() {
         let mbid = Mbid::from_str("9642c552-a5b3-4b7e-9168-aeb2a1a06f27").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -290,8 +266,7 @@ mod tests {
     }
 
     #[test]
-    fn release_read_xml2()
-    {
+    fn release_read_xml2() {
         let mbid = Mbid::from_str("785d7c67-a920-4cee-a871-8cd9896eb8aa").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -351,8 +326,7 @@ mod tests {
     }
 
     #[test]
-    fn read_tracks()
-    {
+    fn read_tracks() {
         let mbid = Mbid::from_str("d1881a4c-0188-4f0f-a2e7-4e7849aec109").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -409,8 +383,7 @@ mod tests {
     }
 
     #[test]
-    fn tracks_without_length()
-    {
+    fn tracks_without_length() {
         let mbid = Mbid::from_str("02173013-59ed-4229-b0a5-e5aa486ed5d7").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -422,8 +395,7 @@ mod tests {
     }
 
     #[test]
-    fn multi_cd()
-    {
+    fn multi_cd() {
         let mbid = Mbid::from_str("ce22b20d-3a45-4e47-abaa-b7c8d10281fa").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -449,19 +421,16 @@ mod tests {
     /// It's possible that a release has a catalog number but is not linked to
     /// any label in the database.
     #[test]
-    fn catalog_number_but_no_label_ref()
-    {
+    fn catalog_number_but_no_label_ref() {
         let mbid = Mbid::from_str("61f8b05f-a3b5-49f4-a3a6-8f0d564c1664").unwrap();
         let release: Release = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(
             release.labels,
-            vec![
-                LabelInfo {
-                    label: None,
-                    catalog_number: Some("BIRD 4".to_string()),
-                },
-            ]
+            vec![LabelInfo {
+                label: None,
+                catalog_number: Some("BIRD 4".to_string()),
+            },]
         );
     }
 }

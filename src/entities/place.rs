@@ -1,9 +1,8 @@
 use entities::{Mbid, PartialDate, Resource};
 use entities::refs::AreaRef;
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     /// Specifies what a `Place` instance actually is.
     pub enum PlaceType {
         var Studio = "Studio",
@@ -25,16 +24,17 @@ pub struct Coordinates {
     pub longitude: String,
 }
 
-impl FromXmlElement for Coordinates {}
-impl FromXml for Coordinates {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        Ok(Coordinates {
+impl FromXmlOptional for Coordinates {
+    fn from_xml_optional<'d>(reader: &'d Reader<'d>) -> Result<Option<Self>, Error> {
+        // TODO : Is this the correct way to do it?
+        if reader.anchor_nodeset().size() < 1 {
+            return Ok(None);
+        }
+
+        Ok(Some(Coordinates {
             latitude: reader.read(".//mb:latitude/text()")?,
             longitude: reader.read(".//mb:longitude/text()")?,
-        })
+        }))
     }
 }
 
@@ -80,24 +80,20 @@ pub struct Place {
     pub annotation: Option<String>,
 }
 
-impl FromXmlContained for Place {}
 impl FromXml for Place {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(Place {
-            address: reader.read_option(".//mb:place/mb:address/text()")?,
-            aliases: reader.read_vec(".//mb:place/mb:aliases/text()")?,
-            annotation: reader.read_option(".//mb:place/mb:annotation/text()")?,
-            area: reader.read_option(".//mb:place/mb:area")?,
-            begin: reader.read_option(".//mb:place/mb:life-span/mb:begin/text()")?,
-            coordinates: reader.read_option(".//mb:place/mb:coordinates")?,
-            disambiguation: reader.read_option(".//mb:place/mb:disambiguation/text()")?,
-            end: reader.read_option(".//mb:place/mb:life-span/mb:end/text()")?,
+            address: reader.read(".//mb:place/mb:address/text()")?,
+            aliases: reader.read(".//mb:place/mb:aliases/text()")?,
+            annotation: reader.read(".//mb:place/mb:annotation/text()")?,
+            area: reader.read(".//mb:place/mb:area")?,
+            begin: reader.read(".//mb:place/mb:life-span/mb:begin/text()")?,
+            coordinates: reader.read(".//mb:place/mb:coordinates")?,
+            disambiguation: reader.read(".//mb:place/mb:disambiguation/text()")?,
+            end: reader.read(".//mb:place/mb:life-span/mb:end/text()")?,
             mbid: reader.read(".//mb:place/@id")?,
             name: reader.read(".//mb:place/mb:name/text()")?,
-            place_type: reader.read_option(".//mb:place/@type")?,
+            place_type: reader.read(".//mb:place/@type")?,
         })
     }
 }
@@ -113,8 +109,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn place_read_1()
-    {
+    fn place_read_1() {
         let mbid = Mbid::from_str("d1ab65f8-d082-492a-bd70-ce375548dabf").unwrap();
         let p: Place = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

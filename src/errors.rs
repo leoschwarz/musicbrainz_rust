@@ -10,13 +10,12 @@ error_chain! {
     }
 
     links {
-        XpathReadError(::xpath_reader::XpathError, ::xpath_reader::XpathErrorKind);
     }
 
     // Automatic conversions between this error chain and errors not defined using error
     // chain.
     foreign_links {
-        UuidParseError(::uuid::ParseError);
+        UuidParseError(::uuid::parser::ParseError);
         ParseIntError(::std::num::ParseIntError);
         ParseDateError(super::entities::ParseDateError);
     }
@@ -36,21 +35,20 @@ error_chain! {
     }
 }
 
-error_chain!{
+error_chain! {
     types {
         ClientError, ClientErrorKind, ChainClientErr;
     }
 
     links {
         ParseError(ParseError, ParseErrorKind);
-        XpathReadError(::xpath_reader::XpathError, ::xpath_reader::XpathErrorKind);
         ReqwestMockError(::reqwest_mock::Error, ::reqwest_mock::error::ErrorKind);
     }
 
     foreign_links {
         IoError(::std::io::Error);
         Url(::reqwest_mock::UrlError);
-        FromXmlError(::xpath_reader::FromXmlError);
+        Error(::xpath_reader::Error);
     }
 
     errors {

@@ -6,7 +6,7 @@ use std::str::FromStr;
 use std::num::ParseIntError;
 use std::error::Error;
 use std::fmt::Display;
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
+use xpath_reader::{FromXml, FromXmlOptional, Reader};
 
 /// Represents a partial date as it is used across MusicBrainz.
 ///
@@ -27,8 +27,7 @@ pub struct FullDate {
 }
 
 impl PartialDate {
-    pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate
-    {
+    pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate {
         PartialDate {
             year: year,
             month: month,
@@ -36,18 +35,15 @@ impl PartialDate {
         }
     }
 
-    pub fn year(&self) -> Option<u16>
-    {
+    pub fn year(&self) -> Option<u16> {
         self.year
     }
 
-    pub fn month(&self) -> Option<u8>
-    {
+    pub fn month(&self) -> Option<u8> {
         self.month
     }
 
-    pub fn day(&self) -> Option<u8>
-    {
+    pub fn day(&self) -> Option<u8> {
         self.day
     }
 
@@ -68,8 +64,7 @@ impl PartialDate {
     ///     Some(FullDate::new(2017, 2, 2))
     /// );
     /// ```
-    pub fn full_date(&self) -> Option<FullDate>
-    {
+    pub fn full_date(&self) -> Option<FullDate> {
         if self.year.is_some() && self.month.is_some() && self.day.is_some() {
             Some(FullDate {
                 year: self.year.unwrap(),
@@ -83,8 +78,7 @@ impl PartialDate {
 }
 
 impl FullDate {
-    pub fn new(year: u16, month: u8, day: u8) -> FullDate
-    {
+    pub fn new(year: u16, month: u8, day: u8) -> FullDate {
         FullDate {
             year: year,
             month: month,
@@ -92,18 +86,15 @@ impl FullDate {
         }
     }
 
-    pub fn year(&self) -> u16
-    {
+    pub fn year(&self) -> u16 {
         self.year
     }
 
-    pub fn month(&self) -> u8
-    {
+    pub fn month(&self) -> u8 {
         self.month
     }
 
-    pub fn day(&self) -> u8
-    {
+    pub fn day(&self) -> u8 {
         self.day
     }
 }
@@ -111,14 +102,16 @@ impl FullDate {
 impl FromStr for PartialDate {
     type Err = ParseDateError;
 
-    fn from_str(s: &str) -> Result<Self, Self::Err>
-    {
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         // Get the pieces of the date.
-        let ps: Result<Vec<Option<u16>>, ParseIntError> = s.split("-")
-            .map(|x| if x == "??" || x == "????" {
-                Ok(None)
-            } else {
-                x.parse().map(|y| Some(y))
+        let ps: Result<Vec<Option<u16>>, ParseIntError> = s
+            .split("-")
+            .map(|x| {
+                if x == "??" || x == "????" {
+                    Ok(None)
+                } else {
+                    x.parse().map(|y| Some(y))
+                }
             })
             .collect();
 
@@ -149,25 +142,36 @@ impl FromStr for PartialDate {
 }
 
 impl Display for PartialDate {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
-    {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         // TODO optimize later (no allocations)
-        let year = self.year.map(|n| format!("{:04}", n)).unwrap_or_else(|| "????".to_string());
-        let month = self.month.map(|n| format!("{:02}", n)).unwrap_or_else(|| "??".to_string());
-        let day = self.day.map(|n| format!("{:02}", n)).unwrap_or_else(|| "??".to_string());
+        let year = self
+            .year
+            .map(|n| format!("{:04}", n))
+            .unwrap_or_else(|| "????".to_string());
+        let month = self
+            .month
+            .map(|n| format!("{:02}", n))
+            .unwrap_or_else(|| "??".to_string());
+        let day = self
+            .day
+            .map(|n| format!("{:02}", n))
+            .unwrap_or_else(|| "??".to_string());
         write!(f, "{}-{}-{}", year, month, day)
     }
 }
 
-impl FromXml for PartialDate {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        use xpath_reader::errors::ChainXpathErr;
-        String::from_xml(reader)?.parse().chain_err(|| "Parse Date error").map_err(
-            |e| FromXmlError::from(e),
-        )
+impl FromXmlOptional for PartialDate {
+    fn from_xml_optional<'d>(
+        reader: &'d Reader<'d>,
+    ) -> Result<Option<Self>, ::xpath_reader::Error> {
+        let s = Option::<String>::from_xml(reader)?;
+        if let Some(s) = s {
+            s.parse()
+                .map(|d| Some(d))
+                .map_err(::xpath_reader::Error::custom_err)
+        } else {
+            Ok(None)
+        }
     }
 }
 
@@ -181,8 +185,7 @@ pub enum ParseDateError {
 }
 
 impl Error for ParseDateError {
-    fn description(&self) -> &str
-    {
+    fn description(&self) -> &str {
         use self::ParseDateError::*;
         match *self {
             WrongNumberOfComponents(_) => "wrong number of components",
@@ -194,8 +197,7 @@ impl Error for ParseDateError {
 // TODO: Evaluate if this is what we want and if we can use this like this in
 // requests.
 impl Display for ParseDateError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error>
-    {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> Result<(), std::fmt::Error> {
         use self::ParseDateError::*;
         match *self {
             WrongNumberOfComponents(n) => {
@@ -207,8 +209,7 @@ impl Display for ParseDateError {
 }
 
 impl From<ParseIntError> for ParseDateError {
-    fn from(e: ParseIntError) -> Self
-    {
+    fn from(e: ParseIntError) -> Self {
         ParseDateError::ComponentInvalid(e)
     }
 }

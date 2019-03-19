@@ -10,14 +10,14 @@ default = []
 
 [dependencies]
 error-chain = "0.11"
-isolang = "0.2"
-regex = "0.2.1"
+isolang = "1"
+regex = "1"
 reqwest_mock = "0.5"
 rusqlite = { version = "0.12.0", optional = true }
 url = "1.4.0"
-uuid = { version = "0.6", features = ["use_std"] }
-xpath_reader = "0.4"
+uuid = { version = "0.7" }
+xpath_reader = "0.5"
 
 [dev-dependencies]
-pretty_env_logger = "0.2"
+pretty_env_logger = "0.3"
 log = "0.4"

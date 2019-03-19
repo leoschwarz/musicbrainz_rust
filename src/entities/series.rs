@@ -1,7 +1,6 @@
 use entities::{Mbid, PartialDate, Resource};
 use entities::refs::AreaRef;
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, Error, Reader};
 
 enum_mb_xml! {
     pub enum SeriesType {
@@ -33,22 +32,17 @@ pub struct Series {
 
     /// Any additional free form annotation for this `Series`.
     pub annotation: Option<String>,
-
     // TODO parse work rels
 }
 
-impl FromXmlContained for Series {}
 impl FromXml for Series {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(Series {
             mbid: reader.read(".//mb:series/@id")?,
             series_type: reader.read(".//mb:series/@type")?,
-            aliases: reader.read_vec(".//mb:series/mb:alias-list/mb:alias/text()")?,
-            disambiguation: reader.read_option(".//mb:series/mb:disambiguation/text()")?,
-            annotation: reader.read_option(".//mb:series/mb:annotation/text()")?,
+            aliases: reader.read(".//mb:series/mb:alias-list/mb:alias/text()")?,
+            disambiguation: reader.read(".//mb:series/mb:disambiguation/text()")?,
+            annotation: reader.read(".//mb:series/mb:annotation/text()")?,
         })
     }
 }
@@ -64,8 +58,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn read_series_1()
-    {
+    fn read_series_1() {
         let mbid = Mbid::from_str("d977f7fd-96c9-4e3e-83b5-eb484a9e6582").unwrap();
         let series: Series = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

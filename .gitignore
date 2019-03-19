@@ -2,6 +2,6 @@ target
 /replay/*
 !/replay/test_entities
 Cargo.lock
-
+/.idea
 # rustfmt backup files
 *.rs.bk

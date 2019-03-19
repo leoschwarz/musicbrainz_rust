@@ -1,9 +1,8 @@
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, Error, Reader};
 
 use entities::{Mbid, Resource};
 
-enum_mb_xml!{
+enum_mb_xml! {
     /// Specifies what a specific `Area` instance actually is.
     pub enum AreaType {
         /// Areas included (or previously included) in ISO 3166-1.
@@ -59,20 +58,15 @@ pub struct Area {
     pub iso_3166: Option<String>,
 }
 
-impl FromXmlContained for Area {}
 impl FromXml for Area {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Area, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Area, Error> {
         Ok(Area {
             mbid: reader.read(".//mb:area/@id")?,
             name: reader.read(".//mb:area/mb:name/text()")?,
             sort_name: reader.read(".//mb:area/mb:sort-name/text()")?,
             area_type: reader.read(".//mb:area/@type")?,
-            iso_3166: reader.read_option(
-                ".//mb:area/mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()",
-            )?,
+            iso_3166: reader
+                .read(".//mb:area/mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
         })
     }
 }
@@ -88,8 +82,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn area_read_xml1()
-    {
+    fn area_read_xml1() {
         let mbid = Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap();
         let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -101,8 +94,7 @@ mod tests {
     }
 
     #[test]
-    fn area_read_xml2()
-    {
+    fn area_read_xml2() {
         let mbid = Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap();
         let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

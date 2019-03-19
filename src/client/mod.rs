@@ -7,7 +7,7 @@ use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
 use reqwest_mock::{StatusCode, Url};
 use reqwest_mock::header::UserAgent;
-use xpath_reader::reader::{FromXmlContained, XpathStrReader};
+use xpath_reader::reader::{FromXml, Reader};
 
 use std::time::{Duration, Instant};
 use std::thread::sleep;
@@ -18,14 +18,12 @@ mod error;
 pub(crate) use self::error::check_response_error;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
-fn as_millis(duration: &Duration) -> u64
-{
+fn as_millis(duration: &Duration) -> u64 {
     ((duration.as_secs() as f64) + (duration.subsec_nanos() as f64) * 1e6) as u64
 }
 
 /// Returns an `Instant` at least 1000 seconds ago.
-fn past_instant() -> Instant
-{
+fn past_instant() -> Instant {
     Instant::now() - Duration::new(1000, 0)
 }
 
@@ -70,8 +68,7 @@ pub struct ClientWaits {
 }
 
 impl Default for ClientWaits {
-    fn default() -> Self
-    {
+    fn default() -> Self {
         ClientWaits {
             backoff_init: 400,
             requests: 1000,
@@ -97,8 +94,7 @@ pub struct Client {
 
 impl Client {
     /// Create a new `Client` instance.
-    pub fn new(config: ClientConfig) -> Self
-    {
+    pub fn new(config: ClientConfig) -> Self {
         Client {
             config: config,
             http_client: HttpClient::direct(),
@@ -111,8 +107,7 @@ impl Client {
     /// This is useful for testing purposes where you can inject a different
     /// `HttpClient`, i. e. one replaying requests to save API calls or one
     /// providing explicit stubbing.
-    pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self
-    {
+    pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self {
         Client {
             config: config,
             http_client: client,
@@ -124,8 +119,7 @@ impl Client {
 impl Client {
     /// Waits until we are allowed to make the next request to the MusicBrainz
     /// API.
-    fn wait_if_needed(&mut self)
-    {
+    fn wait_if_needed(&mut self) {
         let now = Instant::now();
         let elapsed = now.duration_since(self.last_request);
         if as_millis(&elapsed) < self.config.waits.requests {
@@ -137,27 +131,27 @@ impl Client {
     /// Fetch the specified ressource from the server and parse it.
     pub fn get_by_mbid<Res>(&mut self, mbid: &Mbid) -> Result<Res, ClientError>
     where
-        Res: Resource + FromXmlContained,
+        Res: Resource + FromXml,
     {
         let url = Res::get_url(mbid);
         let response_body = self.get_body(url.parse()?)?;
 
         // Parse the response.
         let context = ::util::musicbrainz_context();
-        let reader = XpathStrReader::new(&response_body[..], &context)?;
+        let reader = Reader::from_str(&response_body[..], Some(&context))?;
         check_response_error(&reader)?;
         Ok(Res::from_xml(&reader)?)
     }
 
-    pub(crate) fn get_body(&mut self, url: Url) -> Result<String, ClientError>
-    {
+    pub(crate) fn get_body(&mut self, url: Url) -> Result<String, ClientError> {
         self.wait_if_needed();
 
         let mut attempts = 0;
         let mut backoff = self.config.waits.backoff_init;
 
         while attempts < self.config.max_retries {
-            let response = self.http_client
+            let response = self
+                .http_client
                 .get(url.clone())
                 .header(UserAgent::new(self.config.user_agent.clone()))
                 .send()?;
@@ -172,26 +166,21 @@ impl Client {
                 return Ok(response_body);
             }
         }
-        Err(
-            "MusicBrainz returned 503 (ServiceUnavailable) too many times.".into(),
-        )
+        Err("MusicBrainz returned 503 (ServiceUnavailable) too many times.".into())
     }
 
     /// Returns a search builder to search for an area.
-    pub fn search_area<'cl>(&'cl mut self) -> AreaSearchBuilder<'cl>
-    {
+    pub fn search_area<'cl>(&'cl mut self) -> AreaSearchBuilder<'cl> {
         AreaSearchBuilder::new(self)
     }
 
     /// Returns a search biulder to search for an artist.
-    pub fn search_artist<'cl>(&'cl mut self) -> ArtistSearchBuilder<'cl>
-    {
+    pub fn search_artist<'cl>(&'cl mut self) -> ArtistSearchBuilder<'cl> {
         ArtistSearchBuilder::new(self)
     }
 
     /// Returns a search builder to search for a release group.
-    pub fn search_release_group<'cl>(&'cl mut self) -> ReleaseGroupSearchBuilder<'cl>
-    {
+    pub fn search_release_group<'cl>(&'cl mut self) -> ReleaseGroupSearchBuilder<'cl> {
         ReleaseGroupSearchBuilder::new(self)
     }
 }
@@ -200,8 +189,7 @@ impl Client {
 mod tests {
     use super::*;
 
-    fn get_client(testname: &str) -> Client
-    {
+    fn get_client(testname: &str) -> Client {
         Client::with_http_client(
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),
@@ -213,8 +201,7 @@ mod tests {
     }
 
     #[test]
-    fn search_release_group()
-    {
+    fn search_release_group() {
         let mut client = get_client("release_group_01");
         let results = client
             .search_release_group()

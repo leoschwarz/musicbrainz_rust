@@ -1,10 +1,9 @@
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::{Mbid, Resource};
 use entities::date::PartialDate;
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     pub enum EventType {
         var Concert = "Concert",
         var Festival = "Festival",
@@ -58,22 +57,18 @@ impl Resource for Event {
     const INCL: &'static str = "aliases+annotation";
 }
 
-impl FromXmlContained for Event {}
 impl FromXml for Event {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(Event {
             mbid: reader.read(".//mb:event/@id")?,
             name: reader.read(".//mb:event/mb:name")?,
-            aliases: reader.read_vec(".//mb:event/mb:alias-list/mb:alias/text()")?,
-            event_type: reader.read_option(".//mb:event/@type")?,
-            setlist: reader.read_option(".//mb:event/mb:setlist")?,
+            aliases: reader.read(".//mb:event/mb:alias-list/mb:alias/text()")?,
+            event_type: reader.read(".//mb:event/@type")?,
+            setlist: reader.read(".//mb:event/mb:setlist")?,
             begin_date: reader.read(".//mb:event/mb:life-span/mb:begin")?,
-            end_date: reader.read_option(".//mb:event/mb:life-span/mb:end")?,
-            disambiguation: reader.read_option(".//mb:event/mb:disambiguation")?,
-            annotation: reader.read_option(".//mb:event/mb:annotation/mb:text/text()")?,
+            end_date: reader.read(".//mb:event/mb:life-span/mb:end")?,
+            disambiguation: reader.read(".//mb:event/mb:disambiguation")?,
+            annotation: reader.read(".//mb:event/mb:annotation/mb:text/text()")?,
         })
     }
 }
@@ -84,8 +79,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn read_1()
-    {
+    fn read_1() {
         let mbid = Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap();
         let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -101,8 +95,7 @@ mod tests {
     }
 
     #[test]
-    fn read_2()
-    {
+    fn read_2() {
         let mbid = Mbid::from_str("9754f4dd-6fad-49b7-8f30-940c9af6b776").unwrap();
         let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

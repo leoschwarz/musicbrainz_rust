@@ -11,8 +11,7 @@ use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 /// for a url string.
 ///
 /// This is to be used for attribute values, like for example a release name.
-pub(crate) fn escape_full(text: &str) -> String
-{
+pub(crate) fn escape_full(text: &str) -> String {
     // Replace all special lucene syntax elements.
     let re = Regex::new(r#"([+\-!\(\)\{\}\[\]\^"~\*\?:\\]|[&\|]{2})"#).unwrap();
     let sanitized = re.replace_all(text, "\\$0");
@@ -27,8 +26,7 @@ pub(crate) fn escape_full(text: &str) -> String
 }
 
 /// actually it might be a good idea to not use this anywhere (TODO)
-fn escape_query(text: &str) -> String
-{
+fn escape_query(text: &str) -> String {
     utf8_percent_encode(text, DEFAULT_ENCODE_SET).to_string()
 }
 
@@ -39,14 +37,14 @@ pub trait QueryExpression: Sized {
     /// Build the query. This is already supposed to be escaped properly.
     fn build_query(&self) -> String;
 
-    fn and<O: QueryExpression<Entity = Self::Entity>>(self, other: O)
-        -> And<Self, O, Self::Entity>
-    {
+    fn and<O: QueryExpression<Entity = Self::Entity>>(
+        self,
+        other: O,
+    ) -> And<Self, O, Self::Entity> {
         And { a: self, b: other }
     }
 
-    fn or<O: QueryExpression<Entity = Self::Entity>>(self, other: O) -> Or<Self, O, Self::Entity>
-    {
+    fn or<O: QueryExpression<Entity = Self::Entity>>(self, other: O) -> Or<Self, O, Self::Entity> {
         Or { a: self, b: other }
     }
 }
@@ -69,8 +67,7 @@ where
 {
     type Entity = E;
 
-    fn build_query(&self) -> String
-    {
+    fn build_query(&self) -> String {
         format!("({})AND({})", self.a.build_query(), self.b.build_query())
     }
 }
@@ -93,8 +90,7 @@ where
 {
     type Entity = E;
 
-    fn build_query(&self) -> String
-    {
+    fn build_query(&self) -> String {
         format!("({})OR({})", self.a.build_query(), self.b.build_query())
     }
 }
@@ -104,8 +100,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_escape_full()
-    {
+    fn test_escape_full() {
         // lucene syntax elements
         assert_eq!(escape_full("+"), escape_query(r"\+"));
         assert_eq!(escape_full("-"), escape_query(r"\-"));
@@ -138,8 +133,7 @@ mod tests {
     }
 
     #[test]
-    fn test_escape_query()
-    {
+    fn test_escape_query() {
         // these are all legal in query component
         let legal = r#"/:@-._~!$&'()*+,;="#;
         assert_eq!(escape_query(legal), legal.to_string());

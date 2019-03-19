@@ -1,5 +1,4 @@
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::{Mbid, Resource};
 use entities::date::PartialDate;
@@ -62,30 +61,26 @@ impl Resource for Label {
     const INCL: &'static str = "aliases";
 }
 
-impl FromXmlContained for Label {}
 impl FromXml for Label {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Label, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Label, Error> {
         Ok(Label {
             mbid: reader.read(".//mb:label/@id")?,
             name: reader.read(".//mb:label/mb:name/text()")?,
             sort_name: reader.read(".//mb:label/mb:sort-name/text()")?,
-            disambiguation: reader.read_option(".//mb:label/mb:disambiguation/text()")?,
-            aliases: reader.read_vec(".//mb:label/mb:alias-list/mb:alias/text()")?,
-            label_code: reader.read_option(".//mb:label/mb:label-code/text()")?,
-            label_type: reader.read_option(".//mb:label/@type")?,
-            country: reader.read_option(".//mb:label/mb:country/text()")?,
-            ipi_code: reader.read_option(".//mb:label/mb:ipi/text()")?,
-            isni_code: reader.read_option(".//mb:label/mb:isni-list/mb-isni/text()")?,
-            begin_date: reader.read_option(".//mb:label/mb:life-span/mb:begin/text()")?,
-            end_date: reader.read_option(".//mb:label/mb:life-span/mb:end/text()")?,
+            disambiguation: reader.read(".//mb:label/mb:disambiguation/text()")?,
+            aliases: reader.read(".//mb:label/mb:alias-list/mb:alias/text()")?,
+            label_code: reader.read(".//mb:label/mb:label-code/text()")?,
+            label_type: reader.read(".//mb:label/@type")?,
+            country: reader.read(".//mb:label/mb:country/text()")?,
+            ipi_code: reader.read(".//mb:label/mb:ipi/text()")?,
+            isni_code: reader.read(".//mb:label/mb:isni-list/mb-isni/text()")?,
+            begin_date: reader.read(".//mb:label/mb:life-span/mb:begin/text()")?,
+            end_date: reader.read(".//mb:label/mb:life-span/mb:end/text()")?,
         })
     }
 }
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     pub enum LabelType {
         /// The main `LabelType` in the MusicBrainz database.
         /// That is a brand (and trademark) associated with the marketing of a
@@ -123,8 +118,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn label_read_xml1()
-    {
+    fn label_read_xml1() {
         let mbid = Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap();
         let label: Label = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -157,8 +151,7 @@ mod tests {
     }
 
     #[test]
-    fn read_aliases()
-    {
+    fn read_aliases() {
         let mbid = Mbid::from_str("168f48c8-057e-4974-9600-aa9956d21e1a").unwrap();
         let label: Label = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

@@ -1,7 +1,6 @@
 use xpath_reader::Context;
 
-pub fn musicbrainz_context<'d>() -> Context<'d>
-{
+pub fn musicbrainz_context<'d>() -> Context<'d> {
     let mut context = Context::default();
     context.set_namespace("mb", "http://musicbrainz.org/ns/mmd-2.0#");
     context
@@ -13,21 +12,16 @@ pub mod test_utils {
     use entities::{Mbid, Resource};
     use errors::ClientError;
     use reqwest_mock::GenericClient as HttpClient;
-    use xpath_reader::reader::FromXmlContained;
+    use xpath_reader::reader::FromXml;
 
-    pub fn fetch_entity<E: Resource + FromXmlContained>(mbid: &Mbid) -> Result<E, ClientError>
-    {
+    pub fn fetch_entity<E: Resource + FromXml>(mbid: &Mbid) -> Result<E, ClientError> {
         let mut client = Client::with_http_client(
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),
                 max_retries: 5,
                 waits: ClientWaits::default(),
             },
-            HttpClient::replay_file(format!(
-                "replay/test_entities/{}/{}.json",
-                E::NAME,
-                mbid
-            )),
+            HttpClient::replay_file(format!("replay/test_entities/{}/{}.json", E::NAME, mbid)),
         );
         client.get_by_mbid(mbid)
     }

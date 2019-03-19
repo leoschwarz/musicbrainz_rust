@@ -1,11 +1,10 @@
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::{Mbid, Resource};
 use entities::date::PartialDate;
 use entities::refs::AreaRef;
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     /// Specification of the gender of an artist.
     pub enum Gender {
         var Female = "Female",
@@ -14,7 +13,7 @@ enum_mb_xml! {
     }
 }
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     /// Specifies what an `Artist` instance actually is.
     pub enum ArtistType {
         var Person = "Person",
@@ -90,23 +89,19 @@ pub struct Artist {
     pub isni_code: Option<String>,
 }
 
-impl FromXmlContained for Artist {}
 impl FromXml for Artist {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(Artist {
-            aliases: reader.read_vec(".//mb:artist/mb:alias-list/mb:alias/text()")?,
-            annotation: reader.read_option(".//mb:artist/mb:annotation/text()")?,
-            area: reader.read_option(".//mb:artist/mb:area")?,
-            artist_type: reader.read_option(".//mb:artist/@type")?,
-            begin_date: reader.read_option(".//mb:artist/mb:life-span/mb:begin/text()")?,
-            disambiguation: reader.read_option(".//mb:artist/mb:disambiguation/text()")?,
-            end_date: reader.read_option(".//mb:artist/mb:life-span/mb:end/text()")?,
-            gender: reader.read_option(".//mb:artist/mb:gender/text()")?,
-            ipi_code: reader.read_option(".//mb:artist/mb:ipi/text()")?,
-            isni_code: reader.read_option(".//mb:artist/mb:isni-list/mb:isni/text()")?,
+            aliases: reader.read(".//mb:artist/mb:alias-list/mb:alias/text()")?,
+            annotation: reader.read(".//mb:artist/mb:annotation/text()")?,
+            area: reader.read(".//mb:artist/mb:area")?,
+            artist_type: reader.read(".//mb:artist/@type")?,
+            begin_date: reader.read(".//mb:artist/mb:life-span/mb:begin/text()")?,
+            disambiguation: reader.read(".//mb:artist/mb:disambiguation/text()")?,
+            end_date: reader.read(".//mb:artist/mb:life-span/mb:end/text()")?,
+            gender: reader.read(".//mb:artist/mb:gender/text()")?,
+            ipi_code: reader.read(".//mb:artist/mb:ipi/text()")?,
+            isni_code: reader.read(".//mb:artist/mb:isni-list/mb:isni/text()")?,
             mbid: reader.read(".//mb:artist/@id")?,
             name: reader.read(".//mb:artist/mb:name/text()")?,
             sort_name: reader.read(".//mb:artist/mb:sort-name/text()")?,
@@ -125,9 +120,7 @@ mod tests {
     use std::str::FromStr;
 
     #[test]
-    fn artist_read_xml1()
-    {
-
+    fn artist_read_xml1() {
         let mbid = Mbid::from_str("90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e").unwrap();
         let artist: Artist = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -158,8 +151,7 @@ mod tests {
     }
 
     #[test]
-    fn artist_read_xml2()
-    {
+    fn artist_read_xml2() {
         let mbid = Mbid::from_str("650e7db6-b795-4eb5-a702-5ea2fc46c848").unwrap();
         let artist: Artist = ::util::test_utils::fetch_entity(&mbid).unwrap();
 

@@ -4,8 +4,7 @@
 // TODO: Better documentation in this file.
 
 use std::time::Duration;
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::FromXmlElement;
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::Mbid;
 use entities::date::PartialDate;
@@ -28,18 +27,19 @@ pub struct AreaRef {
     pub iso_3166: Option<String>,
 }
 
-impl FromXmlElement for AreaRef {}
-impl FromXml for AreaRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
-        Ok(AreaRef {
-            mbid: reader.read(".//@id")?,
-            name: reader.read(".//mb:name/text()")?,
-            sort_name: reader.read(".//mb:sort-name/text()")?,
-            iso_3166: reader.read_option(".//mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
-        })
+impl FromXmlOptional for AreaRef {
+    fn from_xml_optional<'d>(reader: &'d Reader<'d>) -> Result<Option<Self>, Error> {
+        // TODO: is this correct
+        if reader.anchor_nodeset().size() < 1 {
+            Ok(None)
+        } else {
+            Ok(Some(AreaRef {
+                mbid: reader.read(".//@id")?,
+                name: reader.read(".//mb:name/text()")?,
+                sort_name: reader.read(".//mb:sort-name/text()")?,
+                iso_3166: reader.read(".//mb:iso-3166-1-code-list/mb:iso-3166-1-code/text()")?,
+            }))
+        }
     }
 }
 
@@ -50,12 +50,8 @@ pub struct ArtistRef {
     pub sort_name: String,
 }
 
-impl FromXmlElement for ArtistRef {}
 impl FromXml for ArtistRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ArtistRef {
             mbid: reader.read(".//@id")?,
             name: reader.read(".//mb:name/text()")?,
@@ -72,17 +68,13 @@ pub struct LabelRef {
     pub label_code: Option<String>,
 }
 
-impl FromXmlElement for LabelRef {}
 impl FromXml for LabelRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(LabelRef {
             mbid: reader.read(".//@id")?,
             name: reader.read(".//mb:name/text()")?,
             sort_name: reader.read(".//mb:sort-name/text()")?,
-            label_code: reader.read_option(".//mb:label-code/text()")?,
+            label_code: reader.read(".//mb:label-code/text()")?,
         })
     }
 }
@@ -94,12 +86,8 @@ pub struct RecordingRef {
     pub length: Option<Duration>,
 }
 
-impl FromXmlElement for RecordingRef {}
 impl FromXml for RecordingRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(RecordingRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
@@ -117,18 +105,14 @@ pub struct ReleaseRef {
     pub country: Option<String>,
 }
 
-impl FromXmlElement for ReleaseRef {}
 impl FromXml for ReleaseRef {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
-            date: reader.read_option(".//mb:date/text()")?,
-            status: reader.read_option(".//mb:status/text()")?,
-            country: reader.read_option(".//mb:country/text()")?,
+            date: reader.read(".//mb:date/text()")?,
+            status: reader.read(".//mb:status/text()")?,
+            country: reader.read(".//mb:country/text()")?,
         })
     }
 }

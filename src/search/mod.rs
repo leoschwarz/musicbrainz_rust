@@ -20,7 +20,7 @@ use client::Client;
 
 use reqwest_mock::Url;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
-use xpath_reader::{FromXml, FromXmlError, XpathReader, XpathStrReader};
+use xpath_reader::{FromXml, Error, Reader};
 
 pub mod fields;
 use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField, ReleaseSearchField};
@@ -81,7 +81,8 @@ macro_rules! define_search_builder {
             ///
             /// Currently all parameters will be combined using `AND`.
             pub fn add<F>(mut self, field: F) -> Self
-                where F: $fields
+            where
+                F: $fields,
             {
                 self.params.push((F::name(), field.to_string()));
                 self
@@ -91,8 +92,8 @@ macro_rules! define_search_builder {
             fn build_url(&self) -> Result<Url, ClientError> {
                 let mut query_parts: Vec<String> = Vec::new();
                 for &(p_name, ref p_value) in self.params.iter() {
-                    // TODO (FIXME): Does this also encode ":" ? 
-                    let value  = utf8_percent_encode(p_value.as_ref(), DEFAULT_ENCODE_SET);
+                    // TODO (FIXME): Does this also encode ":" ?
+                    let value = utf8_percent_encode(p_value.as_ref(), DEFAULT_ENCODE_SET);
                     query_parts.push(format!("{}:{}", p_name, value));
                 }
 
@@ -100,7 +101,9 @@ macro_rules! define_search_builder {
                 let query = query_parts.join("%20AND%20");
                 type FE = $full_entity;
                 let base_url = format!("https://musicbrainz.org/ws/2/{}/", FE::NAME);
-                Ok(Url::parse(format!("{}?query={}", base_url, query).as_ref())?)
+                Ok(Url::parse(
+                    format!("{}?query={}", base_url, query).as_ref(),
+                )?)
             }
 
             /// Parse the search result.
@@ -108,9 +111,9 @@ macro_rules! define_search_builder {
                 let mut context = ::util::musicbrainz_context();
                 context.set_namespace("ext", "http://musicbrainz.org/ns/ext#-2.0");
 
-                let reader = XpathStrReader::new(xml, &context)?;
+                let reader = Reader::from_str(xml, Some(&context))?;
                 ::client::check_response_error(&reader)?;
-                Ok(reader.read_vec("//mb:metadata")?)
+                Ok(reader.read("//mb:metadata")?)
             }
         }
 
@@ -128,16 +131,14 @@ macro_rules! define_search_builder {
         }
 
         impl FromXml for SearchEntry<$entity> {
-            fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-                where R: XpathReader<'d>
-            {
+            fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
                 Ok(Self {
                     entity: reader.read(format!(".//mb:{}", $list_tag).as_str())?,
                     score: reader.read(format!(".//mb:{}/*/@ext:score", $list_tag).as_str())?,
                 })
             }
         }
-    }
+    };
 }
 
 define_search_builder!(
@@ -179,8 +180,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn deserialize_releasegroup()
-    {
+    fn deserialize_releasegroup() {
         // url: https://musicbrainz.org/ws/2/release-group/?query=releasegroup:
         // %E9%9C%8A%E9%AD%82%E6%B6%88%E6%BB%85
         let xml = r#"<?xml version="1.0" encoding="UTF-8" standalone="yes"?><metadata created="2017-05-06T09:45:01.432Z" xmlns="http://musicbrainz.org/ns/mmd-2.0#" xmlns:ext="http://musicbrainz.org/ns/ext#-2.0"><release-group-list count="1" offset="0"><release-group id="739de9cd-7e81-4bb0-9fdb-0feb7ea709c7" type="Single" ext:score="100"><title>霊魂消滅</title><primary-type>Single</primary-type><artist-credit><name-credit><artist id="90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e"><name>NECRONOMIDOL</name><sort-name>NECRONOMIDOL</sort-name></artist></name-credit></artist-credit><release-list count="1"><release id="d3d2a860-0093-461d-8d95-b77939c2e944"><title>霊魂消滅</title><status>Official</status></release></release-list></release-group></release-group-list></metadata>"#;

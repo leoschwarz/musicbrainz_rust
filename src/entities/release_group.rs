@@ -1,10 +1,9 @@
-use xpath_reader::{FromXml, FromXmlError, XpathReader};
-use xpath_reader::reader::{FromXmlContained, FromXmlElement};
+use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 use entities::{Mbid, Resource};
 use entities::refs::{ArtistRef, ReleaseRef};
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     /// The primary type of a release group.
     pub enum ReleaseGroupPrimaryType {
         var Album = "Album",
@@ -15,7 +14,7 @@ enum_mb_xml! {
     }
 }
 
-enum_mb_xml! {
+enum_mb_xml_optional! {
     /// Secondary types of a release group. There can be any number of secondary
     /// types.
     pub enum ReleaseGroupSecondaryType {
@@ -40,15 +39,11 @@ pub struct ReleaseGroupType {
     pub secondary: Vec<ReleaseGroupSecondaryType>,
 }
 
-impl FromXmlElement for ReleaseGroupType {}
 impl FromXml for ReleaseGroupType {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseGroupType {
-            primary: reader.read_option(".//mb:primary-type/text()")?,
-            secondary: reader.read_vec(".//mb:secondary-type-list/mb:secondary-type/text()")?,
+            primary: reader.read(".//mb:primary-type/text()")?,
+            secondary: reader.read(".//mb:secondary-type-list/mb:secondary-type/text()")?,
         })
     }
 }
@@ -88,22 +83,17 @@ impl Resource for ReleaseGroup {
     const INCL: &'static str = "annotation+artists+releases";
 }
 
-impl FromXmlContained for ReleaseGroup {}
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseGroup {
             mbid: reader.read(".//mb:release-group/@id")?,
             title: reader.read(".//mb:release-group/mb:title/text()")?,
-            releases: reader.read_vec(".//mb:release-group/mb:release-list/mb:release")?,
-            artists: reader.read_vec(
-                ".//mb:release-group/mb:artist-credit/mb:name-credit/mb:artist",
-            )?,
+            releases: reader.read(".//mb:release-group/mb:release-list/mb:release")?,
+            artists: reader
+                .read(".//mb:release-group/mb:artist-credit/mb:name-credit/mb:artist")?,
             release_type: reader.read(".//mb:release-group")?,
-            disambiguation: reader.read_option(".//mb:release-group/mb:disambiguation/text()")?,
-            annotation: reader.read_option(".//mb:release-group/mb:annotation/text()")?,
+            disambiguation: reader.read(".//mb:release-group/mb:disambiguation/text()")?,
+            annotation: reader.read(".//mb:release-group/mb:annotation/text()")?,
         })
     }
 }
@@ -115,8 +105,7 @@ mod tests {
     use entities::*;
 
     #[test]
-    fn read_1()
-    {
+    fn read_1() {
         let mbid = Mbid::from_str("76a4e2c2-bf7a-445e-8081-5a1e291f3b16").unwrap();
         let rg: ReleaseGroup = ::util::test_utils::fetch_entity(&mbid).unwrap();
 
@@ -124,25 +113,21 @@ mod tests {
         assert_eq!(rg.title, "Mixtape".to_string());
         assert_eq!(
             rg.artists,
-            vec![
-                ArtistRef {
-                    mbid: Mbid::from_str("0e6b3a2c-6a42-4b43-a4f6-c6625c5855de").unwrap(),
-                    name: "POP ETC".to_string(),
-                    sort_name: "POP ETC".to_string(),
-                },
-            ]
+            vec![ArtistRef {
+                mbid: Mbid::from_str("0e6b3a2c-6a42-4b43-a4f6-c6625c5855de").unwrap(),
+                name: "POP ETC".to_string(),
+                sort_name: "POP ETC".to_string(),
+            },]
         );
         assert_eq!(
             rg.releases,
-            vec![
-                ReleaseRef {
-                    mbid: Mbid::from_str("289bf4e7-0af5-433c-b5a2-493b863b4b47").unwrap(),
-                    title: "Mixtape".to_string(),
-                    date: Some(PartialDate::from_str("2012-03").unwrap()),
-                    status: Some(ReleaseStatus::Official),
-                    country: Some("US".to_string()),
-                },
-            ]
+            vec![ReleaseRef {
+                mbid: Mbid::from_str("289bf4e7-0af5-433c-b5a2-493b863b4b47").unwrap(),
+                title: "Mixtape".to_string(),
+                date: Some(PartialDate::from_str("2012-03").unwrap()),
+                status: Some(ReleaseStatus::Official),
+                country: Some("US".to_string()),
+            },]
         );
         assert_eq!(
             rg.release_type.primary,

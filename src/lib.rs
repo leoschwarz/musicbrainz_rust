@@ -1,6 +1,5 @@
 // Apparently this is recommended when using error-chain.
 #![recursion_limit = "1024"]
-
 // TODO: Remove before stable release.
 #![allow(dead_code)]
 

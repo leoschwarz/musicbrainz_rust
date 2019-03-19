@@ -7,8 +7,8 @@
 use super::{Client, ClientError, full_entities};
 use self::full_entities::refs::*;
 use self::full_entities::{Mbid, Resource};
-use xpath_reader::FromXmlError;
-use xpath_reader::reader::{FromXml, FromXmlElement, XpathReader};
+use xpath_reader::Error;
+use xpath_reader::reader::{FromXml, Reader};
 
 pub trait SearchEntity {
     /// The full entity that is refered by this search entity.
@@ -24,8 +24,7 @@ pub use self::full_entities::Area;
 impl SearchEntity for Area {
     type FullEntity = Area;
 
-    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError>
-    {
+    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError> {
         Ok(self.to_owned())
     }
 }
@@ -35,8 +34,7 @@ pub use self::full_entities::Artist;
 impl SearchEntity for Artist {
     type FullEntity = Artist;
 
-    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError>
-    {
+    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError> {
         Ok(self.to_owned())
     }
 }
@@ -54,8 +52,7 @@ pub struct Release {
 impl SearchEntity for Release {
     type FullEntity = full_entities::Release;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError>
-    {
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError> {
         client.get_by_mbid(&self.mbid)
     }
 }
@@ -70,23 +67,18 @@ pub struct ReleaseGroup {
 impl SearchEntity for ReleaseGroup {
     type FullEntity = full_entities::ReleaseGroup;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError>
-    {
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError> {
         client.get_by_mbid(&self.mbid)
     }
 }
 
-impl FromXmlElement for ReleaseGroup {}
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d, R>(reader: &'d R) -> Result<Self, FromXmlError>
-    where
-        R: XpathReader<'d>,
-    {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
         Ok(ReleaseGroup {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title")?,
-            artists: reader.read_vec(".//mb:artist-credit/mb:name-credit/mb:artist")?,
-            releases: reader.read_vec(".//mb:release-list/mb:release")?,
+            artists: reader.read(".//mb:artist-credit/mb:name-credit/mb:artist")?,
+            releases: reader.read(".//mb:release-list/mb:release")?,
         })
     }
 }

@@ -35,7 +35,8 @@ pub use self::place::{Coordinates, Place, PlaceType};
 pub use self::recording::Recording;
 pub use self::release::{LabelInfo, Release, ReleaseMedium, ReleaseStatus, ReleaseTrack};
 pub use self::release_group::{ReleaseGroup, ReleaseGroupPrimaryType, ReleaseGroupSecondaryType,
-                              ReleaseGroupType};
+ReleaseGroupType};
+pub use self::series::Series;
 // TODO it's pretty useless as of now.
 // pub use self::series::Series;
 
@@ -73,8 +74,7 @@ pub trait Resource {
 
     /// Returns the url where one can get a resource in the valid format for
     /// parsing from.
-    fn get_url(mbid: &Mbid) -> String
-    {
+    fn get_url(mbid: &Mbid) -> String {
         format!(
             "https://musicbrainz.org/ws/2/{}/{}?inc={}",
             Self::NAME,
