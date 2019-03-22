@@ -166,7 +166,10 @@ impl Client {
                 return Ok(response_body);
             }
         }
-        Err(Error::new("MusicBrainz returned 503 (ServiceUnavailable) too many times.", ErrorKind::Communication))
+        Err(Error::new(
+            "MusicBrainz returned 503 (ServiceUnavailable) too many times.",
+            ErrorKind::Communication,
+        ))
     }
 
     /// Returns a search builder to search for an area.

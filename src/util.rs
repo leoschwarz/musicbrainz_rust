@@ -10,11 +10,11 @@ pub fn musicbrainz_context<'d>() -> Context<'d> {
 pub mod test_utils {
     use crate::client::{Client, ClientConfig, ClientWaits};
     use crate::entities::{Mbid, Resource};
-    use crate::errors::ClientError;
+    use crate::errors::Error;
     use reqwest_mock::GenericClient as HttpClient;
     use xpath_reader::reader::FromXml;
 
-    pub fn fetch_entity<E: Resource + FromXml>(mbid: &Mbid) -> Result<E, ClientError> {
+    pub fn fetch_entity<E: Resource + FromXml>(mbid: &Mbid) -> Result<E, Error> {
         let mut client = Client::with_http_client(
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),

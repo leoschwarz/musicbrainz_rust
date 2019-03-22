@@ -39,7 +39,7 @@ impl Error {
         Error {
             message: msg.into(),
             kind,
-            backtrace: Backtrace::new()
+            backtrace: Backtrace::new(),
         }
     }
 
@@ -52,8 +52,7 @@ impl Error {
     }
 }
 
-impl std::error::Error for Error {
-}
+impl std::error::Error for Error {}
 
 impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
@@ -104,7 +103,7 @@ impl From<reqwest_mock::UrlError> for Error {
         Error {
             message: format!("reqwest_mock url error: {}", e),
             kind: ErrorKind::Internal,
-            backtrace: Backtrace::new()
+            backtrace: Backtrace::new(),
         }
     }
 }
