@@ -1,9 +1,6 @@
 use backtrace::Backtrace;
 use std::fmt;
 
-// TODO remove after refactoring
-pub use self::Error as ParseError;
-
 #[derive(Clone, Debug)]
 pub struct Error {
     // TODO: Make it possible to disable backtraces for performance reasons?

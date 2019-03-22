@@ -1,4 +1,4 @@
-use crate::errors::ParseError;
+use crate::errors::Error;
 use isolang::Language as IsoLang;
 use std::fmt;
 use xpath_reader::{FromXml, FromXmlOptional, Reader};
@@ -11,20 +11,20 @@ pub struct Language {
 
 impl Language {
     /// Construct a new instance from an ISO 639-1 language code.
-    pub fn from_639_1(code: &str) -> Result<Language, ParseError> {
+    pub fn from_639_1(code: &str) -> Result<Language, Error> {
         Ok(Language {
             inner: IsoLang::from_639_1(code)
-                .ok_or_else(|| ParseError::parse_error(format!("Invalid ISO 639-1 code: {}", code)))?,
+                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-1 code: {}", code)))?,
         })
     }
 
     /// Construct a new instance from an ISO 639-3 language code.
     ///
     /// These are used by MusicBrainz internally.
-    pub fn from_639_3(code: &str) -> Result<Language, ParseError> {
+    pub fn from_639_3(code: &str) -> Result<Language, Error> {
         Ok(Language {
             inner: IsoLang::from_639_3(code)
-                .ok_or_else(|| ParseError::parse_error(format!("Invalid ISO 639-3 code: {}", code)))?,
+                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-3 code: {}", code)))?,
         })
     }
 

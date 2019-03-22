@@ -1,7 +1,7 @@
 use std::fmt::{self, Debug, Display, Formatter};
 use std::str::FromStr;
 use uuid::{self, Uuid};
-use xpath_reader::{FromXml, Error, Reader};
+use xpath_reader::{FromXml, Reader};
 
 /// Identifier for entities in the MusicBrainz database.
 #[derive(Clone, PartialEq, Eq)]
