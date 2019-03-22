@@ -1,4 +1,4 @@
-use errors::ParseError;
+use crate::errors::ParseError;
 use isolang::Language as IsoLang;
 use std::fmt;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};

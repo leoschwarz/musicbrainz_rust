@@ -4,6 +4,7 @@ version = "0.1.0"
 authors = ["Leo Schwarz <mail@leoschwarz.com>"]
 license = "Apache-2.0"
 repository = "https://github.com/leoschwarz/musicbrainz_rust"
+edition = "2018"
 
 [features]
 default = []

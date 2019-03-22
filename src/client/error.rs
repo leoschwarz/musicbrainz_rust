@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn error() {
-        let context = ::util::musicbrainz_context();
+        let context = crate::util::musicbrainz_context();
         let reader = Reader::from_str(XML_ERR, Some(&context)).unwrap();
 
         let res = check_response_error(&reader);
@@ -50,7 +50,7 @@ mod tests {
 
     #[test]
     fn ok() {
-        let context = ::util::musicbrainz_context();
+        let context = crate::util::musicbrainz_context();
         let reader = Reader::from_str(XML_OK, Some(&context)).unwrap();
 
         // should not raise error

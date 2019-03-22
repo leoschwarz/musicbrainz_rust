@@ -1,7 +1,7 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use entities::{Mbid, Resource};
-use entities::date::PartialDate;
+use crate::entities::{Mbid, Resource};
+use crate::entities::date::PartialDate;
 
 enum_mb_xml_optional! {
     pub enum EventType {
@@ -81,7 +81,7 @@ mod tests {
     #[test]
     fn read_1() {
         let mbid = Mbid::from_str("6e2ab7d5-f340-4c41-99a3-c901733402b4").unwrap();
-        let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let event: Event = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(event.mbid, mbid);
         assert_eq!(event.name, "25. Wave-Gotik-Treffen".to_string());
@@ -97,7 +97,7 @@ mod tests {
     #[test]
     fn read_2() {
         let mbid = Mbid::from_str("9754f4dd-6fad-49b7-8f30-940c9af6b776").unwrap();
-        let event: Event = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let event: Event = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(event.event_type, Some(EventType::Concert));
         assert_eq!(event.setlist.unwrap().len(), 225);

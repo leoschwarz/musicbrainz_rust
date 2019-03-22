@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, Error, Reader};
 
-use entities::{Mbid, Resource};
+use crate::entities::{Mbid, Resource};
 
 enum_mb_xml! {
     /// Specifies what a specific `Area` instance actually is.
@@ -84,7 +84,7 @@ mod tests {
     #[test]
     fn area_read_xml1() {
         let mbid = Mbid::from_str("a1411661-be21-4290-8dc1-50f3d8e3ea67").unwrap();
-        let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let area: Area = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(area.mbid, mbid);
         assert_eq!(area.name, "Honolulu".to_string());
@@ -96,7 +96,7 @@ mod tests {
     #[test]
     fn area_read_xml2() {
         let mbid = Mbid::from_str("2db42837-c832-3c27-b4a3-08198f75693c").unwrap();
-        let area: Area = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let area: Area = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(area.mbid, mbid);
         assert_eq!(area.name, "Japan".to_string());

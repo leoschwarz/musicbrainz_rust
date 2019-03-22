@@ -1,7 +1,7 @@
 //! Contains the types and functions to communicate with the MusicBrainz API.
 
-use errors::{ClientError, ClientErrorKind};
-use entities::{Mbid, Resource};
+use crate::errors::{ClientError, ClientErrorKind};
+use crate::entities::{Mbid, Resource};
 
 use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
@@ -12,7 +12,7 @@ use xpath_reader::reader::{FromXml, Reader};
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
-use search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder, SearchBuilder};
+use crate::search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBuilder, SearchBuilder};
 
 mod error;
 pub(crate) use self::error::check_response_error;
@@ -137,7 +137,7 @@ impl Client {
         let response_body = self.get_body(url.parse()?)?;
 
         // Parse the response.
-        let context = ::util::musicbrainz_context();
+        let context = crate::util::musicbrainz_context();
         let reader = Reader::from_str(&response_body[..], Some(&context))?;
         check_response_error(&reader)?;
         Ok(Res::from_xml(&reader)?)
@@ -205,7 +205,7 @@ mod tests {
         let mut client = get_client("release_group_01");
         let results = client
             .search_release_group()
-            .add(::search::fields::release_group::ReleaseGroupName(
+            .add(crate::search::fields::release_group::ReleaseGroupName(
                 "霊魂消滅".to_owned(),
             ))
             .search()

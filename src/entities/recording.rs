@@ -1,8 +1,8 @@
 use std::time::Duration;
 use xpath_reader::{FromXml, Error, Reader};
 
-use entities::{Mbid, Resource};
-use entities::refs::ArtistRef;
+use crate::entities::{Mbid, Resource};
+use crate::entities::refs::ArtistRef;
 
 /// Represents a unique audio that has been used to produce at least one
 /// released track through
@@ -38,7 +38,7 @@ impl FromXml for Recording {
             mbid: reader.read(".//mb:recording/@id")?,
             title: reader.read(".//mb:recording/mb:title/text()")?,
             artists: reader.read(".//mb:recording/mb:artist-credit/mb:name-credit")?,
-            duration: ::entities::helper::read_mb_duration(
+            duration: crate::entities::helper::read_mb_duration(
                 reader,
                 ".//mb:recording/mb:length/text()",
             )?,
@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn read_xml1() {
         let mbid = Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap();
-        let recording: Recording = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let recording: Recording = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(recording.mbid, mbid);
         assert_eq!(

@@ -13,10 +13,10 @@
 //! full  entity from a  search entity, using the `fetch_full()` method on the
 //! search entity.
 
-use entities as full_entities;
-use entities::Resource;
-use errors::ClientError;
-use client::Client;
+use crate::entities as full_entities;
+use crate::entities::Resource;
+use crate::errors::ClientError;
+use crate::client::Client;
 
 use reqwest_mock::Url;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
@@ -108,11 +108,11 @@ macro_rules! define_search_builder {
 
             /// Parse the search result.
             fn parse_xml(xml: &str) -> SearchResult<$entity> {
-                let mut context = ::util::musicbrainz_context();
+                let mut context = crate::util::musicbrainz_context();
                 context.set_namespace("ext", "http://musicbrainz.org/ns/ext#-2.0");
 
                 let reader = Reader::from_str(xml, Some(&context))?;
-                ::client::check_response_error(&reader)?;
+                crate::client::check_response_error(&reader)?;
                 Ok(reader.read("//mb:metadata")?)
             }
         }

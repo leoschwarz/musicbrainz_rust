@@ -1,5 +1,5 @@
-use entities::{Mbid, PartialDate, Resource};
-use entities::refs::AreaRef;
+use crate::entities::{Mbid, PartialDate, Resource};
+use crate::entities::refs::AreaRef;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
 enum_mb_xml_optional! {
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn place_read_1() {
         let mbid = Mbid::from_str("d1ab65f8-d082-492a-bd70-ce375548dabf").unwrap();
-        let p: Place = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let p: Place = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         // Check parsed values.
         assert_eq!(p.mbid, mbid);

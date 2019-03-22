@@ -1,7 +1,7 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use entities::{Mbid, Resource};
-use entities::refs::{ArtistRef, ReleaseRef};
+use crate::entities::{Mbid, Resource};
+use crate::entities::refs::{ArtistRef, ReleaseRef};
 
 enum_mb_xml_optional! {
     /// The primary type of a release group.
@@ -102,12 +102,12 @@ impl FromXml for ReleaseGroup {
 mod tests {
     use super::*;
     use std::str::FromStr;
-    use entities::*;
+    use crate::entities::*;
 
     #[test]
     fn read_1() {
         let mbid = Mbid::from_str("76a4e2c2-bf7a-445e-8081-5a1e291f3b16").unwrap();
-        let rg: ReleaseGroup = ::util::test_utils::fetch_entity(&mbid).unwrap();
+        let rg: ReleaseGroup = crate::util::test_utils::fetch_entity(&mbid).unwrap();
 
         assert_eq!(rg.mbid, mbid);
         assert_eq!(rg.title, "Mixtape".to_string());

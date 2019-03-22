@@ -6,12 +6,12 @@
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use entities::Mbid;
-use entities::date::PartialDate;
-use entities::release::ReleaseStatus;
+use crate::entities::Mbid;
+use crate::entities::date::PartialDate;
+use crate::entities::release::ReleaseStatus;
 
-use client::Client;
-use errors::ClientError;
+use crate::client::Client;
+use crate::errors::ClientError;
 
 pub trait FetchFull {
     type Full;
@@ -91,7 +91,7 @@ impl FromXml for RecordingRef {
         Ok(RecordingRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
-            length: ::entities::helper::read_mb_duration(reader, ".//mb:length/text()")?,
+            length: crate::entities::helper::read_mb_duration(reader, ".//mb:length/text()")?,
         })
     }
 }
@@ -136,9 +136,9 @@ macro_rules! ref_fetch_full
 }
 
 ref_fetch_full!(
-    AreaRef, ::entities::Area;
-    ArtistRef, ::entities::Artist;
-    LabelRef, ::entities::Label;
-    RecordingRef, ::entities::Recording;
-    ReleaseRef, ::entities::Release
+    AreaRef, crate::entities::Area;
+    ArtistRef, crate::entities::Artist;
+    LabelRef, crate::entities::Label;
+    RecordingRef, crate::entities::Recording;
+    ReleaseRef, crate::entities::Release
 );
