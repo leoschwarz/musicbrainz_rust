@@ -3,7 +3,6 @@ use std::fmt;
 
 // TODO remove after refactoring
 pub use self::Error as ParseError;
-pub use self::Error as ClientError;
 
 #[derive(Clone, Debug)]
 pub struct Error {

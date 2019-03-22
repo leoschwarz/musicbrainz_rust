@@ -4,10 +4,10 @@
 //! They are only contained in search results and provide a means to retrive
 //! the full entitity a further API request.
 
-use super::{Client, ClientError, full_entities};
+use super::{Client, full_entities};
+use crate::Error;
 use self::full_entities::refs::*;
 use self::full_entities::{Mbid, Resource};
-use xpath_reader::Error;
 use xpath_reader::reader::{FromXml, Reader};
 
 pub trait SearchEntity {
@@ -15,7 +15,7 @@ pub trait SearchEntity {
     type FullEntity: Resource + FromXml;
 
     /// Fetch the full entity from the API.
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError>;
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error>;
 }
 
 // It's the same entity.
@@ -24,7 +24,7 @@ pub use self::full_entities::Area;
 impl SearchEntity for Area {
     type FullEntity = Area;
 
-    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError> {
+    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, Error> {
         Ok(self.to_owned())
     }
 }
@@ -34,7 +34,7 @@ pub use self::full_entities::Artist;
 impl SearchEntity for Artist {
     type FullEntity = Artist;
 
-    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, ClientError> {
+    fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, Error> {
         Ok(self.to_owned())
     }
 }
@@ -52,7 +52,7 @@ pub struct Release {
 impl SearchEntity for Release {
     type FullEntity = full_entities::Release;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError> {
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
         client.get_by_mbid(&self.mbid)
     }
 }
@@ -67,13 +67,13 @@ pub struct ReleaseGroup {
 impl SearchEntity for ReleaseGroup {
     type FullEntity = full_entities::ReleaseGroup;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, ClientError> {
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
         client.get_by_mbid(&self.mbid)
     }
 }
 
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
         Ok(ReleaseGroup {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title")?,
