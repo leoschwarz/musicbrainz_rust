@@ -15,12 +15,12 @@
 
 use crate::entities as full_entities;
 use crate::entities::Resource;
-use crate::errors::ClientError;
+use crate::errors::Error;
 use crate::client::Client;
 
 use reqwest_mock::Url;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
-use xpath_reader::{FromXml, Error, Reader};
+use xpath_reader::{FromXml, Reader};
 
 pub mod fields;
 use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField, ReleaseSearchField};
@@ -28,7 +28,7 @@ use self::fields::{AreaSearchField, ArtistSearchField, ReleaseGroupSearchField, 
 pub mod search_entities;
 use self::search_entities::SearchEntity;
 
-pub type SearchResult<Entity> = Result<Vec<SearchEntry<Entity>>, ClientError>;
+pub type SearchResult<Entity> = Result<Vec<SearchEntry<Entity>>, Error>;
 
 pub mod query;
 
@@ -89,7 +89,7 @@ macro_rules! define_search_builder {
             }
 
             /// Builds the full url to be used to perform the search request.
-            fn build_url(&self) -> Result<Url, ClientError> {
+            fn build_url(&self) -> Result<Url, Error> {
                 let mut query_parts: Vec<String> = Vec::new();
                 for &(p_name, ref p_value) in self.params.iter() {
                     // TODO (FIXME): Does this also encode ":" ?
@@ -131,7 +131,7 @@ macro_rules! define_search_builder {
         }
 
         impl FromXml for SearchEntry<$entity> {
-            fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+            fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
                 Ok(Self {
                     entity: reader.read(format!(".//mb:{}", $list_tag).as_str())?,
                     score: reader.read(format!(".//mb:{}/*/@ext:score", $list_tag).as_str())?,

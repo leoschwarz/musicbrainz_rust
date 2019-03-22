@@ -1,18 +1,18 @@
-use super::*;
 use xpath_reader::Reader;
+use crate::{Error, ErrorKind};
 
 /// Checks if there is an error in the document provided by the reader and
 /// returns Ok if there
 /// wasn't and Err parsing the MusicBrainz error if the API actually returned
 /// an error.
-pub fn check_response_error<'d>(reader: &'d Reader<'d>) -> Result<(), ClientError> {
+pub fn check_response_error<'d>(reader: &'d Reader<'d>) -> Result<(), Error> {
     let r: Result<Vec<String>, _> = reader.read("//error/text");
 
     match r {
         Ok(errs) => {
             if errs.len() > 0 {
                 let text = errs.join("\n");
-                Err(ClientErrorKind::MusicbrainzServerError(text).into())
+                Err(Error::new(text, ErrorKind::ServerError))
             } else {
                 Ok(())
             }
@@ -24,7 +24,6 @@ pub fn check_response_error<'d>(reader: &'d Reader<'d>) -> Result<(), ClientErro
 #[cfg(test)]
 mod tests {
     use super::*;
-    use error_chain::ChainedError;
     use xpath_reader::Reader;
 
     const XML_ERR: &'static str = r#"<?xml version="1.0" encoding="UTF-8"?>
@@ -43,9 +42,8 @@ mod tests {
         let res = check_response_error(&reader);
         let err = res.err().unwrap();
 
-        assert_eq!(err.description(), "MusicBrainz server error");
-
-        assert!(format!("{}", err).starts_with("MusicBrainz server error: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd"));
+        assert!(format!("{}", err).starts_with(
+            "[server error]: Your requests are exceeding the allowable rate limit. Please see http://wiki.musicbrainz.org/XMLWebService for more information.\nFor usage, please see: http://musicbrainz.org/development/mmd"));
     }
 
     #[test]

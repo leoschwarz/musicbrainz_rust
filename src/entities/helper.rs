@@ -1,5 +1,5 @@
 use std::time::Duration;
-use xpath_reader::{Reader, FromXml, FromXmlOptional};
+use xpath_reader::Reader;
 
 /// Note that the requirement of the `var` (variant) token is rather ugly but
 /// required,

@@ -4,19 +4,18 @@
 // TODO: Better documentation in this file.
 
 use std::time::Duration;
-use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
+use xpath_reader::{FromXml, FromXmlOptional, Reader};
 
 use crate::entities::Mbid;
 use crate::entities::date::PartialDate;
 use crate::entities::release::ReleaseStatus;
-
 use crate::client::Client;
-use crate::errors::ClientError;
+use crate::Error;
 
 pub trait FetchFull {
     type Full;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, ClientError>;
+    fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, Error>;
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -28,7 +27,7 @@ pub struct AreaRef {
 }
 
 impl FromXmlOptional for AreaRef {
-    fn from_xml_optional<'d>(reader: &'d Reader<'d>) -> Result<Option<Self>, Error> {
+    fn from_xml_optional<'d>(reader: &'d Reader<'d>) -> Result<Option<Self>, xpath_reader::Error> {
         // TODO: is this correct
         if reader.anchor_nodeset().size() < 1 {
             Ok(None)
@@ -51,7 +50,7 @@ pub struct ArtistRef {
 }
 
 impl FromXml for ArtistRef {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
         Ok(ArtistRef {
             mbid: reader.read(".//@id")?,
             name: reader.read(".//mb:name/text()")?,
@@ -69,7 +68,7 @@ pub struct LabelRef {
 }
 
 impl FromXml for LabelRef {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
         Ok(LabelRef {
             mbid: reader.read(".//@id")?,
             name: reader.read(".//mb:name/text()")?,
@@ -87,7 +86,7 @@ pub struct RecordingRef {
 }
 
 impl FromXml for RecordingRef {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
         Ok(RecordingRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
@@ -106,7 +105,7 @@ pub struct ReleaseRef {
 }
 
 impl FromXml for ReleaseRef {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, Error> {
+    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
         Ok(ReleaseRef {
             mbid: reader.read(".//@id")?,
             title: reader.read(".//mb:title/text()")?,
@@ -126,7 +125,7 @@ macro_rules! ref_fetch_full
             impl FetchFull for $ref {
                 type Full = $full;
 
-                fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, ClientError>
+                fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, Error>
                 {
                     client.get_by_mbid(&self.mbid)
                 }

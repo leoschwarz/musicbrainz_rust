@@ -10,7 +10,7 @@ edition = "2018"
 default = []
 
 [dependencies]
-error-chain = "0.11"
+backtrace = "0.3"
 isolang = "1"
 regex = "1"
 reqwest_mock = "0.5"
