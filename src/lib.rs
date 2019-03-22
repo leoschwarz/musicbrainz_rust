@@ -3,8 +3,6 @@
 // TODO: Remove before stable release.
 #![allow(dead_code)]
 
-#[macro_use]
-extern crate error_chain;
 extern crate isolang;
 extern crate regex;
 extern crate reqwest_mock;

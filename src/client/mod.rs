@@ -1,6 +1,6 @@
 //! Contains the types and functions to communicate with the MusicBrainz API.
 
-use crate::errors::{ClientError, ClientErrorKind};
+use crate::errors::{Error, ErrorKind};
 use crate::entities::{Mbid, Resource};
 
 use reqwest_mock::Client as MockClient;
@@ -129,7 +129,7 @@ impl Client {
     }
 
     /// Fetch the specified ressource from the server and parse it.
-    pub fn get_by_mbid<Res>(&mut self, mbid: &Mbid) -> Result<Res, ClientError>
+    pub fn get_by_mbid<Res>(&mut self, mbid: &Mbid) -> Result<Res, Error>
     where
         Res: Resource + FromXml,
     {
@@ -143,7 +143,7 @@ impl Client {
         Ok(Res::from_xml(&reader)?)
     }
 
-    pub(crate) fn get_body(&mut self, url: Url) -> Result<String, ClientError> {
+    pub(crate) fn get_body(&mut self, url: Url) -> Result<String, Error> {
         self.wait_if_needed();
 
         let mut attempts = 0;
@@ -166,7 +166,7 @@ impl Client {
                 return Ok(response_body);
             }
         }
-        Err("MusicBrainz returned 503 (ServiceUnavailable) too many times.".into())
+        Err(Error::new("MusicBrainz returned 503 (ServiceUnavailable) too many times.", ErrorKind::Communication))
     }
 
     /// Returns a search builder to search for an area.
