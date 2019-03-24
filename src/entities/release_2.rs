@@ -1,8 +1,22 @@
 //! Attempt at prototyping the new entity API exemplary for the release entity.
 
-use crate::entities::{Mbid, PartialDate, Language, Duration};
+use crate::entities::{Alias, Mbid, PartialDate, Language, Duration};
 use crate::entities::refs::{ArtistRef, LabelRef, RecordingRef};
 use xpath_reader::{FromXml, FromXmlOptional, Reader};
+
+pub struct MbRequest {
+    pub(crate) name: String,
+    pub(crate) include: String,
+}
+
+pub trait Resource {
+    type Options;
+    type Response: FromXml;
+
+    fn request(options: &Self::Options) -> MbRequest;
+
+    fn from_response(response: Self::Response, options: Self::Options) -> Self;
+}
 
 pub enum OnRequest<T> {
     Some(T),
@@ -13,7 +27,7 @@ pub enum OnRequest<T> {
 impl<T> OnRequest<T> {
     pub(crate) fn from_option(option: Option<T>, requested: bool) -> OnRequest<T> {
         match (option, requested) {
-            (Some(val), _) => OnRequest::Some(option),
+            (Some(val), _) => OnRequest::Some(val),
             (None, true) => OnRequest::NotAvailable,
             (None, false) => OnRequest::NotRequested,
         }
@@ -71,14 +85,12 @@ enum_mb_xml_optional! {
 #[derive(Clone, Debug)]
 pub struct Release {
     response: ReleaseResponse,
-    requested_annotation: bool,
-    requested_artists: bool,
-    requested_labels: bool,
+    options: ReleaseOptions,
 }
 
 /// A `Release` is any publication of one or more tracks.
 #[derive(Clone, Debug)]
-struct ReleaseResponse {
+pub struct ReleaseResponse {
     mbid: Mbid,
     title: String,
     artists: Vec<ArtistRef>,
@@ -93,6 +105,14 @@ struct ReleaseResponse {
     disambiguation: Option<String>,
     annotation: Option<String>,
     mediums: Vec<ReleaseMedium>,
+}
+
+#[derive(Clone, Debug)]
+pub struct ReleaseOptions {
+    pub annotation: bool,
+    pub artists: bool,
+    pub recordings: bool,
+    pub labels: bool,
 }
 
 /// A medium is a collection of multiple `ReleaseTrack`.
@@ -179,7 +199,7 @@ impl Release {
 
     /// Release status of the release.
     pub fn status(&self) -> Option<ReleaseStatus> {
-        self.response.status
+        self.response.status.clone()
     }
 
     /// Barcode of the release, if it has one.
@@ -211,29 +231,67 @@ impl Release {
 
     /// Any additional free form annotation for this `Release`.
     pub fn annotation(&self) -> OnRequest<&String> {
-        OnRequest::from_option(self.annotation.as_ref(), self.requested_annotation)
+        OnRequest::from_option(self.response.annotation.as_ref(), self.options.annotation)
     }
 
     /// The mediums (disks) of the release.
-    pub fn mediums(&self) -> &[ReleaseMedium] {
-        self.response.mediums.as_ref()
+    pub fn mediums(&self) -> OnRequest<&[ReleaseMedium]> {
+        if self.options.recordings {
+            OnRequest::Some(self.response.mediums.as_ref())
+        } else {
+            OnRequest::NotRequested
+        }
     }
 
     /// The artists that the release is primarily credited to.
     pub fn artists(&self) -> OnRequest<&[ArtistRef]> {
-        if self.requested_artists {
-            OnRequest::Some(self.artists.as_slice())
+        if self.options.artists {
+            OnRequest::Some(self.response.artists.as_slice())
         } else {
             OnRequest::NotRequested
         }
     }
 
     /// The labels which issued this release.
-    pub fn labels(&self) -> OnRequest<&[LabelRef]> {
-        if self.requested_labels {
-            OnRequest::Some(self.labels.as_slice())
+    pub fn labels(&self) -> OnRequest<&[LabelInfo]> {
+        if self.options.labels {
+            OnRequest::Some(self.response.labels.as_slice())
         } else {
             OnRequest::NotRequested
+        }
+    }
+}
+
+impl Resource for Release {
+    type Options = ReleaseOptions;
+    type Response = ReleaseResponse;
+
+    fn request(options: &Self::Options) -> MbRequest {
+        let mut includes = Vec::new();
+
+        if options.annotation {
+            includes.push("annotation");
+        }
+        if options.artists {
+            includes.push("artists");
+        }
+        if options.labels {
+            includes.push("labels");
+        }
+        if options.recordings {
+            includes.push("recordings");
+        }
+
+        MbRequest {
+            name: "release".into(),
+            include: includes.join("+"),
+        }
+    }
+
+    fn from_response(response: Self::Response, options: Self::Options) -> Self {
+        Release {
+            response,
+            options
         }
     }
 }

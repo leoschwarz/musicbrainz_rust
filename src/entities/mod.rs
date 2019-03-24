@@ -14,6 +14,7 @@ pub use self::lang::Language;
 pub mod refs;
 pub use self::refs::{AreaRef, ArtistRef, LabelRef, RecordingRef, ReleaseRef, FetchFull};
 
+mod alias;
 mod area;
 mod artist;
 mod event;
@@ -28,6 +29,7 @@ mod series;
 // mod track
 // mod url
 // mod work
+pub use self::alias::Alias;
 pub use self::area::{Area, AreaType};
 pub use self::artist::{Artist, ArtistType, Gender};
 pub use self::event::{Event, EventType};
