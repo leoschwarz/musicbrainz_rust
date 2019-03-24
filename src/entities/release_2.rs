@@ -224,12 +224,23 @@ impl Release {
 }
 
 impl ReleaseOptions {
+    /// Request everything from the server.
     pub fn everything() -> Self {
         ReleaseOptions {
             annotation: true,
             artists: true,
             recordings: true,
             labels: true,
+        }
+    }
+
+    /// Only request the minimal amount of fields.
+    pub fn minimal() -> Self {
+        ReleaseOptions {
+            annotation: false,
+            artists: false,
+            recordings: false,
+            labels: false,
         }
     }
 }
@@ -386,25 +397,27 @@ mod tests {
         assert_eq!(release.mediums().unwrap().len(), 1);
     }
 
-    /*
     #[test]
     fn disambiguation() {
         let mbid = Mbid::from_str("9642c552-a5b3-4b7e-9168-aeb2a1a06f27").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let options = ReleaseOptions::minimal();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
-        assert_eq!(release.disambiguation, Some("通常盤".to_string()));
+        assert_eq!(release.disambiguation(), Some(&"通常盤".to_string()));
     }
 
     #[test]
     fn release_read_xml2() {
         let mbid = Mbid::from_str("785d7c67-a920-4cee-a871-8cd9896eb8aa").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let mut options = ReleaseOptions::minimal();
+        options.labels = true;
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
         // We check for the things we didn't check in the previous test.
-        assert_eq!(release.packaging, Some("Jewel Case".to_string()));
+        assert_eq!(release.packaging(), Some(&"Jewel Case".to_string()));
         assert_eq!(
-            release.labels,
-            vec![
+            release.labels().unwrap(),
+            &[
                 LabelInfo {
                     label: Some(LabelRef {
                         mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
@@ -452,15 +465,17 @@ mod tests {
                 },
             ]
         );
-        assert_eq!(release.mediums.len(), 1);
+        assert_eq!(release.mediums(), OnRequest::NotRequested);
     }
 
     #[test]
     fn read_tracks() {
         let mbid = Mbid::from_str("d1881a4c-0188-4f0f-a2e7-4e7849aec109").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let mut options = ReleaseOptions::minimal();
+        options.recordings = true;
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
-        let mediums = release.mediums;
+        let mediums = release.mediums().unwrap();
         assert_eq!(mediums.len(), 1);
         let medium = mediums.get(0).unwrap();
         assert_eq!(medium.position, 1);
@@ -515,9 +530,11 @@ mod tests {
     #[test]
     fn tracks_without_length() {
         let mbid = Mbid::from_str("02173013-59ed-4229-b0a5-e5aa486ed5d7").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let mut options = ReleaseOptions::minimal();
+        options.recordings = true;
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
-        let ref medium = release.mediums[0];
+        let ref medium = release.mediums().unwrap()[0];
         assert_eq!(medium.tracks[0].length, None);
         assert_eq!(medium.tracks[1].length, None);
         assert_eq!(medium.tracks[2].length, None);
@@ -527,9 +544,11 @@ mod tests {
     #[test]
     fn multi_cd() {
         let mbid = Mbid::from_str("ce22b20d-3a45-4e47-abaa-b7c8d10281fa").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let mut options = ReleaseOptions::minimal();
+        options.recordings = true;
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
-        let mediums = release.mediums;
+        let mediums = release.mediums().unwrap();
 
         assert_eq!(mediums.len(), 2);
 
@@ -553,15 +572,16 @@ mod tests {
     #[test]
     fn catalog_number_but_no_label_ref() {
         let mbid = Mbid::from_str("61f8b05f-a3b5-49f4-a3a6-8f0d564c1664").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let mut options = ReleaseOptions::minimal();
+        options.labels = true;
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
         assert_eq!(
-            release.labels,
-            vec![LabelInfo {
+            release.labels().unwrap(),
+            &[LabelInfo {
                 label: None,
                 catalog_number: Some("BIRD 4".to_string()),
             },]
         );
     }
-    */
 }
