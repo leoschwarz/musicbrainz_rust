@@ -116,7 +116,7 @@ impl FromXml for ReleaseRef {
     }
 }
 
-macro_rules! ref_fetch_full
+macro_rules! ref_fetch_full_old
 {
     ($($ref:ty, $full:ty);+)
 =>
@@ -134,10 +134,13 @@ macro_rules! ref_fetch_full
     }
 }
 
-ref_fetch_full!(
+ref_fetch_full_old!(
     AreaRef, crate::entities::Area;
     ArtistRef, crate::entities::Artist;
     LabelRef, crate::entities::Label;
-    RecordingRef, crate::entities::Recording;
-    ReleaseRef, crate::entities::Release
+    RecordingRef, crate::entities::Recording
 );
+
+// TODO
+//ReleaseRef, crate::entities::Release
+

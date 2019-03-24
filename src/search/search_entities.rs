@@ -49,6 +49,7 @@ pub struct Release {
     // release group refs (TODO)
 }
 
+/*
 impl SearchEntity for Release {
     type FullEntity = full_entities::Release;
 
@@ -56,6 +57,7 @@ impl SearchEntity for Release {
         client.get_by_mbid_old(&self.mbid)
     }
 }
+*/
 
 pub struct ReleaseGroup {
     pub mbid: Mbid,

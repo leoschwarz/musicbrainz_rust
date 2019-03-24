@@ -16,7 +16,6 @@ use crate::search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBu
 
 mod error;
 pub(crate) use self::error::check_response_error;
-use std::any::Any;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
 fn as_millis(duration: &Duration) -> u64 {

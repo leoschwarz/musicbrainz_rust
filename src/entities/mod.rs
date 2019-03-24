@@ -23,7 +23,6 @@ mod label;
 mod place;
 mod recording;
 mod release;
-pub mod release_2;
 mod release_group;
 mod series;
 // mod track
