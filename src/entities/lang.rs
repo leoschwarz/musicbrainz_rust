@@ -1,4 +1,4 @@
-use crate::errors::Error;
+use crate::error::Error;
 use isolang::Language as IsoLang;
 use std::fmt;
 use xpath_reader::{FromXml, FromXmlOptional, Reader};

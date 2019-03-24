@@ -10,8 +10,8 @@ extern crate uuid;
 extern crate url;
 extern crate xpath_reader;
 
-pub mod errors;
-pub use self::errors::*;
+mod error;
+pub use self::error::Error;
 
 pub mod client;
 pub mod entities;

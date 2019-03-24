@@ -15,7 +15,7 @@
 
 use crate::entities as full_entities;
 use crate::entities::ResourceOld;
-use crate::errors::Error;
+use crate::error::Error;
 use crate::client::Client;
 
 use reqwest_mock::Url;

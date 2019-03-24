@@ -10,7 +10,7 @@ pub fn musicbrainz_context<'d>() -> Context<'d> {
 pub mod test_utils {
     use crate::client::{Client, ClientConfig, ClientWaits};
     use crate::entities::{Mbid, ResourceOld, Resource};
-    use crate::errors::Error;
+    use crate::error::Error;
     use reqwest_mock::GenericClient as HttpClient;
     use xpath_reader::reader::FromXml;
 

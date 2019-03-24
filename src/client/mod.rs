@@ -1,6 +1,6 @@
 //! Contains the types and functions to communicate with the MusicBrainz API.
 
-use crate::errors::{Error, ErrorKind};
+use crate::error::{Error, ErrorKind};
 use crate::entities::{Mbid, ResourceOld, Resource};
 
 use reqwest_mock::Client as MockClient;

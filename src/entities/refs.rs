@@ -161,7 +161,9 @@ macro_rules! ref_fetch_full_old
 }
 
 ref_fetch_full!(
-    ReleaseRef, crate::entities::Release, crate::entities::ReleaseOptions
+    ReleaseRef,
+    crate::entities::Release,
+    crate::entities::ReleaseOptions
 );
 
 ref_fetch_full_old!(
