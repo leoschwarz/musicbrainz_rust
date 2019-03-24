@@ -93,11 +93,14 @@ pub trait Resource {
     type Options;
     type Response: FromXml;
 
+    const NAME: &'static str;
+
     fn request(options: &Self::Options) -> Request;
 
     fn from_response(response: Self::Response, options: Self::Options) -> Self;
 }
 
+#[derive(Debug)]
 pub enum OnRequest<T> {
     Some(T),
     NotAvailable,
@@ -112,7 +115,46 @@ impl<T> OnRequest<T> {
             (None, false) => OnRequest::NotRequested,
         }
     }
+
+    pub fn unwrap(self) -> T {
+        match self {
+            OnRequest::Some(val) => val,
+            OnRequest::NotAvailable => panic!("Value not returned by server."),
+            OnRequest::NotRequested => panic!("Value not requested by options."),
+        }
+    }
 }
+
+impl<T: Clone> Clone for OnRequest<T> {
+    fn clone(&self) -> Self {
+        match self {
+            OnRequest::Some(val) => OnRequest::Some(val.clone()),
+            OnRequest::NotAvailable => OnRequest::NotAvailable,
+            OnRequest::NotRequested => OnRequest::NotRequested,
+        }
+    }
+}
+
+impl<T: PartialEq> PartialEq for OnRequest<T> {
+    fn eq(&self, other: &Self) -> bool {
+        match self {
+            OnRequest::Some(val1) => match other {
+                OnRequest::Some(val2) => val1.eq(val2),
+                OnRequest::NotRequested | OnRequest::NotAvailable => false,
+            },
+            OnRequest::NotRequested => match other {
+                OnRequest::NotRequested => true,
+                _ => false,
+            },
+            OnRequest::NotAvailable => match other {
+                OnRequest::NotAvailable => true,
+                _ => false,
+            },
+        }
+    }
+}
+
+impl<T: Eq> Eq for OnRequest<T> {}
 
 /*
 impl<T> From<OnRequest<T>> for Option<T> {

@@ -217,6 +217,7 @@ mod tests {
     use super::*;
     use std::str::FromStr;
 
+    /*
     #[test]
     fn release_read_xml1() {
         let mbid = Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap();
@@ -256,6 +257,7 @@ mod tests {
         assert_eq!(release.disambiguation, None);
         assert_eq!(release.mediums.len(), 1);
     }
+    */
 
     #[test]
     fn disambiguation() {

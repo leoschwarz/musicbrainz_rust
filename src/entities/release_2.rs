@@ -223,9 +223,22 @@ impl Release {
     }
 }
 
+impl ReleaseOptions {
+    pub fn everything() -> Self {
+        ReleaseOptions {
+            annotation: true,
+            artists: true,
+            recordings: true,
+            labels: true,
+        }
+    }
+}
+
 impl Resource for Release {
     type Options = ReleaseOptions;
     type Response = ReleaseResponse;
+
+    const NAME: &'static str = "release";
 
     fn request(options: &Self::Options) -> Request {
         let mut includes = Vec::new();
@@ -313,7 +326,6 @@ impl FromXml for LabelInfo {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -322,41 +334,56 @@ mod tests {
     #[test]
     fn release_read_xml1() {
         let mbid = Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
+        let options = ReleaseOptions::everything();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid, options).unwrap();
 
-        assert_eq!(release.mbid, mbid);
-        assert_eq!(release.title, "Creep".to_string());
+        assert_eq!(release.mbid(), &mbid);
+        assert_eq!(release.title(), "Creep");
         assert_eq!(
-            release.artists,
-            vec![ArtistRef {
+            release.artists().unwrap(),
+            &[ArtistRef {
                 mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
                 name: "Radiohead".to_string(),
                 sort_name: "Radiohead".to_string(),
-            },]
+            }]
         );
         assert_eq!(
-            release.date,
-            Some(PartialDate::from_str("1992-09-21").unwrap())
+            release.date(),
+            Some(&PartialDate::from_str("1992-09-21").unwrap())
         );
-        assert_eq!(release.country, Some("GB".to_string()));
+        assert_eq!(release.country(), Some(&"GB".to_string()));
         assert_eq!(
-            release.labels,
-            vec![LabelInfo {
-                label: Some(LabelRef {
-                    mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
-                    name: "Parlophone".to_string(),
-                    sort_name: "Parlophone".to_string(),
-                    label_code: Some("299".to_string()),
-                }),
-                catalog_number: Some("CDR 6078".to_string()),
-            },]
+            release.labels().unwrap(),
+            &[
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                        name: "Parlophone".to_string(),
+                        sort_name: "Parlophone".to_string(),
+                        label_code: Some("299".to_string()),
+                    }),
+                    catalog_number: Some("7243 8 80234 2 9".to_string()),
+                },
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                        name: "Parlophone".to_string(),
+                        sort_name: "Parlophone".to_string(),
+                        label_code: Some("299".to_string()),
+                    }),
+                    catalog_number: Some("CDR 6078".to_string()),
+                }
+            ]
         );
-        assert_eq!(release.barcode, Some("724388023429".to_string()));
-        assert_eq!(release.status, Some(ReleaseStatus::Official));
-        assert_eq!(release.language, Some(Language::from_639_3("eng").unwrap()));
-        assert_eq!(release.script, Some("Latn".to_string()));
-        assert_eq!(release.disambiguation, None);
-        assert_eq!(release.mediums.len(), 1);
+        assert_eq!(release.barcode(), Some(&"724388023429".to_string()));
+        assert_eq!(release.status(), Some(ReleaseStatus::Official));
+        assert_eq!(
+            release.language(),
+            Some(&Language::from_639_3("eng").unwrap())
+        );
+        assert_eq!(release.script(), Some(&"Latn".to_string()));
+        assert_eq!(release.disambiguation(), None);
+        assert_eq!(release.mediums().unwrap().len(), 1);
     }
 
     /*
