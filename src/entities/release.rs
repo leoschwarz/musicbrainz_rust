@@ -220,7 +220,7 @@ mod tests {
     #[test]
     fn release_read_xml1() {
         let mbid = Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(release.mbid, mbid);
         assert_eq!(release.title, "Creep".to_string());
@@ -260,7 +260,7 @@ mod tests {
     #[test]
     fn disambiguation() {
         let mbid = Mbid::from_str("9642c552-a5b3-4b7e-9168-aeb2a1a06f27").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(release.disambiguation, Some("通常盤".to_string()));
     }
@@ -268,7 +268,7 @@ mod tests {
     #[test]
     fn release_read_xml2() {
         let mbid = Mbid::from_str("785d7c67-a920-4cee-a871-8cd9896eb8aa").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         // We check for the things we didn't check in the previous test.
         assert_eq!(release.packaging, Some("Jewel Case".to_string()));
@@ -328,7 +328,7 @@ mod tests {
     #[test]
     fn read_tracks() {
         let mbid = Mbid::from_str("d1881a4c-0188-4f0f-a2e7-4e7849aec109").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         let mediums = release.mediums;
         assert_eq!(mediums.len(), 1);
@@ -385,7 +385,7 @@ mod tests {
     #[test]
     fn tracks_without_length() {
         let mbid = Mbid::from_str("02173013-59ed-4229-b0a5-e5aa486ed5d7").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         let ref medium = release.mediums[0];
         assert_eq!(medium.tracks[0].length, None);
@@ -397,7 +397,7 @@ mod tests {
     #[test]
     fn multi_cd() {
         let mbid = Mbid::from_str("ce22b20d-3a45-4e47-abaa-b7c8d10281fa").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         let mediums = release.mediums;
 
@@ -423,7 +423,7 @@ mod tests {
     #[test]
     fn catalog_number_but_no_label_ref() {
         let mbid = Mbid::from_str("61f8b05f-a3b5-49f4-a3a6-8f0d564c1664").unwrap();
-        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(
             release.labels,

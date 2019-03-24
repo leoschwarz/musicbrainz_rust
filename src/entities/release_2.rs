@@ -312,3 +312,229 @@ impl FromXml for LabelInfo {
         })
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::str::FromStr;
+
+    #[test]
+    fn release_read_xml1() {
+        let mbid = Mbid::from_str("ed118c5f-d940-4b52-a37b-b1a205374abe").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
+
+        assert_eq!(release.mbid, mbid);
+        assert_eq!(release.title, "Creep".to_string());
+        assert_eq!(
+            release.artists,
+            vec![ArtistRef {
+                mbid: Mbid::from_str("a74b1b7f-71a5-4011-9441-d0b5e4122711").unwrap(),
+                name: "Radiohead".to_string(),
+                sort_name: "Radiohead".to_string(),
+            },]
+        );
+        assert_eq!(
+            release.date,
+            Some(PartialDate::from_str("1992-09-21").unwrap())
+        );
+        assert_eq!(release.country, Some("GB".to_string()));
+        assert_eq!(
+            release.labels,
+            vec![LabelInfo {
+                label: Some(LabelRef {
+                    mbid: Mbid::from_str("df7d1c7f-ef95-425f-8eef-445b3d7bcbd9").unwrap(),
+                    name: "Parlophone".to_string(),
+                    sort_name: "Parlophone".to_string(),
+                    label_code: Some("299".to_string()),
+                }),
+                catalog_number: Some("CDR 6078".to_string()),
+            },]
+        );
+        assert_eq!(release.barcode, Some("724388023429".to_string()));
+        assert_eq!(release.status, Some(ReleaseStatus::Official));
+        assert_eq!(release.language, Some(Language::from_639_3("eng").unwrap()));
+        assert_eq!(release.script, Some("Latn".to_string()));
+        assert_eq!(release.disambiguation, None);
+        assert_eq!(release.mediums.len(), 1);
+    }
+
+    /*
+    #[test]
+    fn disambiguation() {
+        let mbid = Mbid::from_str("9642c552-a5b3-4b7e-9168-aeb2a1a06f27").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        assert_eq!(release.disambiguation, Some("通常盤".to_string()));
+    }
+
+    #[test]
+    fn release_read_xml2() {
+        let mbid = Mbid::from_str("785d7c67-a920-4cee-a871-8cd9896eb8aa").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        // We check for the things we didn't check in the previous test.
+        assert_eq!(release.packaging, Some("Jewel Case".to_string()));
+        assert_eq!(
+            release.labels,
+            vec![
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("376d9b4d-8cdd-44be-bc0f-ed5dfd2d2340").unwrap(),
+                        name: "Cherrytree Records".to_string(),
+                        sort_name: "Cherrytree Records".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
+                },
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("2182a316-c4bd-4605-936a-5e2fac52bdd2").unwrap(),
+                        name: "Interscope Records".to_string(),
+                        sort_name: "Interscope Records".to_string(),
+                        label_code: Some("6406".to_string()),
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
+                },
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("061587cb-0262-46bc-9427-cb5e177c36a2").unwrap(),
+                        name: "Konlive".to_string(),
+                        sort_name: "Konlive".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
+                },
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("244dd29f-b999-40e4-8238-cb760ad05ac6").unwrap(),
+                        name: "Streamline Records".to_string(),
+                        sort_name: "Streamline Records".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
+                },
+                LabelInfo {
+                    label: Some(LabelRef {
+                        mbid: Mbid::from_str("6cee07d5-4cc3-4555-a629-480590e0bebd").unwrap(),
+                        name: "Universal Music Canada".to_string(),
+                        sort_name: "Universal Music Canada".to_string(),
+                        label_code: None,
+                    }),
+                    catalog_number: Some("0251766489".to_string()),
+                },
+            ]
+        );
+        assert_eq!(release.mediums.len(), 1);
+    }
+
+    #[test]
+    fn read_tracks() {
+        let mbid = Mbid::from_str("d1881a4c-0188-4f0f-a2e7-4e7849aec109").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        let mediums = release.mediums;
+        assert_eq!(mediums.len(), 1);
+        let medium = mediums.get(0).unwrap();
+        assert_eq!(medium.position, 1);
+        assert_eq!(medium.tracks.len(), 3);
+        assert_eq!(
+            medium.tracks[0],
+            ReleaseTrack {
+                mbid: Mbid::from_str("ac898be7-2965-4d17-9ac8-48d45852d73c").unwrap(),
+                position: 1,
+                number: "1".to_string(),
+                title: "puella tenebrarum".to_string(),
+                length: Some(Duration::from_millis(232000)),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("fd6f4cd8-9cff-43da-8cd7-3351357b6f5a").unwrap(),
+                    title: "Puella Tenebrarum".to_string(),
+                    length: Some(Duration::from_millis(232000)),
+                },
+            }
+        );
+        assert_eq!(
+            medium.tracks[1],
+            ReleaseTrack {
+                mbid: Mbid::from_str("21648b0b-deaf-4b93-a257-5fc18363b25d").unwrap(),
+                position: 2,
+                number: "2".to_string(),
+                title: "LAMINA MALEDICTUM".to_string(),
+                length: Some(Duration::from_millis(258000)),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("0eeb0621-8013-4c0e-8e49-ddfd78d56051").unwrap(),
+                    title: "Lamina Maledictum".to_string(),
+                    length: Some(Duration::from_millis(258000)),
+                },
+            }
+        );
+        assert_eq!(
+            medium.tracks[2],
+            ReleaseTrack {
+                mbid: Mbid::from_str("e57b3990-eb36-476e-beac-583e0bbe6f87").unwrap(),
+                position: 3,
+                number: "3".to_string(),
+                title: "SARNATH".to_string(),
+                length: Some(Duration::from_millis(228000)),
+                recording: RecordingRef {
+                    mbid: Mbid::from_str("53f87e98-351e-453e-b949-bdacf4cbeccd").unwrap(),
+                    title: "Sarnath".to_string(),
+                    length: Some(Duration::from_millis(228000)),
+                },
+            }
+        );
+    }
+
+    #[test]
+    fn tracks_without_length() {
+        let mbid = Mbid::from_str("02173013-59ed-4229-b0a5-e5aa486ed5d7").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        let ref medium = release.mediums[0];
+        assert_eq!(medium.tracks[0].length, None);
+        assert_eq!(medium.tracks[1].length, None);
+        assert_eq!(medium.tracks[2].length, None);
+        assert_eq!(medium.tracks[3].length, None);
+    }
+
+    #[test]
+    fn multi_cd() {
+        let mbid = Mbid::from_str("ce22b20d-3a45-4e47-abaa-b7c8d10281fa").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        let mediums = release.mediums;
+
+        assert_eq!(mediums.len(), 2);
+
+        assert_eq!(mediums[0].position, 1);
+        assert_eq!(mediums[0].tracks.len(), 11);
+        assert_eq!(mediums[0].tracks[0].position, 1);
+        assert_eq!(mediums[0].tracks[0].number, "1".to_string());
+        assert_eq!(mediums[0].tracks[1].position, 2);
+        assert_eq!(mediums[0].tracks[1].number, "2".to_string());
+
+        assert_eq!(mediums[1].position, 2);
+        assert_eq!(mediums[1].tracks.len(), 9);
+        assert_eq!(mediums[1].tracks[0].position, 1);
+        assert_eq!(mediums[1].tracks[0].number, "1".to_string());
+        assert_eq!(mediums[1].tracks[1].position, 2);
+        assert_eq!(mediums[1].tracks[1].number, "2".to_string());
+    }
+
+    /// It's possible that a release has a catalog number but is not linked to
+    /// any label in the database.
+    #[test]
+    fn catalog_number_but_no_label_ref() {
+        let mbid = Mbid::from_str("61f8b05f-a3b5-49f4-a3a6-8f0d564c1664").unwrap();
+        let release: Release = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+
+        assert_eq!(
+            release.labels,
+            vec![LabelInfo {
+                label: None,
+                catalog_number: Some("BIRD 4".to_string()),
+            },]
+        );
+    }
+    */
+}

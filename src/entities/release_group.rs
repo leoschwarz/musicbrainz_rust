@@ -107,7 +107,7 @@ mod tests {
     #[test]
     fn read_1() {
         let mbid = Mbid::from_str("76a4e2c2-bf7a-445e-8081-5a1e291f3b16").unwrap();
-        let rg: ReleaseGroup = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let rg: ReleaseGroup = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(rg.mbid, mbid);
         assert_eq!(rg.title, "Mixtape".to_string());

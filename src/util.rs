@@ -14,7 +14,7 @@ pub mod test_utils {
     use reqwest_mock::GenericClient as HttpClient;
     use xpath_reader::reader::FromXml;
 
-    pub fn fetch_entity<E: ResourceOld + FromXml>(mbid: &Mbid) -> Result<E, Error> {
+    pub fn fetch_entity_old<E: ResourceOld + FromXml>(mbid: &Mbid) -> Result<E, Error> {
         let mut client = Client::with_http_client(
             ClientConfig {
                 user_agent: "MusicBrainz-Rust/Testing".to_string(),

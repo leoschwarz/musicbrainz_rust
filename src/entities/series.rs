@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn read_series_1() {
         let mbid = Mbid::from_str("d977f7fd-96c9-4e3e-83b5-eb484a9e6582").unwrap();
-        let series: Series = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let series: Series = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(series.mbid, mbid);
         assert_eq!(series.series_type, SeriesType::Catalogue);

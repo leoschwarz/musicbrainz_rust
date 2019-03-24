@@ -120,7 +120,7 @@ mod tests {
     #[test]
     fn label_read_xml1() {
         let mbid = Mbid::from_str("c029628b-6633-439e-bcee-ed02e8a338f7").unwrap();
-        let label: Label = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let label: Label = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(label.mbid, mbid);
         assert_eq!(label.name, "EMI".to_string());
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn read_aliases() {
         let mbid = Mbid::from_str("168f48c8-057e-4974-9600-aa9956d21e1a").unwrap();
-        let label: Label = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let label: Label = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         let mut expected = vec![
             "Avex Trax Japan".to_string(),

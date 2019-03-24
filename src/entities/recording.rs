@@ -62,7 +62,7 @@ mod tests {
     #[test]
     fn read_xml1() {
         let mbid = Mbid::from_str("fbe3d0b9-3990-4a76-bddb-12f4a0447a2c").unwrap();
-        let recording: Recording = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let recording: Recording = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(recording.mbid, mbid);
         assert_eq!(
