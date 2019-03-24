@@ -141,6 +141,7 @@ macro_rules! define_search_builder {
     };
 }
 
+/*
 define_search_builder!(
     AreaSearchBuilder,
     AreaSearchField,
@@ -148,6 +149,7 @@ define_search_builder!(
     full_entities::Area,
     "area-list"
 );
+*/
 
 define_search_builder!(
     ArtistSearchBuilder,

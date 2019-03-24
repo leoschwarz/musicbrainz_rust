@@ -21,6 +21,7 @@ pub trait SearchEntity {
 // It's the same entity.
 pub use self::full_entities::Area;
 
+/*
 impl SearchEntity for Area {
     type FullEntity = Area;
 
@@ -28,6 +29,7 @@ impl SearchEntity for Area {
         Ok(self.to_owned())
     }
 }
+*/
 
 pub use self::full_entities::Artist;
 
