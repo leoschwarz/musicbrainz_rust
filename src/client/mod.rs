@@ -1,7 +1,7 @@
 //! Contains the types and functions to communicate with the MusicBrainz API.
 
 use crate::errors::{Error, ErrorKind};
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 
 use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
@@ -92,6 +92,16 @@ pub struct Client {
     last_request: Instant,
 }
 
+/// A request to be performed on the client.
+///
+/// Note: You most likely won't have to use it directly, it's public for trait visibility
+///       reasons.
+#[derive(Clone, Debug)]
+pub struct Request {
+    pub name: String,
+    pub include: String,
+}
+
 impl Client {
     /// Create a new `Client` instance.
     pub fn new(config: ClientConfig) -> Self {
@@ -131,7 +141,7 @@ impl Client {
     /// Fetch the specified ressource from the server and parse it.
     pub fn get_by_mbid<Res>(&mut self, mbid: &Mbid) -> Result<Res, Error>
     where
-        Res: Resource + FromXml,
+        Res: ResourceOld + FromXml,
     {
         let url = Res::get_url(mbid);
         let response_body = self.get_body(url.parse()?)?;

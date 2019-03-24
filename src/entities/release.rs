@@ -1,7 +1,7 @@
 use std::time::Duration;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Language, Mbid, Resource};
+use crate::entities::{Language, Mbid, ResourceOld};
 use crate::entities::date::PartialDate;
 use crate::entities::refs::{ArtistRef, LabelRef, RecordingRef};
 
@@ -207,7 +207,7 @@ impl FromXml for Release {
     }
 }
 
-impl Resource for Release {
+impl ResourceOld for Release {
     const NAME: &'static str = "release";
     const INCL: &'static str = "aliases+annotation+artists+labels+recordings";
 }

@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::date::PartialDate;
 
 /// A label entity in the MusicBrainz database.
@@ -56,7 +56,7 @@ pub struct Label {
     pub end_date: Option<PartialDate>,
 }
 
-impl Resource for Label {
+impl ResourceOld for Label {
     const NAME: &'static str = "label";
     const INCL: &'static str = "aliases";
 }

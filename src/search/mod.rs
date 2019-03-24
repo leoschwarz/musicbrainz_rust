@@ -14,7 +14,7 @@
 //! search entity.
 
 use crate::entities as full_entities;
-use crate::entities::Resource;
+use crate::entities::ResourceOld;
 use crate::errors::Error;
 use crate::client::Client;
 
@@ -38,7 +38,7 @@ pub trait SearchBuilder {
     type Entity: SearchEntity;
 
     /// The full entity a search entity can be expanded into.
-    type FullEntity: Resource + FromXml;
+    type FullEntity: ResourceOld + FromXml;
 
     /// Perform the search.
     fn search(self) -> SearchResult<Self::Entity>;

@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 
 enum_mb_xml! {
     /// Specifies what a specific `Area` instance actually is.
@@ -71,7 +71,7 @@ impl FromXml for Area {
     }
 }
 
-impl Resource for Area {
+impl ResourceOld for Area {
     const NAME: &'static str = "area";
     const INCL: &'static str = "";
 }

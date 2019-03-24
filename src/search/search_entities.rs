@@ -7,12 +7,12 @@
 use super::{Client, full_entities};
 use crate::Error;
 use self::full_entities::refs::*;
-use self::full_entities::{Mbid, Resource};
+use self::full_entities::{Mbid, ResourceOld};
 use xpath_reader::reader::{FromXml, Reader};
 
 pub trait SearchEntity {
     /// The full entity that is refered by this search entity.
-    type FullEntity: Resource + FromXml;
+    type FullEntity: ResourceOld + FromXml;
 
     /// Fetch the full entity from the API.
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error>;

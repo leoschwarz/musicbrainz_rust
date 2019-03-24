@@ -1,4 +1,4 @@
-use crate::entities::{Mbid, PartialDate, Resource};
+use crate::entities::{Mbid, PartialDate, ResourceOld};
 use crate::entities::refs::AreaRef;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
@@ -98,7 +98,7 @@ impl FromXml for Place {
     }
 }
 
-impl Resource for Place {
+impl ResourceOld for Place {
     const NAME: &'static str = "place";
     const INCL: &'static str = "annotation+aliases";
 }

@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::date::PartialDate;
 use crate::entities::refs::AreaRef;
 
@@ -109,7 +109,7 @@ impl FromXml for Artist {
     }
 }
 
-impl Resource for Artist {
+impl ResourceOld for Artist {
     const NAME: &'static str = "artist";
     const INCL: &'static str = "aliases";
 }

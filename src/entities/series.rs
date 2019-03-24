@@ -1,4 +1,4 @@
-use crate::entities::{Mbid, PartialDate, Resource};
+use crate::entities::{Mbid, PartialDate, ResourceOld};
 use crate::entities::refs::AreaRef;
 use xpath_reader::{FromXml, Error, Reader};
 
@@ -47,7 +47,7 @@ impl FromXml for Series {
     }
 }
 
-impl Resource for Series {
+impl ResourceOld for Series {
     const NAME: &'static str = "series";
     const INCL: &'static str = "annotation+aliases+work-rels";
 }

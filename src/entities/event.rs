@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::date::PartialDate;
 
 enum_mb_xml_optional! {
@@ -52,7 +52,7 @@ pub struct Event {
     pub annotation: Option<String>,
 }
 
-impl Resource for Event {
+impl ResourceOld for Event {
     const NAME: &'static str = "event";
     const INCL: &'static str = "aliases+annotation";
 }

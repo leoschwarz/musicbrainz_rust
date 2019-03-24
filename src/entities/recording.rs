@@ -1,7 +1,7 @@
 use std::time::Duration;
 use xpath_reader::{FromXml, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::refs::ArtistRef;
 
 /// Represents a unique audio that has been used to produce at least one
@@ -49,7 +49,7 @@ impl FromXml for Recording {
     }
 }
 
-impl Resource for Recording {
+impl ResourceOld for Recording {
     const NAME: &'static str = "recording";
     const INCL: &'static str = "artists+annotation+isrcs";
 }

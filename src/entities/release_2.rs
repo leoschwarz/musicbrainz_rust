@@ -3,47 +3,8 @@
 use crate::entities::{Alias, Mbid, PartialDate, Language, Duration};
 use crate::entities::refs::{ArtistRef, LabelRef, RecordingRef};
 use xpath_reader::{FromXml, FromXmlOptional, Reader};
-
-pub struct MbRequest {
-    pub(crate) name: String,
-    pub(crate) include: String,
-}
-
-pub trait Resource {
-    type Options;
-    type Response: FromXml;
-
-    fn request(options: &Self::Options) -> MbRequest;
-
-    fn from_response(response: Self::Response, options: Self::Options) -> Self;
-}
-
-pub enum OnRequest<T> {
-    Some(T),
-    NotAvailable,
-    NotRequested,
-}
-
-impl<T> OnRequest<T> {
-    pub(crate) fn from_option(option: Option<T>, requested: bool) -> OnRequest<T> {
-        match (option, requested) {
-            (Some(val), _) => OnRequest::Some(val),
-            (None, true) => OnRequest::NotAvailable,
-            (None, false) => OnRequest::NotRequested,
-        }
-    }
-}
-
-/*
-impl<T> From<OnRequest<T>> for Option<T> {
-    fn from(o: OnRequest<T>) -> Option<T> {
-        match o {
-            OnRequest::Some(t) => Some(t),
-            OnRequest::NotAvailable | OnRequest::NotRequested => None,
-        }
-    }
-}
-*/
+use crate::client::Request;
+use crate::entities::{OnRequest, Resource};
 
 #[derive(Clone, Debug, Eq, PartialEq, Copy)]
 pub enum ReleaseComponent {
@@ -266,7 +227,7 @@ impl Resource for Release {
     type Options = ReleaseOptions;
     type Response = ReleaseResponse;
 
-    fn request(options: &Self::Options) -> MbRequest {
+    fn request(options: &Self::Options) -> Request {
         let mut includes = Vec::new();
 
         if options.annotation {
@@ -282,17 +243,14 @@ impl Resource for Release {
             includes.push("recordings");
         }
 
-        MbRequest {
+        Request {
             name: "release".into(),
             include: includes.join("+"),
         }
     }
 
     fn from_response(response: Self::Response, options: Self::Options) -> Self {
-        Release {
-            response,
-            options
-        }
+        Release { response, options }
     }
 }
 

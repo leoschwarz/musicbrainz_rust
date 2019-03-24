@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::refs::{ArtistRef, ReleaseRef};
 
 enum_mb_xml_optional! {
@@ -78,7 +78,7 @@ pub struct ReleaseGroup {
     pub annotation: Option<String>,
 }
 
-impl Resource for ReleaseGroup {
+impl ResourceOld for ReleaseGroup {
     const NAME: &'static str = "release-group";
     const INCL: &'static str = "annotation+artists+releases";
 }
