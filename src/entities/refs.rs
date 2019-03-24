@@ -161,12 +161,12 @@ macro_rules! ref_fetch_full_old
 }
 
 ref_fetch_full!(
-    ReleaseRef, crate::entities::Release, crate::entities::ReleaseOptions;
-    AreaRef, crate::entities::Area, ()
+    AreaRef, crate::entities::Area, ();
+    ArtistRef, crate::entities::Artist, crate::entities::ArtistOptions;
+    ReleaseRef, crate::entities::Release, crate::entities::ReleaseOptions
 );
 
 ref_fetch_full_old!(
-    ArtistRef, crate::entities::Artist;
     LabelRef, crate::entities::Label;
     RecordingRef, crate::entities::Recording
 );

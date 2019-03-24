@@ -14,7 +14,7 @@ impl Language {
     pub fn from_639_1(code: &str) -> Result<Language, Error> {
         Ok(Language {
             inner: IsoLang::from_639_1(code)
-                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-1 code: {}", code)))?,
+                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-1 code: '{}'", code)))?,
         })
     }
 
@@ -24,7 +24,7 @@ impl Language {
     pub fn from_639_3(code: &str) -> Result<Language, Error> {
         Ok(Language {
             inner: IsoLang::from_639_3(code)
-                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-3 code: {}", code)))?,
+                .ok_or_else(|| Error::parse_error(format!("Invalid ISO 639-3 code: '{}'", code)))?,
         })
     }
 

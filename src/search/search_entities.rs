@@ -14,7 +14,7 @@ pub trait SearchEntity {
     /// The full entity that is refered by this search entity.
     type FullEntity: ResourceOld + FromXml;
 
-    /// Fetch the full entity from the API.
+    /// Fetch the full entity from the API.2
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error>;
 }
 
@@ -29,17 +29,17 @@ impl SearchEntity for Area {
         Ok(self.to_owned())
     }
 }
-*/
 
-pub use self::full_entities::Artist;
+pub use self::full_entities::ArtistResponse;
 
-impl SearchEntity for Artist {
-    type FullEntity = Artist;
+impl SearchEntity for ArtistResponse {
+    type FullEntity = ArtistResponse;
 
     fn fetch_full(&self, _: &mut Client) -> Result<Self::FullEntity, Error> {
         Ok(self.to_owned())
     }
 }
+*/
 
 pub struct Release {
     pub mbid: Mbid,

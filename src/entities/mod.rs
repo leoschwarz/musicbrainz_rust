@@ -28,9 +28,9 @@ mod series;
 // mod track
 // mod url
 // mod work
-pub use self::alias::Alias;
+pub use self::alias::{Alias, AliasType};
 pub use self::area::{Area, AreaType};
-pub use self::artist::{Artist, ArtistType, Gender};
+pub use self::artist::{Artist, ArtistType, ArtistOptions, Gender};
 pub use self::event::{Event, EventType};
 pub use self::label::Label;
 pub use self::place::{Coordinates, Place, PlaceType};

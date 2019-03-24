@@ -12,7 +12,7 @@ use xpath_reader::reader::{FromXml, Reader};
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
-use crate::search::{ArtistSearchBuilder, ReleaseGroupSearchBuilder, SearchBuilder};
+use crate::search::{ReleaseGroupSearchBuilder, SearchBuilder};
 
 mod error;
 pub(crate) use self::error::check_response_error;
@@ -200,12 +200,12 @@ impl Client {
     /// Returns a search builder to search for an area.
     pub fn search_area<'cl>(&'cl mut self) -> AreaSearchBuilder<'cl> {
         AreaSearchBuilder::new(self)
-    }*/
+    }
 
     /// Returns a search biulder to search for an artist.
     pub fn search_artist<'cl>(&'cl mut self) -> ArtistSearchBuilder<'cl> {
         ArtistSearchBuilder::new(self)
-    }
+    }*/
 
     /// Returns a search builder to search for a release group.
     pub fn search_release_group<'cl>(&'cl mut self) -> ReleaseGroupSearchBuilder<'cl> {

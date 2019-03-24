@@ -49,9 +49,7 @@ pub struct AreaResponse {
     mbid: Mbid,
     name: String,
     sort_name: String,
-
     area_type: AreaType,
-
     iso_3166: Option<String>,
 }
 
@@ -102,7 +100,7 @@ impl Resource for Area {
 
     const NAME: &'static str = "area";
 
-    fn request(options: &Self::Options) -> Request {
+    fn request(_: &Self::Options) -> Request {
         Request {
             name: "area".to_string(),
             include: "".to_string(),

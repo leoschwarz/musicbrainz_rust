@@ -150,7 +150,7 @@ define_search_builder!(
     "area-list"
 );
 */
-
+/*
 define_search_builder!(
     ArtistSearchBuilder,
     ArtistSearchField,
@@ -158,7 +158,7 @@ define_search_builder!(
     full_entities::Artist,
     "artist-list"
 );
-
+*/
 /* TODO
 define_search_builder!(
     ReleaseSearchBuilder,
