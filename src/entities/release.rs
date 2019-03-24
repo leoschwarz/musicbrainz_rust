@@ -96,15 +96,15 @@ enum_mb_xml_optional! {
         var Promotion = "Promotion",
 
         /// Unofficial/underground release that was not sanctioned by the artist
-        /// and/or the record
-        /// company. Includes unoffcial live recordings and pirated releases.
+        /// and/or the record company.
+        /// Includes unofficial live recordings and pirated releases.
         var Bootleg = "Bootleg",
 
-        /// An alternate version of a release where the titles have been changed.
-        /// These don't correspond to any real release and should actually be linked to the
-        /// original release using the transliteration relationship.
+        /// An alternate version of a release where the titles have been changed,
+        /// usually for transliteration.
         ///
-        /// TL;DR: Essentially this shouldn't be used.
+        /// These don't correspond to a real release and should be linked to the
+        /// actual release using the transliteration relationship.
         var PseudoRelease = "Pseudo-Release",
     }
 }

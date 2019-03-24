@@ -28,11 +28,7 @@ pub struct FullDate {
 
 impl PartialDate {
     pub fn new(year: Option<u16>, month: Option<u8>, day: Option<u8>) -> PartialDate {
-        PartialDate {
-            year: year,
-            month: month,
-            day: day,
-        }
+        PartialDate { year, month, day }
     }
 
     pub fn year(&self) -> Option<u16> {
@@ -79,11 +75,7 @@ impl PartialDate {
 
 impl FullDate {
     pub fn new(year: u16, month: u8, day: u8) -> FullDate {
-        FullDate {
-            year: year,
-            month: month,
-            day: day,
-        }
+        FullDate { year, month, day }
     }
 
     pub fn year(&self) -> u16 {
