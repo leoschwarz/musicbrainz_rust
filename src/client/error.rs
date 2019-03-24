@@ -1,5 +1,5 @@
 use xpath_reader::Reader;
-use crate::{Error, ErrorKind};
+use crate::error::{Error, ErrorKind};
 
 /// Checks if there is an error in the document provided by the reader and
 /// returns Ok if there
