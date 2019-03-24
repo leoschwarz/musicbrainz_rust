@@ -23,7 +23,7 @@ pub mod test_utils {
             },
             HttpClient::replay_file(format!("replay/test_entities/{}/{}.json", E::NAME, mbid)),
         );
-        client.get_by_mbid(mbid)
+        client.get_by_mbid_old(mbid)
     }
 }
 

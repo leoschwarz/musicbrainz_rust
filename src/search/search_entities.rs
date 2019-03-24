@@ -53,7 +53,7 @@ impl SearchEntity for Release {
     type FullEntity = full_entities::Release;
 
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
-        client.get_by_mbid(&self.mbid)
+        client.get_by_mbid_old(&self.mbid)
     }
 }
 
@@ -68,7 +68,7 @@ impl SearchEntity for ReleaseGroup {
     type FullEntity = full_entities::ReleaseGroup;
 
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
-        client.get_by_mbid(&self.mbid)
+        client.get_by_mbid_old(&self.mbid)
     }
 }
 

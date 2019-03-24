@@ -1,7 +1,7 @@
 //! Contains the types and functions to communicate with the MusicBrainz API.
 
 use crate::errors::{Error, ErrorKind};
-use crate::entities::{Mbid, ResourceOld};
+use crate::entities::{Mbid, ResourceOld, Resource};
 
 use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
@@ -16,6 +16,7 @@ use crate::search::{AreaSearchBuilder, ArtistSearchBuilder, ReleaseGroupSearchBu
 
 mod error;
 pub(crate) use self::error::check_response_error;
+use std::any::Any;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
 fn as_millis(duration: &Duration) -> u64 {
@@ -124,9 +125,7 @@ impl Client {
             last_request: past_instant(),
         }
     }
-}
 
-impl Client {
     /// Waits until we are allowed to make the next request to the MusicBrainz
     /// API.
     fn wait_if_needed(&mut self) {
@@ -138,8 +137,25 @@ impl Client {
         self.last_request = now;
     }
 
-    /// Fetch the specified ressource from the server and parse it.
-    pub fn get_by_mbid<Res>(&mut self, mbid: &Mbid) -> Result<Res, Error>
+    pub fn get_by_mbid<Res, Resp, Opt>(&mut self, mbid: &Mbid, options: Opt) -> Result<Res, Error>
+    where
+        Res: Resource<Options = Opt, Response = Resp>,
+        Resp: FromXml,
+    {
+        let request = Res::request(&options);
+        let url = request.get_by_mbid_url(mbid);
+        let response_body = self.get_body(url.parse()?)?;
+        let context = crate::util::musicbrainz_context();
+        let reader = Reader::from_str(response_body.as_str(), Some(&context))?;
+        check_response_error(&reader)?;
+
+        let response = Resp::from_xml(&reader)?;
+
+        Ok(Res::from_response(response, options))
+    }
+
+    /// Fetch the specified resource from the server and parse it.
+    pub fn get_by_mbid_old<Res>(&mut self, mbid: &Mbid) -> Result<Res, Error>
     where
         Res: ResourceOld + FromXml,
     {
@@ -195,6 +211,17 @@ impl Client {
     /// Returns a search builder to search for a release group.
     pub fn search_release_group<'cl>(&'cl mut self) -> ReleaseGroupSearchBuilder<'cl> {
         ReleaseGroupSearchBuilder::new(self)
+    }
+}
+
+impl Request {
+    /// Returns the url where one can get a resource in the valid format for
+    /// parsing from.
+    fn get_by_mbid_url(&self, mbid: &Mbid) -> String {
+        format!(
+            "https://musicbrainz.org/ws/2/{}/{}?inc={}",
+            self.name, mbid, self.include
+        )
     }
 }
 
