@@ -43,13 +43,13 @@ enum_mb_xml_optional! {
     }
 }
 
+/// A `Release` is any publication of one or more tracks.
 #[derive(Clone, Debug)]
 pub struct Release {
     response: ReleaseResponse,
     options: ReleaseOptions,
 }
 
-/// A `Release` is any publication of one or more tracks.
 #[derive(Clone, Debug)]
 pub struct ReleaseResponse {
     mbid: Mbid,
