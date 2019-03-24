@@ -1,4 +1,4 @@
-use crate::entities::{Mbid, PartialDate, Resource};
+use crate::entities::{Mbid, PartialDate, ResourceOld};
 use crate::entities::refs::AreaRef;
 use xpath_reader::{FromXml, Error, Reader};
 
@@ -47,7 +47,7 @@ impl FromXml for Series {
     }
 }
 
-impl Resource for Series {
+impl ResourceOld for Series {
     const NAME: &'static str = "series";
     const INCL: &'static str = "annotation+aliases+work-rels";
 }
@@ -60,7 +60,7 @@ mod tests {
     #[test]
     fn read_series_1() {
         let mbid = Mbid::from_str("d977f7fd-96c9-4e3e-83b5-eb484a9e6582").unwrap();
-        let series: Series = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let series: Series = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(series.mbid, mbid);
         assert_eq!(series.series_type, SeriesType::Catalogue);

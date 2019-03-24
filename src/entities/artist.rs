@@ -1,6 +1,6 @@
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
-use crate::entities::{Mbid, Resource};
+use crate::entities::{Mbid, ResourceOld};
 use crate::entities::date::PartialDate;
 use crate::entities::refs::AreaRef;
 
@@ -109,7 +109,7 @@ impl FromXml for Artist {
     }
 }
 
-impl Resource for Artist {
+impl ResourceOld for Artist {
     const NAME: &'static str = "artist";
     const INCL: &'static str = "aliases";
 }
@@ -122,7 +122,7 @@ mod tests {
     #[test]
     fn artist_read_xml1() {
         let mbid = Mbid::from_str("90e7c2f9-273b-4d6c-a662-ab2d73ea4b8e").unwrap();
-        let artist: Artist = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let artist: Artist = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(artist.mbid, mbid);
         assert_eq!(artist.name, "NECRONOMIDOL".to_string());
@@ -153,7 +153,7 @@ mod tests {
     #[test]
     fn artist_read_xml2() {
         let mbid = Mbid::from_str("650e7db6-b795-4eb5-a702-5ea2fc46c848").unwrap();
-        let artist: Artist = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let artist: Artist = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         assert_eq!(artist.mbid, mbid);
         assert_eq!(artist.name, "Lady Gaga".to_string());

@@ -7,12 +7,12 @@
 use super::{Client, full_entities};
 use crate::Error;
 use self::full_entities::refs::*;
-use self::full_entities::{Mbid, Resource};
+use self::full_entities::{Mbid, ResourceOld};
 use xpath_reader::reader::{FromXml, Reader};
 
 pub trait SearchEntity {
     /// The full entity that is refered by this search entity.
-    type FullEntity: Resource + FromXml;
+    type FullEntity: ResourceOld + FromXml;
 
     /// Fetch the full entity from the API.
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error>;
@@ -49,13 +49,15 @@ pub struct Release {
     // release group refs (TODO)
 }
 
+/*
 impl SearchEntity for Release {
     type FullEntity = full_entities::Release;
 
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
-        client.get_by_mbid(&self.mbid)
+        client.get_by_mbid_old(&self.mbid)
     }
 }
+*/
 
 pub struct ReleaseGroup {
     pub mbid: Mbid,
@@ -68,7 +70,7 @@ impl SearchEntity for ReleaseGroup {
     type FullEntity = full_entities::ReleaseGroup;
 
     fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
-        client.get_by_mbid(&self.mbid)
+        client.get_by_mbid_old(&self.mbid)
     }
 }
 

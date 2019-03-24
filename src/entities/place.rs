@@ -1,4 +1,4 @@
-use crate::entities::{Mbid, PartialDate, Resource};
+use crate::entities::{Mbid, PartialDate, ResourceOld};
 use crate::entities::refs::AreaRef;
 use xpath_reader::{FromXml, FromXmlOptional, Error, Reader};
 
@@ -98,7 +98,7 @@ impl FromXml for Place {
     }
 }
 
-impl Resource for Place {
+impl ResourceOld for Place {
     const NAME: &'static str = "place";
     const INCL: &'static str = "annotation+aliases";
 }
@@ -111,7 +111,7 @@ mod tests {
     #[test]
     fn place_read_1() {
         let mbid = Mbid::from_str("d1ab65f8-d082-492a-bd70-ce375548dabf").unwrap();
-        let p: Place = crate::util::test_utils::fetch_entity(&mbid).unwrap();
+        let p: Place = crate::util::test_utils::fetch_entity_old(&mbid).unwrap();
 
         // Check parsed values.
         assert_eq!(p.mbid, mbid);

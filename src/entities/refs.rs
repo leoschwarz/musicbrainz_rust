@@ -8,11 +8,18 @@ use xpath_reader::{FromXml, FromXmlOptional, Reader};
 
 use crate::entities::Mbid;
 use crate::entities::date::PartialDate;
-use crate::entities::release::ReleaseStatus;
+use crate::entities::release::{ReleaseStatus, ReleaseOptions};
 use crate::client::Client;
 use crate::Error;
 
 pub trait FetchFull {
+    type Full;
+    type Options;
+
+    fn fetch_full(&self, client: &mut Client, options: Self::Options) -> Result<Self::Full, Error>;
+}
+
+pub trait FetchFullOld {
     type Full;
 
     fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, Error>;
@@ -118,16 +125,35 @@ impl FromXml for ReleaseRef {
 
 macro_rules! ref_fetch_full
 {
-    ($($ref:ty, $full:ty);+)
+    ($($ref:ty, $full:ty, $opts:ty);+)
 =>
     {
         $(
             impl FetchFull for $ref {
                 type Full = $full;
+                type Options = $opts;
+
+                fn fetch_full(&self, client: &mut Client, options: $opts) -> Result<Self::Full, Error>
+                {
+                    client.get_by_mbid(&self.mbid, options)
+                }
+            }
+        )+
+    }
+}
+
+macro_rules! ref_fetch_full_old
+{
+    ($($ref:ty, $full:ty);+)
+=>
+    {
+        $(
+            impl FetchFullOld for $ref {
+                type Full = $full;
 
                 fn fetch_full(&self, client: &mut Client) -> Result<Self::Full, Error>
                 {
-                    client.get_by_mbid(&self.mbid)
+                    client.get_by_mbid_old(&self.mbid)
                 }
             }
         )+
@@ -135,9 +161,12 @@ macro_rules! ref_fetch_full
 }
 
 ref_fetch_full!(
+    ReleaseRef, crate::entities::Release, crate::entities::ReleaseOptions
+);
+
+ref_fetch_full_old!(
     AreaRef, crate::entities::Area;
     ArtistRef, crate::entities::Artist;
     LabelRef, crate::entities::Label;
-    RecordingRef, crate::entities::Recording;
-    ReleaseRef, crate::entities::Release
+    RecordingRef, crate::entities::Recording
 );
