@@ -29,9 +29,7 @@ pub trait QueryBuilder {
     type Entity: SearchEntity;
 }
 
-trait Expression: Sized {
-    fn eval(&self) -> String;
-}
+trait Expression: fmt::Display {}
 
 trait TermExpression: Expression {}
 
@@ -78,11 +76,13 @@ struct BoostPhrase<'a, P> {
     weight: f32,
 }
 
-impl<'a> Expression for BasicTerm<'a> {
-    fn eval(&self) -> String {
-        self.value.into()
+impl<'a> fmt::Display for BasicTerm<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}", self.value)
     }
 }
+
+impl<'a> Expression for BasicTerm<'a> {}
 
 impl<'a> Term for BasicTerm<'a> {
     fn is_boosted(&self) -> bool {
@@ -93,14 +93,16 @@ impl<'a> Term for BasicTerm<'a> {
     }
 }
 
-impl<'a, T> Expression for BoostTerm<'a, T>
+impl<'a, T> fmt::Display for BoostTerm<'a, T>
 where
     T: Term,
 {
-    fn eval(&self) -> String {
-        format!("{}^{}", self.term.eval(), self.weight)
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}^{}", self.term, self.weight)
     }
 }
+
+impl<'a, T> Expression for BoostTerm<'a, T> where T: Term {}
 
 impl<'a, T> Term for BoostTerm<'a, T>
 where
@@ -115,14 +117,16 @@ where
     }
 }
 
-impl<'a, T> Expression for FuzzyTerm<'a, T>
+impl<'a, T> fmt::Display for FuzzyTerm<'a, T>
 where
     T: Term,
 {
-    fn eval(&self) -> String {
-        format!("{}~{}", self.term.eval(), self.weight)
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}~{}", self.term, self.weight)
     }
 }
+
+impl<'a, T> Expression for FuzzyTerm<'a, T> where T: Term {}
 
 impl<'a, T> Term for FuzzyTerm<'a, T>
 where
@@ -137,11 +141,13 @@ where
     }
 }
 
-impl<'a> Expression for BasicPhrase<'a> {
-    fn eval(&self) -> String {
-        format!("\"{}\"", self.value)
+impl<'a> fmt::Display for BasicPhrase<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "\"{}\"", self.value)
     }
 }
+
+impl<'a> Expression for BasicPhrase<'a> {}
 
 impl<'a> Phrase for BasicPhrase<'a> {
     fn is_boosted(&self) -> bool {
@@ -153,14 +159,16 @@ impl<'a> Phrase for BasicPhrase<'a> {
     }
 }
 
-impl<'a, P> Expression for BoostPhrase<'a, P>
+impl<'a, P> fmt::Display for BoostPhrase<'a, P>
 where
     P: Phrase,
 {
-    fn eval(&self) -> String {
-        format!("{}^{}", self.phrase.eval(), self.weight)
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}^{}", self.phrase, self.weight)
     }
 }
+
+impl<'a, P> Expression for BoostPhrase<'a, P> where P: Phrase {}
 
 impl<'a, P> Phrase for BoostPhrase<'a, P>
 where
@@ -175,14 +183,16 @@ where
     }
 }
 
-impl<'a, P> Expression for ProximityPhrase<'a, P>
+impl<'a, P> fmt::Display for ProximityPhrase<'a, P>
 where
     P: Phrase,
 {
-    fn eval(&self) -> String {
-        format!("{}~{}", self.phrase.eval(), self.max_distance)
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}~{}", self.phrase, self.max_distance)
     }
 }
+
+impl<'a, P> Expression for ProximityPhrase<'a, P> where P: Phrase {}
 
 impl<'a, P> Phrase for ProximityPhrase<'a, P>
 where
@@ -224,15 +234,25 @@ impl Term {
     }
 }
 
-impl<'a> Expression for CombinedPhrase<'a> {
-    fn eval(&self) -> String {
-        let mut comps = Vec::new();
+impl<'a> fmt::Display for CombinedPhrase<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        let n_tot = self.terms.len();
+        let mut n_cur = 1;
+
         for term in self.terms {
-            comps.push(term.eval());
+            if n_cur != n_tot {
+                write!(f, "{} {}", term, self.operator)?;
+            } else {
+                // Last item.
+                write!(f, "{}", term)?;
+            }
+            n_cur += 1;
         }
-        comps.join(self.operator.eval())
+        Ok(())
     }
 }
+
+impl<'a> Expression for CombinedPhrase<'a> {}
 
 impl<'a> Phrase for CombinedPhrase<'a> {
     fn is_boosted(&self) -> bool {
