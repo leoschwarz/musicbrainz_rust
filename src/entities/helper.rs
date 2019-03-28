@@ -24,7 +24,7 @@ macro_rules! enum_mb_xml
         =>
     {
         $(#[$attr])*
-        #[derive(Clone, Debug, Eq, PartialEq)]
+        #[derive(Copy, Clone, Debug, Eq, PartialEq)]
         pub enum $enum {
             $(
                 $(#[$attr2])* $variant ,
@@ -75,7 +75,7 @@ macro_rules! enum_mb_xml_optional
         =>
     {
         $(#[$attr])*
-        #[derive(Clone, Debug, Eq, PartialEq)]
+        #[derive(Copy, Clone, Debug, Eq, PartialEq)]
         pub enum $enum {
             $(
                 $(#[$attr2])* $variant ,
