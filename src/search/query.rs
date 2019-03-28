@@ -30,6 +30,21 @@ fn escape_query(text: &str) -> String {
     utf8_percent_encode(text, DEFAULT_ENCODE_SET).to_string()
 }
 
+#[derive(Clone, Debug)]
+pub struct Query<Entity: SearchEntity> {
+    /// Provided as Lucene Text search query, yet to be escaped to be sent as URL parameter.
+    unescaped: String,
+}
+
+impl<Entity: SearchEntity> Query<Entity> {
+    /// Create a new Query instance from a manual specification of a search query.
+    pub fn from_query<S: Into<String>>(query: S) -> Self {
+        Query {
+            unescaped: query.into(),
+        }
+    }
+}
+
 pub trait QueryExpression: Sized {
     /// The entity which is being queried.
     type Entity: SearchEntity;

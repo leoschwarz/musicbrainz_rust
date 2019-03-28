@@ -31,6 +31,7 @@ use self::search_entities::SearchEntity;
 pub type SearchResult<Entity> = Result<Vec<SearchEntry<Entity>>, Error>;
 
 pub mod query;
+pub mod query_builder;
 
 pub trait SearchBuilder {
     /// The entity from the client::search::entities module,
