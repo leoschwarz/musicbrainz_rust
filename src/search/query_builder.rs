@@ -21,7 +21,6 @@
 /// The more complicated documentation is available at
 /// https://lucene.apache.org/core/4_3_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package_description
 use std::fmt;
-use crate::search::query::Query;
 use crate::search::search_entities::SearchEntity;
 
 pub trait QueryBuilder {
@@ -30,8 +29,6 @@ pub trait QueryBuilder {
 }
 
 trait Expression: fmt::Display + Sized {}
-
-trait TermExpression: Expression {}
 
 trait Term: Expression {
     fn is_boosted(&self) -> bool;
@@ -99,6 +96,30 @@ struct ProximityPhrase<P> {
 struct BoostPhrase<P> {
     phrase: P,
     weight: f32,
+}
+
+trait Query: Expression {
+    fn and<RHS: Query>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
+        ConnectQuery {
+            lhs: self,
+            rhs,
+            operator: OperatorKind::And,
+        }
+    }
+
+    fn or<RHS: Query>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
+        ConnectQuery {
+            lhs: self,
+            rhs,
+            operator: OperatorKind::Or,
+        }
+    }
+}
+
+struct ConnectQuery<LHS, RHS> {
+    lhs: LHS,
+    rhs: RHS,
+    operator: OperatorKind,
 }
 
 impl<'a> fmt::Display for BasicTerm<'a> {
@@ -265,6 +286,16 @@ where
 
     fn is_proximity(&self) -> bool {
         false
+    }
+}
+
+impl<LHS, RHS> fmt::Display for ConnectQuery<LHS, RHS>
+where
+    LHS: Expression,
+    RHS: Expression,
+{
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "({}) {} ({})", self.lhs, self.operator, self.rhs)
     }
 }
 
