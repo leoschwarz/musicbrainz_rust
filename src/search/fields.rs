@@ -31,26 +31,70 @@ pub trait SearchField {
     fn to_string<R: Resource>(&self) -> Result<String, Error>;
 }
 
-pub struct Alias(String);
+macro_rules! define_field {
+    (
+        $(#[$attr:meta])*
+        pub struct $type:ident($value:ty);
+        $(
+            $entity:ident => $field:expr,
+        )*
+    ) => {
+        pub struct $type(String);
 
-impl SearchField for Alias {
-    type Value = String;
+        impl SearchField for $type {
+            type Value = String;
 
-    fn name<R: Resource>(&self) -> Result<&'static str, Error> {
-        match R::NAME {
-            "area" | "artist" => Ok("alias"),
-            s => Err(wrong_search_field(R::NAME, "Alias")),
+            fn name<R: Resource>(&self) -> Result<&'static str, Error> {
+                match R::NAME {
+                    $(
+                        full_entities::$entity::NAME => Ok($field),
+                    )*
+                    s => Err(wrong_search_field(R::NAME, stringify!($type))),
+                }
+            }
+
+            fn value(&self) -> String {
+                self.0.clone()
+            }
+
+            fn to_string<R: Resource>(&self) -> Result<String, Error> {
+                Ok(format!("{}:{}", self.name::<R>()?, self.value()))
+            }
         }
     }
-
-    fn value(&self) -> String {
-        self.0.clone()
-    }
-
-    fn to_string<R: Resource>(&self) -> Result<String, Error> {
-        Ok(format!("{}:{}", self.name::<R>()?, self.value()))
-    }
 }
+
+// TODO: Main issue with this approach, is to figure out how to collect the fields for each
+//       entity in a single module later. It might be necessary to write additional code for this,
+//       or use a procedural code generator of some kind.
+
+// Option 1) Alle define fields in einen einzigen Makro-Aufruf kombinieren, dann die Module
+//           generieren. Dieses Makro würde aber ziemlich umständlich werden und konditionale
+//           Vergleiche mit den Klausel-Listen brauchen, das könnte unter Umständen ziemlich
+//           mühsam werden.
+// Option 2)
+
+define_field!(
+    /// Alias of the searched entity's name.
+    pub struct Alias(String);
+    Area => "alias",
+    Artist => "alias",
+);
+
+define_field!(
+    /// The MBID of the `Area`.
+    pub struct AreaMbid(Mbid);
+    Area => "aid",
+);
+
+define_field!(
+    /// An ISO 3166-1/2/3 code attached to the `Area`.
+    pub struct AreaIso(String);
+    Area => "iso",
+);
+
+
+
 
 /*
 macro_rules! define_fields {
@@ -78,12 +122,8 @@ macro_rules! define_fields {
 // TODO it's a bit ugly we have `-` at the beginning of every line but its a
 // workaround around the parsing ambiguity we'd have if we didn't.
 define_fields!(
-    /// Alias of the searched entity's name.
-    - Alias, String;
-    /// The MBID of the `Area`.
-    - AreaMbid, Mbid;
-    /// An ISO 3166-1/2/3 code attached to the `Area`.
-    - AreaIso, String;
+
+
     /// An ISO 3166-1 code attached to the `Area`.
     - AreaIso1, String;
     /// An ISO 3166-2 code attached to the `Area`.
