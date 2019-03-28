@@ -1,5 +1,17 @@
 /// Code to easily generate queries for entities in a type safe way.
 ///
+/// # Syntax Features
+/// ## Wildcards
+/// Terms and phrases can contain the following wildcards (except as the first character of search):
+/// - `?`: single character wildcard search
+/// - `*`: multiple character wildcard search
+///
+/// ## TODO
+/// - Regular expressions: These should get their own api.
+/// - Range searches.
+///
+/// # Further documentation
+///
 /// Find the basic documentation of the search syntax at:
 /// https://musicbrainz.org/doc/Indexed_Search_Syntax
 /// The full description of the Lucene search syntax is more complicated and includes many details
@@ -41,6 +53,11 @@ struct BasicPhrase<'a> {
     value: &'a str,
 }
 
+struct CombinedPhrase<'a> {
+    terms: Vec<Term>,
+    operator: OperatorKind,
+}
+
 struct FuzzyTerm<'a, T> {
     term: T,
     max_distance: u32,
@@ -56,7 +73,7 @@ struct ProximityPhrase<'a, P> {
     max_distance: u32,
 }
 
-struct BoostPhrase<'a, T> {
+struct BoostPhrase<'a, P> {
     phrase: P,
     weight: f32,
 }
@@ -207,22 +224,24 @@ impl Term {
     }
 }
 
-/*
-/// A (logical) word, or a combination of field:word.
-#[derive(Clone, Debug)]
-struct Term<'a> {
-    name: Option<&'a str>,
-    value: &'a str,
-    weight: TermWeight,
+impl<'a> Expression for CombinedPhrase<'a> {
+    fn eval(&self) -> String {
+        let mut comps = Vec::new();
+        for term in self.terms {
+            comps.push(term.eval());
+        }
+        comps.join(self.operator.eval())
+    }
 }
 
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum TermWeight {
-    /// Specifies that the term may be present.
-    Default,
-    /// Specifies that the term is required to be present.
-    Require,
-    Exclude
+impl<'a> Phrase for CombinedPhrase<'a> {
+    fn is_boosted(&self) -> bool {
+        false
+    }
+
+    fn is_proximity(&self) -> bool {
+        false
+    }
 }
 
 enum OperatorKind {
@@ -242,6 +261,36 @@ enum OperatorKind {
     /// Lucene query: `(LHS) NOT (RHS)`.
     Not,
 }
+
+impl fmt::Display for OperatorKind {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        match self {
+            OperatorKind::Or => write!(f, "OR"),
+            OperatorKind::And => write!(f, "AND"),
+            OperatorKind::Not => write!(f, "NOT"),
+        }
+    }
+}
+
+/*
+/// A (logical) word, or a combination of field:word.
+#[derive(Clone, Debug)]
+struct Term<'a> {
+    name: Option<&'a str>,
+    value: &'a str,
+    weight: TermWeight,
+}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+enum TermWeight {
+    /// Specifies that the term may be present.
+    Default,
+    /// Specifies that the term is required to be present.
+    Require,
+    Exclude
+}
+
+
 
 struct Operator<'a, LHS, RHS> {
     kind: OperatorKind,
