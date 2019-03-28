@@ -38,11 +38,6 @@ pub fn phrase(s: &str) -> BasicPhrase {
     }
 }
 
-pub trait QueryBuilder {
-    /// The entity which is being queried.
-    type Entity: SearchEntity;
-}
-
 pub trait Expression: fmt::Display + Sized {
     fn and<RHS: Expression>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
         ConnectQuery {

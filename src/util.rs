@@ -40,6 +40,17 @@ pub mod test_utils {
         );
         client.get_by_mbid_old(mbid)
     }
+
+    pub fn get_client(testname: &str) -> Client {
+        Client::with_http_client(
+            ClientConfig {
+                user_agent: "MusicBrainz-Rust/Testing".to_string(),
+                max_retries: 5,
+                waits: ClientWaits::default(),
+            },
+            HttpClient::replay_file(format!("replay/test_client/search/{}.json", testname)),
+        )
+    }
 }
 
 #[cfg(test)]

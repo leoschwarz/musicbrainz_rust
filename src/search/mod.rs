@@ -13,9 +13,10 @@
 //! full  entity from a  search entity, using the `fetch_full()` method on the
 //! search entity.
 
+pub mod fields;
 mod query;
 pub mod query_builder;
-mod response;
+pub mod response;
 mod search_entities;
 
 /*
@@ -190,3 +191,36 @@ assert_eq!(rg.entity.title, "霊魂消滅".to_string());
 }
 }
 */
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::util::test_utils::get_client;
+
+    #[test]
+    fn search_release_1() {
+        let mut client = get_client("search_release_group_01");
+
+        use crate::search::{fields, query_builder};
+
+        // TODO: fields API
+        //let query = query_builder::field();
+
+        let mut client = get_client("release_group_01");
+        let results = client
+            .search_release_group()
+            .add(crate::search::fields::release_group::ReleaseGroupName(
+                "霊魂消滅".to_owned(),
+            ))
+            .search()
+            .unwrap();
+
+        assert_eq!(results.len(), 1);
+        assert_eq!(results[0].score, 100);
+        assert_eq!(
+            results[0].entity.mbid,
+            "739de9cd-7e81-4bb0-9fdb-0feb7ea709c7".parse().unwrap()
+        );
+        assert_eq!(results[0].entity.title, "霊魂消滅".to_string());
+    }
+}

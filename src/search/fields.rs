@@ -7,10 +7,8 @@
 //! Link to [MusicBrainz
 //! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
 
-use super::full_entities;
-// use super::query::QueryExpression;
-use super::full_entities::{Mbid, PartialDate};
-// use super::entities;
+use crate::entities as full_entities;
+use crate::entities::{Mbid, PartialDate};
 
 pub trait SearchField {
     type Value;
