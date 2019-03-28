@@ -13,7 +13,8 @@
 //! full  entity from a  search entity, using the `fetch_full()` method on the
 //! search entity.
 
-mod query_builder;
+mod query;
+pub mod query_builder;
 mod response;
 mod search_entities;
 

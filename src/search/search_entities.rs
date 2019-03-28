@@ -4,7 +4,7 @@
 //! They are only contained in search results and provide a means to retrieve
 //! the full entity a further API request.
 
-use crate::entities::Resource;
+use crate::entities::{Resource, Mbid, ArtistRef, ReleaseStatus};
 use crate::client::Request;
 
 pub trait SearchEntity {
@@ -14,6 +14,29 @@ pub trait SearchEntity {
     /// Generate a request to fetch the full entity from the API.
     fn fetch_full(&self) -> Request;
 }
+
+#[derive(Clone, Debug)]
+pub struct Release {
+    pub mbid: Mbid,
+    pub title: String,
+    pub status: ReleaseStatus,
+    pub language: Option<String>,
+    pub script: Option<String>,
+    pub artists: Vec<ArtistRef>,
+    // release group refs (TODO)
+}
+
+// TODO: This is stupid because we would also have to pass the options to this method and thus the
+// only thing one would really save is to type original_entity::get(...)
+/*
+impl SearchEntity for Release {
+    type FullEntity = crate::entities::Release;
+
+    fn fetch_full(&self) -> Request {
+        crate::entities::Release::request()
+    }
+}
+*/
 
 /*
 use super::{Client, full_entities};
@@ -52,16 +75,6 @@ impl SearchEntity for ArtistResponse {
     }
 }
 */
-pub struct Release {
-pub mbid: Mbid,
-pub title: String,
-pub status: full_entities::ReleaseStatus,
-pub language: Option<String>,
-pub script: Option<String>,
-pub artists: Vec<ArtistRef>,
-// release group refs (TODO)
-}
-
 /*
 impl SearchEntity for Release {
     type FullEntity = full_entities::Release;

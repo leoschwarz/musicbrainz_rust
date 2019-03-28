@@ -21,16 +21,47 @@
 /// The more complicated documentation is available at
 /// https://lucene.apache.org/core/4_3_0/queryparser/org/apache/lucene/queryparser/classic/package-summary.html#package_description
 use std::fmt;
+use crate::Error;
+use crate::search::query::escape_full;
 use crate::search::search_entities::SearchEntity;
+
+pub fn term(s: &str) -> BasicTerm {
+    // TODO: Validation.
+    BasicTerm {
+        value: escape_full(s),
+    }
+}
+
+pub fn phrase(s: &str) -> BasicPhrase {
+    BasicPhrase {
+        value: escape_full(s),
+    }
+}
 
 pub trait QueryBuilder {
     /// The entity which is being queried.
     type Entity: SearchEntity;
 }
 
-trait Expression: fmt::Display + Sized {}
+pub trait Expression: fmt::Display + Sized {
+    fn and<RHS: Expression>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
+        ConnectQuery {
+            lhs: self,
+            rhs,
+            operator: OperatorKind::And,
+        }
+    }
 
-trait Term: fmt::Display + Sized {
+    fn or<RHS: Expression>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
+        ConnectQuery {
+            lhs: self,
+            rhs,
+            operator: OperatorKind::Or,
+        }
+    }
+}
+
+pub trait Term: fmt::Display + Sized {
     fn is_boosted(&self) -> bool;
     fn is_fuzzy(&self) -> bool;
 
@@ -60,77 +91,75 @@ trait Term: fmt::Display + Sized {
     }
 }
 
-trait Phrase: Expression {
+pub trait Phrase: Expression {
     fn is_boosted(&self) -> bool;
     fn is_proximity(&self) -> bool;
 }
 
-struct BasicTerm<'a> {
-    value: &'a str,
+#[derive(Clone, Debug)]
+pub struct BasicTerm {
+    value: String,
 }
 
-struct BasicPhrase<'a> {
-    value: &'a str,
+#[derive(Clone, Debug)]
+pub struct BasicPhrase {
+    value: String,
 }
 
-struct CombinedPhrase<T> {
+#[derive(Clone, Debug)]
+pub struct CombinedPhrase<T> {
     terms: Vec<T>,
     operator: OperatorKind,
 }
 
-struct FuzzyTerm<T> {
+#[derive(Clone, Debug)]
+pub struct FuzzyTerm<T> {
     term: T,
     max_distance: u32,
 }
 
-struct BoostTerm<T> {
+#[derive(Clone, Debug)]
+pub struct BoostTerm<T> {
     term: T,
     weight: f32,
 }
 
-struct ProximityPhrase<P> {
+#[derive(Clone, Debug)]
+pub struct ProximityPhrase<P> {
     phrase: P,
     max_distance: u32,
 }
 
-struct BoostPhrase<P> {
+#[derive(Clone, Debug)]
+pub struct BoostPhrase<P> {
     phrase: P,
     weight: f32,
 }
 
-trait Query: Expression {
-    fn and<RHS: Query>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
-        ConnectQuery {
-            lhs: self,
-            rhs,
-            operator: OperatorKind::And,
-        }
-    }
-
-    fn or<RHS: Query>(self, rhs: RHS) -> ConnectQuery<Self, RHS> {
-        ConnectQuery {
-            lhs: self,
-            rhs,
-            operator: OperatorKind::Or,
-        }
-    }
+// TODO: I think this is currently the only type which enables to write invalid queries that do
+//       compile.
+#[derive(Clone, Debug)]
+pub struct FieldQuery<T> {
+    field: String,
+    clause: T,
 }
 
-struct ConnectQuery<LHS, RHS> {
+#[derive(Clone, Debug)]
+pub struct ConnectQuery<LHS, RHS> {
     lhs: LHS,
     rhs: RHS,
     operator: OperatorKind,
 }
 
-impl<'a> fmt::Display for BasicTerm<'a> {
+impl fmt::Display for BasicTerm {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "{}", self.value)
     }
 }
 
-impl<'a> Expression for BasicTerm<'a> {}
+impl Expression for BasicTerm {}
 
-impl<'a> Term for BasicTerm<'a> {
+impl Term for BasicTerm {
     fn is_boosted(&self) -> bool {
         false
     }
@@ -187,15 +216,15 @@ where
     }
 }
 
-impl<'a> fmt::Display for BasicPhrase<'a> {
+impl fmt::Display for BasicPhrase {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "\"{}\"", self.value)
     }
 }
 
-impl<'a> Expression for BasicPhrase<'a> {}
+impl Expression for BasicPhrase {}
 
-impl<'a> Phrase for BasicPhrase<'a> {
+impl Phrase for BasicPhrase {
     fn is_boosted(&self) -> bool {
         false
     }
@@ -306,13 +335,18 @@ where
 {
 }
 
-impl<LHS, RHS> Query for ConnectQuery<LHS, RHS>
+impl<T> fmt::Display for FieldQuery<T>
 where
-    LHS: Expression,
-    RHS: Expression,
+    T: Expression,
 {
+    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
+        write!(f, "{}:({})", self.field, self.clause)
+    }
 }
 
+impl<T> Expression for FieldQuery<T> where T: Expression {}
+
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
 enum OperatorKind {
     /// Either of the expressions has to hold.
     ///
@@ -340,35 +374,3 @@ impl fmt::Display for OperatorKind {
         }
     }
 }
-
-/*
-/// A (logical) word, or a combination of field:word.
-#[derive(Clone, Debug)]
-struct Term<'a> {
-    name: Option<&'a str>,
-    value: &'a str,
-    weight: TermWeight,
-}
-
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
-enum TermWeight {
-    /// Specifies that the term may be present.
-    Default,
-    /// Specifies that the term is required to be present.
-    Require,
-    Exclude
-}
-
-
-
-struct Operator<'a, LHS, RHS> {
-    kind: OperatorKind,
-    lhs: LHS,
-    rhs: RHS
-}
-
-impl Default for TermWeight {
-    fn default() -> Self {
-        TermWeight::Default
-    }
-}*/

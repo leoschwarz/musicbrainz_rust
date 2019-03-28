@@ -7,6 +7,7 @@ use super::*;
 use regex::Regex;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
 use std::marker::PhantomData;
+use crate::search::search_entities::SearchEntity;
 
 /// Escape all lucene special characters and then escape it so it can be used
 /// for a url string.
@@ -46,71 +47,6 @@ impl<Entity: SearchEntity> Query<Entity> {
             unescaped: query.into(),
             _entity_type: PhantomData,
         }
-    }
-}
-
-pub trait QueryExpression: Sized {
-    /// The entity which is being queried.
-    type Entity: SearchEntity;
-
-    /// Build the query. This is already supposed to be escaped properly.
-    fn build_query(&self) -> String;
-
-    fn and<O: QueryExpression<Entity = Self::Entity>>(
-        self,
-        other: O,
-    ) -> And<Self, O, Self::Entity> {
-        And { a: self, b: other }
-    }
-
-    fn or<O: QueryExpression<Entity = Self::Entity>>(self, other: O) -> Or<Self, O, Self::Entity> {
-        Or { a: self, b: other }
-    }
-}
-
-pub struct And<A, B, E>
-where
-    A: QueryExpression<Entity = E>,
-    B: QueryExpression<Entity = E>,
-    E: SearchEntity,
-{
-    a: A,
-    b: B,
-}
-
-impl<A, B, E> QueryExpression for And<A, B, E>
-where
-    A: QueryExpression<Entity = E>,
-    B: QueryExpression<Entity = E>,
-    E: SearchEntity,
-{
-    type Entity = E;
-
-    fn build_query(&self) -> String {
-        format!("({})AND({})", self.a.build_query(), self.b.build_query())
-    }
-}
-
-pub struct Or<A, B, E>
-where
-    A: QueryExpression<Entity = E>,
-    B: QueryExpression<Entity = E>,
-    E: SearchEntity,
-{
-    a: A,
-    b: B,
-}
-
-impl<A, B, E> QueryExpression for Or<A, B, E>
-where
-    A: QueryExpression<Entity = E>,
-    B: QueryExpression<Entity = E>,
-    E: SearchEntity,
-{
-    type Entity = E;
-
-    fn build_query(&self) -> String {
-        format!("({})OR({})", self.a.build_query(), self.b.build_query())
     }
 }
 
