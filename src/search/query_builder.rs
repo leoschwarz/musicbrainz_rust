@@ -30,7 +30,7 @@ pub trait QueryBuilder {
 
 trait Expression: fmt::Display + Sized {}
 
-trait Term: Expression {
+trait Term: fmt::Display + Sized {
     fn is_boosted(&self) -> bool;
     fn is_fuzzy(&self) -> bool;
 
@@ -297,6 +297,20 @@ where
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         write!(f, "({}) {} ({})", self.lhs, self.operator, self.rhs)
     }
+}
+
+impl<LHS, RHS> Expression for ConnectQuery<LHS, RHS>
+where
+    LHS: Expression,
+    RHS: Expression,
+{
+}
+
+impl<LHS, RHS> Query for ConnectQuery<LHS, RHS>
+where
+    LHS: Expression,
+    RHS: Expression,
+{
 }
 
 enum OperatorKind {
