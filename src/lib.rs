@@ -2,6 +2,8 @@
 #![recursion_limit = "1024"]
 // TODO: Remove before stable release.
 #![allow(dead_code)]
+// TODO: Remove again later.
+#![allow(unused)]
 
 extern crate isolang;
 extern crate regex;

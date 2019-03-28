@@ -6,6 +6,7 @@
 use super::*;
 use regex::Regex;
 use url::percent_encoding::{DEFAULT_ENCODE_SET, utf8_percent_encode};
+use std::marker::PhantomData;
 
 /// Escape all lucene special characters and then escape it so it can be used
 /// for a url string.
@@ -34,6 +35,8 @@ fn escape_query(text: &str) -> String {
 pub struct Query<Entity: SearchEntity> {
     /// Provided as Lucene Text search query, yet to be escaped to be sent as URL parameter.
     unescaped: String,
+
+    _entity_type: PhantomData<Entity>,
 }
 
 impl<Entity: SearchEntity> Query<Entity> {
@@ -41,6 +44,7 @@ impl<Entity: SearchEntity> Query<Entity> {
     pub fn from_query<S: Into<String>>(query: S) -> Self {
         Query {
             unescaped: query.into(),
+            _entity_type: PhantomData,
         }
     }
 }

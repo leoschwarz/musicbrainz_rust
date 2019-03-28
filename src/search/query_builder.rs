@@ -29,13 +29,38 @@ pub trait QueryBuilder {
     type Entity: SearchEntity;
 }
 
-trait Expression: fmt::Display {}
+trait Expression: fmt::Display + Sized {}
 
 trait TermExpression: Expression {}
 
 trait Term: Expression {
     fn is_boosted(&self) -> bool;
     fn is_fuzzy(&self) -> bool;
+
+    /// max_distance must be in {0, 1, 2} and specifies the maximum Levensthein distance to other
+    /// terms
+    fn fuzzy(self, max_distance: u32) -> FuzzyTerm<Self> {
+        if self.is_fuzzy() {
+            panic!("Specifying term as fuzzy which is already fuzzy.");
+        } else {
+            FuzzyTerm {
+                term: self,
+                max_distance,
+            }
+        }
+    }
+
+    /// With boosting a particular term can be made more or less relevant in the search.
+    ///
+    /// The default value is 1.0, a larger value makes it more relevant, a smaller value makes it
+    /// less relevant.
+    fn boost(self, weight: f32) -> BoostTerm<Self> {
+        if self.is_boosted() {
+            panic!("Boosting a term again which was already boosted before.");
+        } else {
+            BoostTerm { term: self, weight }
+        }
+    }
 }
 
 trait Phrase: Expression {
@@ -51,27 +76,27 @@ struct BasicPhrase<'a> {
     value: &'a str,
 }
 
-struct CombinedPhrase<'a> {
-    terms: Vec<Term>,
+struct CombinedPhrase<T> {
+    terms: Vec<T>,
     operator: OperatorKind,
 }
 
-struct FuzzyTerm<'a, T> {
+struct FuzzyTerm<T> {
     term: T,
     max_distance: u32,
 }
 
-struct BoostTerm<'a, T> {
+struct BoostTerm<T> {
     term: T,
     weight: f32,
 }
 
-struct ProximityPhrase<'a, P> {
+struct ProximityPhrase<P> {
     phrase: P,
     max_distance: u32,
 }
 
-struct BoostPhrase<'a, P> {
+struct BoostPhrase<P> {
     phrase: P,
     weight: f32,
 }
@@ -93,7 +118,7 @@ impl<'a> Term for BasicTerm<'a> {
     }
 }
 
-impl<'a, T> fmt::Display for BoostTerm<'a, T>
+impl<T> fmt::Display for BoostTerm<T>
 where
     T: Term,
 {
@@ -102,9 +127,9 @@ where
     }
 }
 
-impl<'a, T> Expression for BoostTerm<'a, T> where T: Term {}
+impl<T> Expression for BoostTerm<T> where T: Term {}
 
-impl<'a, T> Term for BoostTerm<'a, T>
+impl<T> Term for BoostTerm<T>
 where
     T: Term,
 {
@@ -117,18 +142,18 @@ where
     }
 }
 
-impl<'a, T> fmt::Display for FuzzyTerm<'a, T>
+impl<T> fmt::Display for FuzzyTerm<T>
 where
     T: Term,
 {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}~{}", self.term, self.weight)
+        write!(f, "{}~{}", self.term, self.max_distance)
     }
 }
 
-impl<'a, T> Expression for FuzzyTerm<'a, T> where T: Term {}
+impl<T> Expression for FuzzyTerm<T> where T: Term {}
 
-impl<'a, T> Term for FuzzyTerm<'a, T>
+impl<T> Term for FuzzyTerm<T>
 where
     T: Term,
 {
@@ -159,7 +184,7 @@ impl<'a> Phrase for BasicPhrase<'a> {
     }
 }
 
-impl<'a, P> fmt::Display for BoostPhrase<'a, P>
+impl<P> fmt::Display for BoostPhrase<P>
 where
     P: Phrase,
 {
@@ -168,9 +193,9 @@ where
     }
 }
 
-impl<'a, P> Expression for BoostPhrase<'a, P> where P: Phrase {}
+impl<P> Expression for BoostPhrase<P> where P: Phrase {}
 
-impl<'a, P> Phrase for BoostPhrase<'a, P>
+impl<P> Phrase for BoostPhrase<P>
 where
     P: Phrase,
 {
@@ -179,11 +204,11 @@ where
     }
 
     fn is_proximity(&self) -> bool {
-        self.phrase.is_fuzzy()
+        self.phrase.is_proximity()
     }
 }
 
-impl<'a, P> fmt::Display for ProximityPhrase<'a, P>
+impl<P> fmt::Display for ProximityPhrase<P>
 where
     P: Phrase,
 {
@@ -192,9 +217,9 @@ where
     }
 }
 
-impl<'a, P> Expression for ProximityPhrase<'a, P> where P: Phrase {}
+impl<P> Expression for ProximityPhrase<P> where P: Phrase {}
 
-impl<'a, P> Phrase for ProximityPhrase<'a, P>
+impl<P> Phrase for ProximityPhrase<P>
 where
     P: Phrase,
 {
@@ -207,39 +232,15 @@ where
     }
 }
 
-impl Term {
-    /// max_distance must be in {0, 1, 2} and specifies the maximum Levensthein distance to other
-    /// terms
-    pub fn fuzzy(self, max_distance: u32) -> FuzzyTerm<Self> {
-        if self.is_fuzzy() {
-            panic!("Specifying term as fuzzy which is already fuzzy.");
-        } else {
-            FuzzyTerm {
-                term: self,
-                max_distance,
-            }
-        }
-    }
-
-    /// With boosting a particular term can be made more or less relevant in the search.
-    ///
-    /// The default value is 1.0, a larger value makes it more relevant, a smaller value makes it
-    /// less relevant.
-    pub fn boost(self, weight: f32) -> BoostTerm<Self> {
-        if self.is_boosted() {
-            panic!("Boosting a term again which was already boosted before.");
-        } else {
-            BoostTerm { term: self, weight }
-        }
-    }
-}
-
-impl<'a> fmt::Display for CombinedPhrase<'a> {
+impl<T> fmt::Display for CombinedPhrase<T>
+where
+    T: Term,
+{
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
         let n_tot = self.terms.len();
         let mut n_cur = 1;
 
-        for term in self.terms {
+        for term in &self.terms {
             if n_cur != n_tot {
                 write!(f, "{} {}", term, self.operator)?;
             } else {
@@ -252,9 +253,12 @@ impl<'a> fmt::Display for CombinedPhrase<'a> {
     }
 }
 
-impl<'a> Expression for CombinedPhrase<'a> {}
+impl<T> Expression for CombinedPhrase<T> where T: Term {}
 
-impl<'a> Phrase for CombinedPhrase<'a> {
+impl<T> Phrase for CombinedPhrase<T>
+where
+    T: Term,
+{
     fn is_boosted(&self) -> bool {
         false
     }
