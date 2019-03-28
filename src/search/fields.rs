@@ -7,15 +7,52 @@
 //! Link to [MusicBrainz
 //! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
 
+use crate::error::{Error, ErrorKind};
 use crate::entities as full_entities;
-use crate::entities::{Mbid, PartialDate};
+use crate::entities::{Mbid, PartialDate, Resource};
+use std::fmt;
+
+fn wrong_search_field(entity: &str, field: &str) -> Error {
+    Error::new(
+        format!(
+            "Requested field {} of entity {}, but this is not provided.",
+            field, entity
+        ),
+        ErrorKind::UsageError,
+    )
+}
 
 pub trait SearchField {
     type Value;
 
-    fn to_string(&self) -> String;
+    fn name<R: Resource>(&self) -> Result<&'static str, Error>;
+    fn value(&self) -> String;
+
+    fn to_string<R: Resource>(&self) -> Result<String, Error>;
 }
 
+pub struct Alias(String);
+
+impl SearchField for Alias {
+    type Value = String;
+
+    fn name<R: Resource>(&self) -> Result<&'static str, Error> {
+        match R::NAME {
+            "area" | "artist" => Ok("alias"),
+            s => Err(wrong_search_field(R::NAME, "Alias")),
+        }
+    }
+
+    fn value(&self) -> String {
+        self.0.clone()
+    }
+
+    fn to_string<R: Resource>(&self) -> Result<String, Error> {
+        Ok(format!("{}:{}", self.name::<R>()?, self.value()))
+    }
+}
+
+/*
 macro_rules! define_fields {
     ( $( $(#[$attr:meta])* - $type:ident, $value:ty );* ) => {
         $(
@@ -25,7 +62,7 @@ macro_rules! define_fields {
             impl SearchField for $type {
                 type Value = $value;
 
-                fn to_string(&self) -> String {
+                fn value(&self) -> String {
                     self.0.to_string()
                 }
             }
@@ -244,3 +281,4 @@ define_entity_fields!(
     "status", ReleaseStatus;
     "tag", Tag;
 );
+*/

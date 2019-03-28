@@ -22,6 +22,9 @@ pub(crate) enum ErrorKind {
 
     /// The server returned an error message.
     ServerError,
+
+    /// Invalid usage of the API.
+    UsageError,
 }
 
 impl ErrorKind {
@@ -29,7 +32,7 @@ impl ErrorKind {
     pub fn is_bug(&self) -> bool {
         match self {
             ErrorKind::ParseResponse | ErrorKind::Internal => true,
-            ErrorKind::Communication | ErrorKind::ServerError => false,
+            ErrorKind::Communication | ErrorKind::ServerError | ErrorKind::UsageError => false,
         }
     }
 }
@@ -68,6 +71,9 @@ impl fmt::Display for Error {
             }
             ErrorKind::ServerError => {
                 writeln!(f, "[server error]: {}", self.message)?;
+            }
+            ErrorKind::UsageError => {
+                writeln!(f, "[usage error]: {}", self.message)?;
             }
         }
         if self.kind.is_bug() {
