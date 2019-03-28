@@ -12,10 +12,10 @@ use xpath_reader::reader::{FromXml, Reader};
 use std::time::{Duration, Instant};
 use std::thread::sleep;
 
-use crate::search::{ReleaseGroupSearchBuilder, SearchBuilder};
-
 mod error;
+mod request;
 pub(crate) use self::error::check_response_error;
+pub use self::request::Request;
 
 /// Helper extracting the number of milliseconds from a `Duration`.
 fn as_millis(duration: &Duration) -> u64 {
@@ -90,16 +90,6 @@ pub struct Client {
     /// between any two requests
     /// to the MusicBrainz API.
     last_request: Instant,
-}
-
-/// A request to be performed on the client.
-///
-/// Note: You most likely won't have to use it directly, it's public for trait visibility
-///       reasons.
-#[derive(Clone, Debug)]
-pub struct Request {
-    pub name: String,
-    pub include: String,
 }
 
 impl Client {
@@ -205,23 +195,12 @@ impl Client {
     /// Returns a search biulder to search for an artist.
     pub fn search_artist<'cl>(&'cl mut self) -> ArtistSearchBuilder<'cl> {
         ArtistSearchBuilder::new(self)
-    }*/
+    }
 
     /// Returns a search builder to search for a release group.
     pub fn search_release_group<'cl>(&'cl mut self) -> ReleaseGroupSearchBuilder<'cl> {
         ReleaseGroupSearchBuilder::new(self)
-    }
-}
-
-impl Request {
-    /// Returns the url where one can get a resource in the valid format for
-    /// parsing from.
-    fn get_by_mbid_url(&self, mbid: &Mbid) -> String {
-        format!(
-            "https://musicbrainz.org/ws/2/{}/{}?inc={}",
-            self.name, mbid, self.include
-        )
-    }
+    }*/
 }
 
 #[cfg(test)]

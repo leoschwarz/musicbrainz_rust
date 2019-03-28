@@ -1,9 +1,21 @@
 //! Search entities.
 //!
 //! Don't confuse these with the entities in the top level module `entities`.
-//! They are only contained in search results and provide a means to retrive
-//! the full entitity a further API request.
+//! They are only contained in search results and provide a means to retrieve
+//! the full entity a further API request.
 
+use crate::entities::Resource;
+use crate::client::Request;
+
+pub trait SearchEntity {
+    /// The full entity that is referred by this search entity.
+    type FullEntity: Resource;
+
+    /// Generate a request to fetch the full entity from the API.
+    fn fetch_full(&self) -> Request;
+}
+
+/*
 use super::{Client, full_entities};
 use crate::Error;
 use self::full_entities::refs::*;
@@ -40,15 +52,14 @@ impl SearchEntity for ArtistResponse {
     }
 }
 */
-
 pub struct Release {
-    pub mbid: Mbid,
-    pub title: String,
-    pub status: full_entities::ReleaseStatus,
-    pub language: Option<String>,
-    pub script: Option<String>,
-    pub artists: Vec<ArtistRef>,
-    // release group refs (TODO)
+pub mbid: Mbid,
+pub title: String,
+pub status: full_entities::ReleaseStatus,
+pub language: Option<String>,
+pub script: Option<String>,
+pub artists: Vec<ArtistRef>,
+// release group refs (TODO)
 }
 
 /*
@@ -60,29 +71,29 @@ impl SearchEntity for Release {
     }
 }
 */
-
 pub struct ReleaseGroup {
-    pub mbid: Mbid,
-    pub title: String,
-    pub artists: Vec<ArtistRef>,
-    pub releases: Vec<ReleaseRef>,
+pub mbid: Mbid,
+pub title: String,
+pub artists: Vec<ArtistRef>,
+pub releases: Vec<ReleaseRef>,
 }
 
 impl SearchEntity for ReleaseGroup {
-    type FullEntity = full_entities::ReleaseGroup;
+type FullEntity = full_entities::ReleaseGroup;
 
-    fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
-        client.get_by_mbid_old(&self.mbid)
-    }
+fn fetch_full(&self, client: &mut Client) -> Result<Self::FullEntity, Error> {
+client.get_by_mbid_old(&self.mbid)
+}
 }
 
 impl FromXml for ReleaseGroup {
-    fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
-        Ok(ReleaseGroup {
-            mbid: reader.read(".//@id")?,
-            title: reader.read(".//mb:title")?,
-            artists: reader.read(".//mb:artist-credit/mb:name-credit/mb:artist")?,
-            releases: reader.read(".//mb:release-list/mb:release")?,
-        })
-    }
+fn from_xml<'d>(reader: &'d Reader<'d>) -> Result<Self, xpath_reader::Error> {
+Ok(ReleaseGroup {
+mbid: reader.read(".//@id")?,
+title: reader.read(".//mb:title")?,
+artists: reader.read(".//mb:artist-credit/mb:name-credit/mb:artist")?,
+releases: reader.read(".//mb:release-list/mb:release")?,
+})
 }
+}
+*/
