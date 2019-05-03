@@ -28,66 +28,65 @@ pub trait SearchField {
     fn name<R: Resource>(&self) -> Result<&'static str, Error>;
     fn value(&self) -> String;
 
-    fn to_string<R: Resource>(&self) -> Result<String, Error>;
-}
-
-macro_rules! define_field {
-    (
-        $(#[$attr:meta])*
-        pub struct $type:ident($value:ty);
-        $(
-            $entity:ident => $field:expr,
-        )*
-    ) => {
-        pub struct $type(String);
-
-        impl SearchField for $type {
-            type Value = String;
-
-            fn name<R: Resource>(&self) -> Result<&'static str, Error> {
-                match R::NAME {
-                    $(
-                        full_entities::$entity::NAME => Ok($field),
-                    )*
-                    s => Err(wrong_search_field(R::NAME, stringify!($type))),
-                }
-            }
-
-            fn value(&self) -> String {
-                self.0.clone()
-            }
-
-            fn to_string<R: Resource>(&self) -> Result<String, Error> {
-                Ok(format!("{}:{}", self.name::<R>()?, self.value()))
-            }
-        }
+    fn to_string<R: Resource>(&self) -> Result<String, Error> {
+        Ok(format!("{}:{}", self.name::<R>()?, self.value()))
     }
 }
 
-// TODO: Main issue with this approach, is to figure out how to collect the fields for each
-//       entity in a single module later. It might be necessary to write additional code for this,
-//       or use a procedural code generator of some kind.
+macro_rules! define_fields {
+    (
+        $(
+            $(#[$attr:meta])*
+            pub struct $type:ident($value:ty);
+            $(
+                $entity:ident => $field:expr,
+            )*
+        )*
+    ) => {
+        $(
+            pub struct $type(String);
 
-// Option 1) Alle define fields in einen einzigen Makro-Aufruf kombinieren, dann die Module
-//           generieren. Dieses Makro würde aber ziemlich umständlich werden und konditionale
-//           Vergleiche mit den Klausel-Listen brauchen, das könnte unter Umständen ziemlich
-//           mühsam werden.
-// Option 2)
+            impl SearchField for $type {
+                type Value = String;
 
-define_field!(
+                fn name<R: Resource>(&self) -> Result<&'static str, Error> {
+                    match R::NAME {
+                        $(
+                            full_entities::$entity::NAME => Ok($field),
+                        )*
+                        s => Err(wrong_search_field(R::NAME, stringify!($type))),
+                    }
+                }
+
+                fn value(&self) -> String {
+                    self.0.clone()
+                }
+            }
+        )*
+
+/*
+        mod area_fields {
+            $(
+                // if $entity == Area
+                $(
+                    pub use super::$type;
+                )*
+            )*
+        }
+*/
+    }
+}
+
+define_fields!(
     /// Alias of the searched entity's name.
     pub struct Alias(String);
     Area => "alias",
     Artist => "alias",
-);
 
-define_field!(
     /// The MBID of the `Area`.
     pub struct AreaMbid(Mbid);
     Area => "aid",
-);
 
-define_field!(
     /// An ISO 3166-1/2/3 code attached to the `Area`.
     pub struct AreaIso(String);
     Area => "iso",
