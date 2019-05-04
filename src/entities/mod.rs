@@ -115,6 +115,14 @@ impl<T> OnRequest<T> {
         }
     }
 
+    pub(crate) fn from_value(value: T, requested: bool) -> OnRequest<T> {
+        if requested {
+            OnRequest::Some(value)
+        } else {
+            OnRequest::NotRequested
+        }
+    }
+
     pub fn unwrap(self) -> T {
         match self {
             OnRequest::Some(val) => val,

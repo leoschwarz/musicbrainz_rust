@@ -271,21 +271,21 @@ mod tests {
                 &Alias {
                     alias_type: None,
                     name: "Lady Ga Ga".into(),
-                    sort_name: "Lady Ga Ga".into(),
+                    sort_name: Some("Lady Ga Ga".into()),
                     locale: None,
                     primary: false
                 },
                 &Alias {
                     alias_type: Some(AliasType::LegalName),
                     name: "Stefani Joanne Angelina Germanotta".into(),
-                    sort_name: "Germanotta, Stefani Joanne Angelina".into(),
+                    sort_name: Some("Germanotta, Stefani Joanne Angelina".into()),
                     locale: None,
                     primary: false
                 },
                 &Alias {
                     alias_type: Some(AliasType::ArtistName),
                     name: "レディー・ガガ".into(),
-                    sort_name: "レディー・ガガ".into(),
+                    sort_name: Some("レディー・ガガ".into()),
                     locale: Some(Language::from_639_3("jpn").unwrap()),
                     primary: true,
                 }

@@ -197,29 +197,17 @@ impl Release {
 
     /// The mediums (disks) of the release.
     pub fn mediums(&self) -> OnRequest<&[ReleaseMedium]> {
-        if self.options.recordings {
-            OnRequest::Some(self.response.mediums.as_ref())
-        } else {
-            OnRequest::NotRequested
-        }
+        OnRequest::from_value(self.response.mediums.as_ref(), self.options.recordings)
     }
 
     /// The artists that the release is primarily credited to.
     pub fn artists(&self) -> OnRequest<&[ArtistRef]> {
-        if self.options.artists {
-            OnRequest::Some(self.response.artists.as_slice())
-        } else {
-            OnRequest::NotRequested
-        }
+        OnRequest::from_value(self.response.artists.as_slice(), self.options.artists)
     }
 
     /// The labels which issued this release.
     pub fn labels(&self) -> OnRequest<&[LabelInfo]> {
-        if self.options.labels {
-            OnRequest::Some(self.response.labels.as_slice())
-        } else {
-            OnRequest::NotRequested
-        }
+        OnRequest::from_value(self.response.labels.as_slice(), self.options.labels)
     }
 }
 

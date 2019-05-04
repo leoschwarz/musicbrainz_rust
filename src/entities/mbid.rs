@@ -31,6 +31,12 @@ impl FromStr for Mbid {
     }
 }
 
+impl From<Mbid> for String {
+    fn from(mbid: Mbid) -> String {
+        format!("{}", mbid)
+    }
+}
+
 impl Debug for Mbid {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "Mbid: {:?}", self.uuid)
