@@ -1,0 +1,63 @@
+{
+  "Alias": {
+    "comment": "Alias of the entity's name.",
+    "type": "String",
+    "entities": {
+      "Area": "alias",
+      "Artist": "alias"
+    }
+  },
+  "AreaMbid": {
+    "comment": "The MBID of the Area",
+    "type": "Mbid",
+    "entities": {
+      "Area": "aid"
+    }
+  },
+  "AreaIso": {
+    "comment": "An ISO 3166-1/2/3 code attached to the `Area`.",
+    "type": "String",
+    "entities": {
+      "Area": "iso"
+    }
+  },
+  "AreaType": {
+    "comment": "The type of the Area.",
+    "type": "full_entities::AreaType",
+    "entities": {
+      "Area": "type"
+    }
+  },
+  "BeginArea": {
+    "comment": "TODO: docstring",
+    "type": "String",
+    "entities": {
+      "Artist": "begin_area"
+    }
+  },
+  "BeginDate": {
+    "comment": "Begin date of the entity, this can have a different interpretation depending on the searched entity.",
+    "type": "PartialDate",
+    "entities": {
+      "Area": "begin",
+      "Artist": "begin"
+    }
+  },
+  "Comment": {
+    "comment": "Disambiguation comment of the searched entity.",
+    "type": "String",
+    "entities": {
+      "Area": "comment",
+      "Artist": "comment",
+      "Release": "comment",
+      "ReleaseGroup": "comment"
+    }
+  },
+  "ReleaseGroupName": {
+    "comment": "The name of the release group.",
+    "type": "String",
+    "entities": {
+      "ReleaseGroup": "releasegroup"
+    }
+  }
+}

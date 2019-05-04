@@ -191,7 +191,7 @@ assert_eq!(rg.entity.title, "霊魂消滅".to_string());
 }
 }
 */
-
+/*
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,3 +224,4 @@ mod tests {
         assert_eq!(results[0].entity.title, "霊魂消滅".to_string());
     }
 }
+*/
