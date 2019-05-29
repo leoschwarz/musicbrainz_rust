@@ -4,15 +4,22 @@
 //! They are only contained in search results and provide a means to retrieve
 //! the full entity a further API request.
 
+use xpath_reader::FromXml;
 use crate::entities::{Resource, Mbid, ArtistRef, ReleaseStatus};
 use crate::client::Request;
 
+/*
 pub trait SearchEntity {
     /// The full entity that is referred by this search entity.
     type FullEntity: Resource;
 
-    /// Generate a request to fetch the full entity from the API.
-    fn fetch_full(&self) -> Request;
+    // Generate a request to fetch the full entity from the API.
+    //fn fetch_full(&self) -> Request;
+}
+*/
+
+pub trait SearchEntity: FromXml {
+    type FullEntity: Resource;
 }
 
 #[derive(Clone, Debug)]

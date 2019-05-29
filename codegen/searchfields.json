@@ -53,10 +53,13 @@
       "ReleaseGroup": "comment"
     }
   },
-  "ReleaseGroupName": {
-    "comment": "The name of the release group.",
+  "Name": {
+    "comment": "The name of the main queried entity.",
     "type": "String",
     "entities": {
+      "Area": "area",
+      "Artist": "artist",
+      "Release": "release",
       "ReleaseGroup": "releasegroup"
     }
   }

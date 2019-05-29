@@ -6,6 +6,9 @@
 //!
 //! Link to [MusicBrainz
 //! documentation](https://musicbrainz.org/doc/Indexed_Search_Syntax).
+//!
+//! List of all search fields (TODO support everything):
+//! https://musicbrainz.org/doc/Development/XML_Web_Service/Version_2/Search
 
 use crate::error::{Error, ErrorKind};
 use crate::entities as full_entities;

@@ -2,6 +2,7 @@
 
 use crate::error::{Error, ErrorKind};
 use crate::entities::{Mbid, ResourceOld, Resource};
+use crate::search::{Expression, SearchEntity};
 
 use reqwest_mock::Client as MockClient;
 use reqwest_mock::GenericClient as HttpClient;
@@ -109,7 +110,7 @@ impl Client {
     /// providing explicit stubbing.
     pub fn with_http_client(config: ClientConfig, client: HttpClient) -> Self {
         Client {
-            config: config,
+            config,
             http_client: client,
             last_request: past_instant(),
         }
@@ -156,6 +157,19 @@ impl Client {
         let reader = Reader::from_str(&response_body[..], Some(&context))?;
         check_response_error(&reader)?;
         Ok(Res::from_xml(&reader)?)
+    }
+
+    pub fn search<E: SearchEntity>(&mut self, expression: impl Expression)
+        -> Result<E, Error>
+    {
+        let url = format!("https://musicbrainz.org/ws/2/{}?query={}", E::FullEntity::NAME, expression);
+        let response_body = self.get_body(url.parse()?)?;
+
+        // Parse the response.
+        let context = crate::util::musicbrainz_context();
+        let reader = Reader::from_str(&response_body[..], Some(&context))?;
+        check_response_error(&reader)?;
+        Ok(E::from_xml(&reader)?)
     }
 
     pub(crate) fn get_body(&mut self, url: Url) -> Result<String, Error> {

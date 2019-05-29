@@ -19,6 +19,9 @@ pub mod query_builder;
 pub mod response;
 mod search_entities;
 
+pub use self::query_builder::Expression;
+pub use self::search_entities::SearchEntity;
+
 /*
 use crate::entities as full_entities;
 use crate::entities::ResourceOld;
@@ -191,7 +194,7 @@ assert_eq!(rg.entity.title, "霊魂消滅".to_string());
 }
 }
 */
-/*
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -224,4 +227,3 @@ mod tests {
         assert_eq!(results[0].entity.title, "霊魂消滅".to_string());
     }
 }
-*/
