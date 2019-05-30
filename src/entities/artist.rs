@@ -86,11 +86,7 @@ impl Artist {
     /// spellings, common misspellings, versions in different scripts and
     /// other variations of the `Artist` name.
     pub fn aliases(&self) -> OnRequest<&[Alias]> {
-        if self.options.aliases {
-            OnRequest::Some(self.response.aliases.as_ref())
-        } else {
-            OnRequest::NotRequested
-        }
+        OnRequest::from_value(self.response.aliases.as_ref(), self.options.aliases)
     }
 
     /// Any additional free form annotation for this `Artist`.

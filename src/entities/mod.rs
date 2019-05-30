@@ -32,7 +32,7 @@ pub use self::alias::{Alias, AliasType};
 pub use self::area::{Area, AreaType};
 pub use self::artist::{Artist, ArtistType, ArtistOptions, Gender};
 pub use self::event::{Event, EventType};
-pub use self::label::Label;
+pub use self::label::{Label, LabelOptions};
 pub use self::place::{Coordinates, Place, PlaceType};
 pub use self::recording::Recording;
 pub use self::release::{LabelInfo, Release, ReleaseMedium, ReleaseStatus, ReleaseTrack, ReleaseOptions};
