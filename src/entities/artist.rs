@@ -210,11 +210,6 @@ impl Resource for Artist {
     }
 }
 
-impl ResourceOld for ArtistResponse {
-    const NAME: &'static str = "artist";
-    const INCL: &'static str = "aliases";
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
