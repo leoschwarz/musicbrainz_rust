@@ -21,7 +21,3 @@ pub mod search;
 
 mod util;
 
-#[cfg(feature = "rusqlite")]
-extern crate rusqlite;
-#[cfg(feature = "rusqlite")]
-mod rusqlite_support;
